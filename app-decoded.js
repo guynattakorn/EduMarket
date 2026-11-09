@@ -2,26 +2,14 @@ var Gu = "edu-marketplace-classroom-v2",
   Ea = [
     {
       id: "cost",
-      title: "ต้นทุน & จุดคุ้มทุน",
-      subtitle: "ตั้งราคาให้เข้าใจ ไม่ใช่แค่เดา",
+      title: "คู่มือการคำนวณต้นทุนและจุดคุ้มทุน",
+      subtitle: "บทเรียนฉบับเต็ม พร้อมตัวอย่างและเครื่องมือคำนวณ",
       icon: "🪙",
       color: "lime",
     },
-    {
-      id: "demand",
-      title: "เข้าใจความต้องการตลาด",
-      subtitle: "รู้ใจคนซื้อ ก่อนเริ่มลงมือขาย",
-      icon: "📈",
-      color: "peach",
-    },
-    {
-      id: "stock",
-      title: "สต็อกอย่างชาญฉลาด",
-      subtitle: "มีของพอดี เงินทุนไม่จม",
-      icon: "📦",
-      color: "lavender",
-    },
   ],
+  completedLessons = (progress = []) =>
+    Ea.filter((lesson) => progress.includes(lesson.id)).length,
   vl = ["โรงอาหารกลาง", "ศาลาหน้าเสาธง", "หน้าห้องพักครู", "ใต้ตึกเรียน 3"],
   ls = ["10:30", "12:00", "16:00"],
   Nt = (t) =>
@@ -441,7 +429,7 @@ function Up(t, e) {
       ((a.progress[e.user] = Ea.map((c) => c.id)),
         l(
           e.user,
-          "ได้รับเหรียญครบ 3 บทเรียน",
+          "ได้รับเหรียญบทเรียนหลัก",
           "ผู้ดูแลมอบเหรียญสำหรับการสาธิตระบบ",
           "lesson",
         ));
@@ -1015,7 +1003,7 @@ function Zh() {
                                 ? "พื้นที่ของคุณครู"
                                 : z === "admin"
                                   ? "ผู้ดูแลระบบ"
-                                  : `${(t.progress[m?.id] || []).length * 100} XP \xB7 นักธุรกิจฝึกหัด`,
+                                  : `${completedLessons(t.progress[m?.id] || []) * 100} XP \xB7 นักธุรกิจฝึกหัด`,
                           }),
                         ],
                       }),
@@ -2097,6 +2085,7 @@ function Vu({ sellerShop: t }) {
 function Wh() {
   let { data: t, user: e, setLesson: a, setModal: l } = Q(),
     n = t.progress[e.id] || [],
+    done = completedLessons(n),
     i = t.assignments.filter((c) => c.classId === e.classId);
   return (0, s.jsxs)("div", {
     className: "page-enter",
@@ -2112,7 +2101,7 @@ function Wh() {
               }),
               (0, s.jsx)("h1", { children: "ทุกการลอง คือการเรียนรู้ ✦" }),
               (0, s.jsx)("p", {
-                children: "เลือกบทที่สนใจ เรียนสั้น ๆ แล้วลองกับร้านของเรา",
+                children: "เรียนรู้การคำนวณต้นทุนและจุดคุ้มทุน พร้อมทดลองกับร้านของเรา",
               }),
             ],
           }),
@@ -2143,7 +2132,7 @@ function Wh() {
                         children: "ก้าวเล็ก ๆ สู่เจ้าของร้าน",
                       }),
                       (0, s.jsx)("p", {
-                        children: "เรียนได้ทุกบท ในจังหวะของตัวเอง",
+                        children: "บทเรียนหลักฉบับเต็ม เรียนรู้และทดลองได้ในที่เดียว",
                       }),
                     ],
                   }),
@@ -2186,10 +2175,10 @@ function Wh() {
                   className: "quest-foot",
                   children: [
                     (0, s.jsxs)("span", {
-                      children: ["🎖 ", n.length, "/3 เหรียญ"],
+                      children: ["🎖 ", done, "/", Ea.length, " เหรียญ"],
                     }),
                     (0, s.jsxs)("span", {
-                      children: ["⚡ ", n.length * 100, " XP"],
+                      children: ["⚡ ", done * 100, " XP"],
                     }),
                     (0, s.jsx)("span", {
                       children: "ทุกเครื่องมือร้านค้าใช้ได้ทันที",
@@ -2295,7 +2284,7 @@ function Wh() {
     ],
   });
 }
-function Fh({ moduleId: t }) {
+function LegacyFh({ moduleId: t }) {
   let { data: e, user: a, dispatch: l, setLesson: n, toast: i } = Q(),
     c = Ea.find((M) => M.id === t),
     [u, o] = (0, T.useState)(35),
@@ -2765,6 +2754,80 @@ function Fh({ moduleId: t }) {
     t,
   );
 }
+function Fh({ moduleId: t }) {
+  let { data: e, user: a, dispatch: l, setLesson: n, toast: i } = Q(),
+    E = (e.progress[a.id] || []).includes(t),
+    Z = () => {
+      (l({ type: "COMPLETE", user: a.id, module: t }),
+        i(
+          E ? "ทบทวนเรียบร้อย เก่งมาก!" : "เรียนจบแล้ว! ได้รับเหรียญและ 100 XP",
+        ),
+        n(null));
+    };
+  return (0, s.jsxs)("div", {
+    className: "lesson-page page-enter",
+    children: [
+      (0, s.jsx)(A, {
+        variant: "text",
+        icon: "back",
+        onClick: () => n(null),
+        children: "กลับสู่บทเรียน",
+      }),
+      (0, s.jsxs)("div", {
+        className: "lesson-banner lime",
+        children: [
+          (0, s.jsx)("span", { children: "🪙" }),
+          (0, s.jsxs)("div", {
+            children: [
+              (0, s.jsx)("div", {
+                className: "eyebrow",
+                children: "บทเรียนหลักฉบับเต็ม",
+              }),
+              (0, s.jsx)("h1", {
+                children: "คู่มือการคำนวณต้นทุนและจุดคุ้มทุน",
+              }),
+              (0, s.jsx)("p", {
+                children: "อ่าน ทำความเข้าใจ และทดลองคำนวณไปพร้อมกัน",
+              }),
+            ],
+          }),
+          (0, s.jsx)(dt, {
+            color: "white",
+            children: E ? "🎖 ผ่านแล้ว" : "+100 XP",
+          }),
+        ],
+      }),
+      (0, s.jsx)("iframe", {
+        title: "คู่มือการคำนวณต้นทุนและจุดคุ้มทุน",
+        src: "lesson-cost-break-even.html",
+        style: {
+          width: "100%",
+          height: "min(78vh, 900px)",
+          minHeight: "650px",
+          border: "1px solid #e8e9e1",
+          borderRadius: "16px",
+          background: "#fff",
+        },
+      }),
+      (0, s.jsxs)("div", {
+        className: "lesson-end",
+        children: [
+          (0, s.jsx)("p", {
+            children: "เรียนจบแล้ว? กดรับเหรียญเพื่อบันทึกความคืบหน้า ✦",
+          }),
+          (0, s.jsxs)(A, {
+            onClick: Z,
+            children: [
+              E ? "บันทึกการทบทวน" : "รับเหรียญบทเรียน +100 XP",
+              " ",
+              (0, s.jsx)(_t, { name: "arrow" }),
+            ],
+          }),
+        ],
+      }),
+    ],
+  });
+}
 function is({ label: t, value: e, min: a, max: l, onChange: n, unit: i }) {
   return (0, s.jsxs)("label", {
     className: "slider-field",
@@ -2959,9 +3022,13 @@ function Ih() {
                     icon: "🏪",
                   }),
                   (0, s.jsx)(P, {
-                    label: "เรียนครบ 3 บท",
+                    label: "เรียนครบทุกบท",
                     value:
-                      g.filter((r) => (t.progress[r.id] || []).length === 3)
+                      g.filter(
+                        (r) =>
+                          completedLessons(t.progress[r.id] || []) ===
+                          Ea.length,
+                      )
                         .length + " คน",
                     icon: "🎖",
                     color: "lime",
@@ -3113,8 +3180,8 @@ function Ih() {
                                         ),
                                       ),
                                       (0, s.jsx)("td", {
-                                        children: b.length
-                                          ? `${"🎖".repeat(b.length)}`
+                                        children: completedLessons(b)
+                                          ? `${"🎖".repeat(completedLessons(b))}`
                                           : "—",
                                       }),
                                       (0, s.jsxs)("td", {
@@ -3498,7 +3565,9 @@ function Ph() {
 function Ju({ shop: t, editable: e = !1 }) {
   let { data: a, setModal: l } = Q(),
     n = t.members.map((u) => a.users.find((o) => o.id === u)).filter(Boolean),
-    i = n.some((u) => (a.progress[u.id] || []).length === 3),
+    i = n.some(
+      (u) => completedLessons(a.progress[u.id] || []) === Ea.length,
+    ),
     c = Ea.filter((u) =>
       n.some((o) => (a.progress[o.id] || []).includes(u.id)),
     );
@@ -3530,7 +3599,7 @@ function Ju({ shop: t, editable: e = !1 }) {
                   i &&
                     (0, s.jsx)(dt, {
                       color: "black",
-                      children: "🎖 เรียนครบ 3 บท",
+                      children: "🎖 เรียนครบทุกบท",
                     }),
                 ],
               }),
@@ -3548,7 +3617,9 @@ function Ju({ shop: t, editable: e = !1 }) {
                     children: [
                       "⚡ ",
                       n.reduce(
-                        (u, o) => u + (a.progress[o.id] || []).length * 100,
+                        (u, o) =>
+                          u +
+                          completedLessons(a.progress[o.id] || []) * 100,
                         0,
                       ),
                       " XP",
@@ -4706,15 +4777,17 @@ function n1() {
                                   " ",
                                   u.name,
                                   " \xB7 ",
-                                  (t.progress[u.id] || []).length,
-                                  "/3 เหรียญ",
+                                  completedLessons(t.progress[u.id] || []),
+                                  "/",
+                                  Ea.length,
+                                  " เหรียญ",
                                 ],
                               }),
                               (0, s.jsx)(A, {
                                 variant: "small",
                                 onClick: () => {
                                   (a({ type: "GRANT", user: u.id }),
-                                    n("มอบเหรียญครบ 3 บทแล้ว"));
+                                    n("มอบเหรียญครบทุกบทแล้ว"));
                                 },
                                 children: "มอบครบทุกเหรียญ",
                               }),

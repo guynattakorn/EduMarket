@@ -1,0 +1,1040 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>คู่มือการคำนวณต้นทุนและจุดคุ้มทุน · EduMarket</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#c8ff0a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: EduMarket app shell (paper card on peach) → lime lesson banner → two lesson tabs, each = article → formulas → lab (inputs | results) → live chart. Single light theme, same as the app. */
+:root{
+  --lime:#c8ff0a; --lime-soft:#f1ffc4; --orange:#ff5a18; --peach:#ffd1b8; --peach-soft:#fff0e6;
+  --outside:#edbfa8; --paper:#f7f7f5; --card:#ffffff; --line:#e7e7e3; --line-strong:#d7d9d1;
+  --ink:#22241f; --text:#242424; --soft:#555a50; --muted:#6f7369; --sage:#f3f5ec;
+  --good-bg:#eefbd8; --good:#3f5d0a; --bad-bg:#fff0e5; --bad:#a8390d;
+  --rev:#2f6e0c; --cost:#ff5a18; --profit-fill:rgba(200,255,10,.30); --loss-fill:rgba(255,90,24,.13); --grid:#e9eae4;
+  --f-th:"Noto Sans Thai",system-ui,sans-serif; --f-num:"Space Grotesk","Noto Sans Thai",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--outside);color:var(--text);font-family:var(--f-th);font-size:15px;line-height:1.7;font-synthesis:none}
+h1,h2,h3,p{margin:0}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+input:focus{outline:2px solid #b7e928;outline-offset:1px}
+
+.shell{max-width:1120px;margin:24px auto;background:var(--paper);border-radius:32px;box-shadow:0 20px 60px #713d2712;padding-left:max(40px,env(safe-area-inset-left,0px));padding-right:max(40px,env(safe-area-inset-right,0px));padding-bottom:40px;width:calc(100% - 48px)}
+.topbar{height:88px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line)}
+.brand{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-num);font-weight:700;font-size:24px;letter-spacing:-1px;line-height:1;color:var(--ink);text-decoration:none}
+.brand-mark{display:flex;align-items:center;justify-content:center;background:var(--lime);width:42px;height:42px;border-radius:12px;font-size:29px;letter-spacing:-7px;padding-right:6px;transform:rotate(-5deg)}
+.brand-mark span{margin-top:6px}
+.brand-thin{font-weight:500}
+.back{font-size:14px;font-weight:600;color:var(--ink);text-decoration:none;border:1px solid var(--line-strong);border-radius:14px;padding:9px 16px;background:#fff}
+
+.banner{display:flex;align-items:center;gap:22px;background:var(--lime);border-radius:26px;padding:26px 28px;margin:26px 0 18px}
+.banner-icon{width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center;flex-shrink:0}
+.banner h1{font-size:clamp(26px,3.2vw,34px);line-height:1.25;font-weight:800;letter-spacing:-.5px;color:var(--ink);text-wrap:balance}
+.banner p{color:#3d4a12;margin-top:4px;max-width:58ch}
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:30px;padding:4px 12px;font-size:13px;font-weight:700;white-space:nowrap;background:#eeefea;color:var(--ink)}
+.banner .chip{background:#fff;margin-left:auto}
+
+.tabs{display:flex;gap:6px;padding:6px;background:#e9eae5;border-radius:18px;max-width:640px;margin:0 0 26px}
+.tabs button{flex:1;border:0;background:transparent;border-radius:13px;padding:10px 12px;font-weight:600;font-size:14px;line-height:1.35;color:#4b5046;text-align:left;display:flex;gap:10px;align-items:center;min-height:52px}
+.tabs button b{font-family:var(--f-num);font-size:18px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#fff;color:var(--ink);flex-shrink:0}
+.tabs button[aria-selected="true"]{background:var(--ink);color:#fff}
+.tabs button[aria-selected="true"] b{background:var(--lime)}
+
+.lesson{display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
+.card{background:var(--card);border:1px solid #e8e9e1;border-radius:24px;padding:26px}
+.step-label{display:block;font-family:var(--f-num);font-weight:700;font-size:13px;letter-spacing:.3px;color:#6f7d55;margin-bottom:8px}
+h2{font-size:23px;line-height:1.4;font-weight:750;color:var(--ink);text-wrap:balance}
+h3{font-size:18px;line-height:1.45;font-weight:700;color:var(--ink)}
+
+.article{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start}
+.prose{display:grid;gap:14px;max-width:62ch;min-width:0;font-size:15.5px}
+.prose h3{margin-top:10px}
+.prose h3:first-of-type{margin-top:0}
+.prose p{color:#33362f}
+.example{background:var(--sage);border-radius:16px;padding:14px 18px;font-size:15px;color:#2f332b}
+.example b{color:var(--ink)}
+.side{display:grid;gap:12px;position:sticky;top:16px}
+.keypoint{border-radius:20px;padding:18px 20px;background:var(--peach-soft);border:1px solid #ffd9c3}
+.keypoint strong{display:block;font-size:16px;color:var(--ink);margin-bottom:4px}
+.keypoint p{font-size:14px;color:#5b3a28}
+.keypoint.lime{background:var(--lime-soft);border-color:#e3f7a2}
+.keypoint.lime p{color:#3d4a12}
+
+.formulas{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.formula{min-width:0;display:grid;grid-template-columns:34px minmax(0,1fr);gap:4px 14px;align-items:start;background:#f6f7f1;border-radius:18px;padding:16px 18px}
+.formula .num{font-family:var(--f-num);font-weight:700;width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--lime);display:grid;place-items:center;font-size:15px;margin-top:6px}
+.math-scroll{overflow-x:auto;min-width:0;padding:2px 0}
+.formula small{grid-column:2;color:var(--muted);font-size:13px;line-height:1.6}
+math{font-family:var(--f-th);font-size:19px;color:var(--ink)}
+math[display="block"]{display:block;text-align:left;margin:0}
+math mn{font-family:var(--f-num)}
+.formula-intro{color:var(--soft);margin:6px 0 16px;max-width:66ch}
+
+.lab-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.example-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;background:var(--peach-soft);border:1px dashed #f3b391;border-radius:16px;padding:12px 16px;margin:14px 0 4px;font-size:14px;color:#6b3a1f}
+.example-bar strong{color:#8a3810}
+.lab{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:26px;margin-top:18px}
+.group-title{font-size:15px;font-weight:700;color:var(--ink);margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.group-title i{font-style:normal;font-family:var(--f-num);font-size:12px;background:var(--ink);color:var(--lime);border-radius:8px;padding:1px 7px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field>label,.field>.lbl{font-size:14px;font-weight:600;color:#3f453a}
+.field .unit-wrap{display:flex;align-items:stretch;border:1px solid #e2e3dd;border-radius:13px;background:#fff;overflow:hidden}
+.field .unit-wrap:focus-within{outline:2px solid #b7e928;outline-offset:1px}
+.field input[type="text"]{flex:1;min-width:0;border:0;padding:11px 14px;font-size:16px;background:transparent;font-family:var(--f-num);font-weight:500}
+.field input.thai{font-family:var(--f-th);font-weight:400}
+.field input[type="text"]:focus{outline:none}
+.unit{display:flex;align-items:center;padding:0 14px;background:#f4f5f0;color:var(--soft);font-size:13.5px;white-space:nowrap;border-left:1px solid #e9eae4}
+.field .err{font-size:13px;color:var(--bad);display:none}
+.field.invalid .unit-wrap{border-color:#f0a07c;background:#fffaf7}
+.field.invalid .err{display:block}
+.range-row{display:flex;align-items:center;gap:12px;font-size:12.5px;color:var(--muted)}
+input[type="range"]{flex:1;accent-color:#6b8500;height:24px;min-width:0}
+
+.helper{border:1px solid var(--line);border-radius:18px;padding:16px;background:#fbfbf9;margin-bottom:18px}
+.helper summary{cursor:pointer;font-weight:700;color:var(--ink);list-style-position:outside;margin-left:4px}
+.helper summary small{font-weight:500;color:var(--muted);font-size:13px}
+.rows{display:grid;gap:10px;margin-top:14px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 34px;gap:8px 10px;align-items:end;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px}
+.row .cell{display:flex;flex-direction:column;gap:3px;min-width:0}
+.row .cell span{font-size:12px;color:var(--muted);font-weight:600}
+.row input,.row select{width:100%;min-width:0;border:1px solid #e2e3dd;border-radius:10px;padding:8px 9px;font-size:14.5px;background:#fff}
+.row .pair{display:flex;gap:4px}
+.row .pair input{flex:1}
+.row .pair select{width:auto;flex:0 0 auto;padding:8px 4px;font-size:13px;background:#f4f5f0}
+.row .out{font-family:var(--f-num);font-weight:700;font-size:15px;color:var(--ink);padding:6px 0}
+.row .out.bad{font-family:var(--f-th);font-weight:500;font-size:12.5px;color:var(--bad);line-height:1.4}
+.row .cell.name{grid-column:1 / 3}
+.row>.cell:nth-child(2),.row>.cell:nth-child(4){grid-column:1}
+.row>.cell:nth-child(3),.row>.cell:nth-child(5){grid-column:2 / 4}
+.row .del{grid-column:3;grid-row:1;align-self:end;width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;color:var(--muted)}
+.helper-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+.helper-total{font-size:14px;color:var(--soft)}
+.helper-total strong{font-family:var(--f-num);font-size:20px;color:var(--ink);margin-left:6px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;border:1px solid transparent;border-radius:14px;padding:10px 20px;background:var(--lime);font-size:15px;font-weight:700;line-height:1.3;color:var(--ink);white-space:nowrap;transition:transform .15s}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.black{background:var(--ink);color:#fff}
+.btn.outline{background:#fff;border-color:var(--line-strong)}
+.btn.small{min-height:38px;font-size:13.5px;padding:7px 14px;border-radius:11px}
+.btn.full{width:100%}
+
+.results{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-content:start;min-width:0}
+.big{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{border:1px solid #e8e9e2;background:#fff;border-radius:18px;padding:14px 18px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat span{font-size:13px;color:var(--muted);font-weight:600}
+.stat strong{font-family:var(--f-num);font-size:26px;line-height:1.3;color:var(--ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.stat em{font-style:normal;font-size:13px;color:var(--soft)}
+.stat.hero{background:var(--ink);border-color:var(--ink)}
+.stat.hero span,.stat.hero em{color:#cfd3c6}
+.stat.hero strong{color:var(--lime)}
+.stat.good{background:var(--good-bg);border-color:#d7efb0}
+.stat.good strong{color:var(--good)}
+.stat.bad{background:var(--bad-bg);border-color:#ffd6c2}
+.stat.bad strong{color:var(--bad)}
+.subst{background:#f6f7f1;border-radius:16px;padding:12px 16px}
+.subst .lbl{font-size:13px;color:var(--muted);font-weight:600;display:block;margin-bottom:2px}
+.subst math{font-size:17px}
+.explain{border-radius:16px;padding:14px 16px;background:var(--good-bg);color:#33461a;font-size:14.5px}
+.explain.warn{background:var(--bad-bg);color:#7a3112}
+.explain.info{background:var(--sage);color:#3a3f33}
+.explain p+p{margin-top:6px}
+.blocked{border:1px dashed #f0a07c;background:#fffaf7;border-radius:18px;padding:18px;color:#7a3112}
+.blocked strong{display:block;color:var(--bad);margin-bottom:4px}
+.blocked ul{margin:6px 0 0;padding-left:20px}
+.status{font-size:13px;color:var(--good);min-height:20px}
+
+.linked{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;background:var(--ink);color:#e9ecdf;border-radius:22px;padding:16px 22px}
+.linked strong{font-family:var(--f-num);font-size:24px;color:var(--lime)}
+.linked .grow{flex:1;min-width:200px}
+.linked small{display:block;color:#b9bfae;font-size:13px}
+.linked .btn{background:transparent;border-color:#55594d;color:#fff}
+
+.chart-card{margin-top:22px}
+.chart-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:10px;margin-bottom:10px}
+.chart-head p{color:var(--soft);font-size:14px;max-width:62ch}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13.5px;color:var(--soft)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{display:inline-block;width:24px;height:0;border-top:3px solid}
+.legend i.rev{border-color:var(--rev)}
+.legend i.cost{border-color:var(--cost);border-top-style:dashed}
+.legend i.pt{width:12px;height:12px;border:0;border-radius:50%;background:var(--orange);box-shadow:0 0 0 2px #fff,0 0 0 3px var(--orange)}
+.legend i.be{width:12px;height:12px;border:0;border-radius:50%;background:var(--ink)}
+.chart-wrap{position:relative;width:100%;min-width:0;touch-action:pan-y}
+.chart-wrap svg{display:block;width:100%;overflow:visible}
+.chart-wrap svg text{font-family:var(--f-th);fill:var(--soft);font-size:12.5px}
+.chart-wrap svg text.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.chart-wrap svg text.lbl-strong{fill:var(--ink);font-weight:700;font-size:13px}
+.chart-wrap svg text{paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+.ylab{font-size:13px;color:var(--muted);margin-bottom:4px}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;border-radius:12px;padding:8px 12px;font-size:13px;line-height:1.55;min-width:150px;box-shadow:0 8px 24px #0002;z-index:2}
+.tip b{font-family:var(--f-num);color:var(--lime)}
+.tip .r{display:flex;justify-content:space-between;gap:14px}
+.tip .r span:last-child{font-family:var(--f-num)}
+.chart-note{margin-top:10px;font-size:14px;color:var(--soft)}
+.chart-empty{display:grid;place-items:center;text-align:center;min-height:180px;border:1px dashed var(--line-strong);border-radius:18px;color:var(--soft);padding:18px;font-size:14.5px}
+details.table{margin-top:12px;font-size:14px}
+details.table summary{cursor:pointer;font-weight:600;color:var(--ink)}
+.table-scroll{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:13px;color:var(--muted);font-weight:600}
+td{font-family:var(--f-num)}
+tr.hl td{background:var(--lime-soft);font-weight:700}
+
+.next{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:4px}
+.next p{color:var(--soft);font-size:14px}
+.range-ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:14px;color:var(--soft);margin-top:10px}
+.range-ctrl label{display:inline-flex;align-items:center;gap:6px}
+.range-ctrl input[type="checkbox"]{accent-color:#6b8500;width:18px;height:18px}
+.range-ctrl input[type="text"]{width:88px;border:1px solid #e2e3dd;border-radius:10px;padding:6px 10px;font-family:var(--f-num)}
+.range-ctrl input:disabled{background:#f4f5f0;color:var(--muted)}
+
+/* dashboard lab (inputs left, results + live chart right) */
+.dash{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:24px;margin-top:18px;align-items:start}
+.dash-left,.dash-right{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;min-width:0}
+.dash-left .status{margin:-8px 0 0}
+.panel{border-radius:20px;padding:20px;border:1px solid;min-width:0}
+.panel.sage{background:#f6f7f1;border-color:#e6e8dc}
+.panel.peach{background:var(--peach-soft);border-color:#ffd9c3}
+.panel.plain{background:#fff;border-color:#e8e9e1}
+.panel-title{display:flex;gap:8px;align-items:center;font-size:17px;font-weight:700;color:var(--ink);margin-bottom:14px;line-height:1.4}
+.panel-title svg{flex-shrink:0;color:#6b8500}
+.panel .helper{margin:12px 0 0;background:#fff}
+.big-slider{margin:0;gap:8px}
+.bs-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.bs-label{font-weight:700;color:var(--ink)!important;font-size:15px!important;display:flex;gap:8px;align-items:center;line-height:1.4}
+.bs-label svg{flex-shrink:0;color:var(--orange)}
+.bs-value{font-family:var(--f-num);font-weight:700;color:#c23d08;font-size:15px;white-space:nowrap;display:flex;align-items:baseline;gap:6px}
+.bs-value strong{font-size:32px;line-height:1}
+.big-slider input[type=range]{width:100%;accent-color:#6b8500;height:30px;margin:4px 0 0}
+.bs-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted)}
+.unit-wrap.mini{width:132px;flex-shrink:0}
+.field .unit-wrap.mini input[type=text]{padding:7px 10px;font-size:15px}
+.unit-wrap.mini .unit{padding:0 10px}
+.bs-hint{text-align:center;font-size:13.5px;color:#a8390d;font-weight:500;margin-top:2px}
+.kpis{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.kpi{border-radius:20px;padding:18px 14px;text-align:center;border:1px solid;display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0;min-height:128px}
+.kpi span{font-size:13.5px;font-weight:700}
+.kpi strong{font-family:var(--f-num);font-weight:700;font-size:clamp(34px,4.2vw,46px);line-height:1.15;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kpi strong small{font-size:17px;margin-left:6px;font-weight:600}
+.kpi strong.msg{font-family:var(--f-th);font-size:21px;line-height:1.4}
+.kpi em{font-style:normal;font-size:13px;opacity:.85}
+.kpi.ok{background:var(--good-bg);border-color:#d7efb0;color:var(--good)}
+.kpi.hot{background:var(--bad-bg);border-color:#ffd6c2;color:#c23d08}
+.kpi.lime{background:var(--lime);border-color:#b8ec00;color:var(--ink)}
+.kpi.plain{background:#fff;border-color:#e8e9e1;color:var(--ink)}
+.kpi.plain span,.kpi.plain em{color:var(--muted)}
+.strip{background:#f6f7f1;border:1px solid #e6e8dc;border-radius:14px;padding:12px 16px;text-align:center;color:var(--soft);font-size:14.5px;line-height:1.75;font-variant-numeric:tabular-nums}
+.strip b{color:var(--ink);font-family:var(--f-num);font-weight:700}
+.strip b.hot{color:#c23d08}
+.strip .lbl{display:block;font-size:12.5px;color:var(--muted);font-weight:600}
+.dash .chart-card{margin-top:0}
+.chart-sub{font-size:13.5px;color:var(--soft);margin:-4px 0 8px}
+@media (max-width:980px){.dash{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.kpi{min-height:0;padding:14px 10px}.kpi strong{font-size:30px}.kpi strong small{font-size:14px}.kpi span{font-size:12.5px}}
+@media (max-width:330px){.kpis{grid-template-columns:minmax(0,1fr)}}
+
+.name-field{margin:0}
+.step-badge{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--lime);font-family:var(--f-num);font-size:15px;display:grid;place-items:center;flex-shrink:0}
+.panel-title small{font-weight:500;color:var(--muted);font-size:13.5px}
+.panel-sub{font-size:13.5px;color:var(--soft);margin:-8px 0 12px 36px;line-height:1.6}
+.panel.dim .rows,.panel.dim #addRow{opacity:.45}
+.manual-note{font-size:13.5px;background:#fff;border:1px dashed var(--line-strong);border-radius:12px;padding:8px 12px;margin-bottom:10px;color:var(--soft)}
+.seg{display:flex;gap:4px;padding:4px;background:#e9eae5;border-radius:13px}
+.seg button{flex:1;border:0;background:transparent;border-radius:10px;padding:8px 10px;font-size:13.5px;font-weight:600;color:#4b5046;min-height:38px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+#in-cost[readonly]{background:#f4f5f0;color:var(--ink);font-weight:700;cursor:default}
+.how{font-size:13px;color:var(--muted)}
+.ready-line{margin-top:6px;padding:10px 12px;background:#fff;border-radius:12px;text-align:center;font-size:14.5px;color:var(--soft)}
+.ready-line b{color:var(--good);font-family:var(--f-num)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.row{background:#fff}
+
+.pre-dash{display:grid;gap:14px;margin-top:18px}
+.pre-dash .name-field{max-width:420px}
+.pre-dash .panel-sub{margin-bottom:10px}
+.row-head{display:none}
+@media (min-width:761px){
+  .row-head{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr) 34px;gap:10px;padding:0 11px;margin-top:4px;font-size:12.5px;font-weight:600;color:var(--muted)}
+  .pre-dash .rows{margin-top:6px;gap:6px}
+  .pre-dash .row{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr) 34px;align-items:center;padding:8px 10px}
+  .pre-dash .row>.cell{grid-column:auto!important}
+  .pre-dash .row .cell>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .pre-dash .row .del{grid-column:6;grid-row:1}
+  .pre-dash .row .out{text-align:right;padding-right:4px}
+}
+
+.lead{font-size:16.5px;color:var(--ink)}
+.kicker{margin-top:6px}
+ol.points{list-style:none;counter-reset:pt;margin:0;padding:0;display:grid;gap:12px}
+ol.points li{counter-increment:pt;display:grid;grid-template-columns:32px minmax(0,1fr);gap:2px 12px}
+ol.points li::before{content:counter(pt);grid-row:1 / 3;width:30px;height:30px;border-radius:50%;background:var(--lime);color:var(--ink);font-family:var(--f-num);font-weight:700;display:grid;place-items:center;margin-top:2px}
+ol.points h4{margin:0;font-size:16px;color:var(--ink);line-height:1.5}
+ol.points p{color:#33362f}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.compare>div{border-radius:16px;padding:14px 16px;border:1px solid}
+.compare strong{display:block;color:var(--ink);font-size:15.5px}
+.compare p{font-size:14px;color:var(--soft)}
+.cmp-a{background:var(--peach-soft);border-color:#ffd9c3}
+.cmp-b{background:var(--lime-soft);border-color:#e3f7a2}
+ul.ladder{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px}
+ul.ladder li{display:flex;align-items:center;gap:8px}
+ul.ladder i{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+ul.ladder i.loss{background:var(--orange)}ul.ladder i.even{background:var(--ink)}ul.ladder i.gain{background:#6b8500}
+.card-ladder{margin:8px 0 0!important;padding:8px 0 0!important;border-top:1px solid #dfe1d8;font-size:14.5px}
+@media (max-width:520px){.compare{grid-template-columns:1fr}}
+
+/* ---- v5: calmer, higher-contrast palette & fewer visible fields ---- */
+:root{--muted:#585c53;--soft:#41453d}
+.step-label{color:#4d5a2c}
+.panel.plain{background:#fff;border-color:#dfe1d8}
+.panel-title{font-size:18px}
+.field>label,.field>.lbl{font-size:15px;color:var(--ink);display:flex;align-items:center;gap:8px}
+.fnum{width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--lime);font-family:var(--f-num);font-size:12.5px;display:grid;place-items:center;flex-shrink:0}
+.field .unit-wrap{border-color:#cfd2c7}
+.unit{background:#f1f2ec;color:#3f433b;font-size:14px}
+.how{font-size:13.5px;color:var(--muted)}
+.linkbtn{border:0;background:none;padding:0;color:#3b5a00;font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:13.5px}
+.big-slider{border-top:1px solid var(--line);padding-top:14px;margin-top:4px}
+.bs-label svg{color:var(--ink)}
+.bs-value{color:var(--ink)}
+.bs-foot{color:var(--muted);font-size:13.5px}
+.ready-line{background:#f3f4ef;color:var(--soft);font-size:15px;margin-top:12px}
+.ready-line b{color:var(--ink)}
+details.more{margin-top:12px;font-size:14px}
+details.more summary{cursor:pointer;color:var(--soft);font-weight:600}
+.helper-box{margin-top:16px}
+.helper-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.helper-box .rows{margin-top:6px;gap:6px}
+.helper-total{font-size:15px;color:var(--soft)}
+.helper-total strong{font-family:var(--f-num);font-size:20px;color:var(--ink)}
+@media (min-width:761px){
+  .helper-box .row{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr) 34px;align-items:center;padding:8px 10px}
+  .helper-box .row>.cell{grid-column:auto!important}
+  .helper-box .row .cell>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .helper-box .row .del{grid-column:6;grid-row:1}
+  .helper-box .row .out{text-align:right;padding-right:4px}
+}
+.kpi{min-height:136px}
+.kpi.ok{background:#fff;border-color:#dfe1d8;color:var(--ink)}
+.kpi.ok span,.kpi.ok em{color:var(--muted)}
+.kpi.hot{background:var(--ink);border-color:var(--ink);color:#fff}
+.kpi.hot span,.kpi.hot em{color:#d9dccf}
+.kpi.hot strong{color:var(--lime)}
+.kpi.plain{border-color:#dfe1d8}
+.strip{background:#fff;border-color:#dfe1d8;color:var(--soft);font-size:15px}
+.strip b.hot{color:var(--ink);background:var(--lime);padding:1px 6px;border-radius:6px}
+.explain{background:#f3f4ef;color:#2f332b;font-size:15px}
+.explain.info{background:#f3f4ef;color:#2f332b}
+.explain.warn{background:#fff3ec;color:#7a2d0c}
+.stat{border-color:#dfe1d8}
+.stat span,.stat em{color:var(--muted)}
+.chart-wrap svg text{fill:#4a4e45;font-size:13px}
+.chart-note,.chart-sub{color:var(--muted)}
+.example-bar{background:#fff;border:1px solid #f0b896;color:#5c2f15}
+.example-bar strong{color:#8a3810}
+.keypoint p{color:#4b3325}
+.keypoint.lime p{color:#34410f}
+
+/* ---- v7: picture-first lessons ---- */
+.vgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+.vcard{background:#fff;border:1px solid #dfe1d8;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.vcard.wide{grid-column:1 / -1}
+.vcard>p{font-size:15.5px;color:#2f332b;line-height:1.65}
+.vhead{display:flex;align-items:center;gap:10px}
+.vhead h4{margin:0;font-size:17px;color:var(--ink);line-height:1.4}
+.vnum{width:30px;height:30px;border-radius:50%;background:var(--lime);color:var(--ink);font-family:var(--f-num);font-weight:700;display:grid;place-items:center;flex-shrink:0}
+.fig{background:#f7f7f5;border-radius:14px;padding:14px;display:grid;justify-items:center;gap:8px}
+.fig svg{display:block;height:auto}
+.fig svg text,.vis svg text{font-family:var(--f-th)}
+.sum-tiles{display:flex;flex-wrap:wrap;align-items:center;gap:6px;background:#f7f7f5;border-radius:14px;padding:14px}
+.sum-tiles i{font-style:normal;font-weight:700;font-size:18px;color:var(--ink)}
+.tile{display:flex;flex-direction:column;align-items:center;background:#fff;border:1px solid #dfe1d8;border-radius:12px;padding:6px 10px;font-size:13.5px;color:var(--soft);line-height:1.3}
+.tile b{font-family:var(--f-num);font-size:16px;color:var(--ink)}
+.tile.ghost{border-style:dashed;justify-content:center;min-height:48px}
+.tile.total{background:var(--ink);border-color:var(--ink);color:var(--lime);font-weight:700;justify-content:center;min-height:48px}
+.tip-line{margin-top:14px;background:var(--lime-soft);border:1px solid #e3f7a2;border-radius:14px;padding:12px 16px;font-size:15px;color:#2f3a0c}
+.vis{background:#fff;border:1px solid #dfe1d8;border-radius:20px;padding:16px 18px;display:grid;gap:10px;justify-items:center}
+.vis h4{margin:0;justify-self:start;font-size:15px;color:var(--ink)}
+.vis-key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--soft);justify-self:center}
+.vis-key span{display:inline-flex;align-items:center;gap:6px}
+.vis-key i{width:14px;height:14px;border-radius:50%;display:inline-block}
+.k-good{background:#f2c48d;border:1.5px solid #c98f4f}
+.k-bad{background:#e6e7e0;border:1.5px solid #ff5a18}
+.vis-cap{font-size:15px;font-weight:600;color:var(--ink);text-align:center}
+@media (max-width:760px){.vgrid{grid-template-columns:minmax(0,1fr)}.fig{padding:10px}}
+
+footer.foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-top:30px;padding-top:18px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+
+@media (max-width:900px){
+  .article{grid-template-columns:1fr}
+  .side{position:static;grid-template-columns:1fr 1fr}
+  .lab{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .shell{margin:0;width:100%;border-radius:0;box-shadow:none;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:28px;min-height:100vh}
+  .topbar{height:66px}
+  .brand{font-size:21px}.brand-mark{width:36px;height:36px;font-size:25px}
+  .banner{flex-wrap:wrap;padding:20px;gap:14px;margin-top:16px}
+  .banner-icon{width:58px;height:58px}
+  .banner .chip{margin-left:0}
+  .tabs button{font-size:13px;padding:8px}
+  .card{padding:18px;border-radius:20px}
+  .side{grid-template-columns:1fr}
+  math{font-size:16px}
+  .subst math{font-size:15px}
+  .stat strong{font-size:23px}
+}
+@media (max-width:420px){.big{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="./" id="brandLink" aria-label="EduMarket หน้าแรก"><span class="brand-mark" aria-hidden="true">e<span>m</span></span><span>edu<span class="brand-thin">market</span></span></a>
+    <a class="back" id="backLink" href="./">กลับไปหน้าแอป</a>
+  </header>
+
+  <section class="banner" aria-labelledby="pageTitle">
+    <div class="banner-icon" aria-hidden="true">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22241f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9.5c0-1.4 1.3-2.5 3-2.5s3 1 3 2.2c0 3-6 1.8-6 4.8 0 1.2 1.3 2.2 3 2.2s3-1 3-2.5M12 5v2M12 17v2"/></svg>
+    </div>
+    <div>
+      <h1 id="pageTitle">บทเรียนที่ 1</h1>
+      <p>การคำนวณต้นทุนการผลิต</p>
+    </div>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="บทเรียน">
+    <button role="tab" id="tab-1" aria-controls="lesson-1" aria-selected="true" data-tab="1"><b>1</b>การคำนวณต้นทุนการผลิต</button>
+    <button role="tab" id="tab-2" aria-controls="lesson-2" aria-selected="false" data-tab="2"><b>2</b>ต้นทุนคงที่และการวิเคราะห์จุดคุ้มทุน</button>
+  </nav>
+
+  <!-- ================= LESSON 1 ================= -->
+  <section class="lesson" id="lesson-1" role="tabpanel" aria-labelledby="tab-1">
+    <article class="card">
+      <span class="step-label">บทที่ 1 · พิจารณาโครงสร้างต้นทุนวัตถุดิบ</span>
+      <div class="vgrid">
+        <div class="vcard"><div class="vhead"><span class="vnum">1</span><h4>การคำนวณต้นทุนตามปริมาณที่ใช้จริง</h4></div><div class="fig" data-fig="flour"></div><p>ซื้อวัตถุดิบ 1 กก. ราคา 45 บาท แต่ใช้งาน 250 กรัม ต้นทุนที่เกิดขึ้นจริงจึงเป็น <b>11.25 บาท</b></p></div>
+        <div class="vcard"><div class="vhead"><span class="vnum">2</span><h4>การปรับมาตรฐานหน่วยวัด</h4></div><div class="fig" data-fig="unit"></div><p>1 กิโลกรัม = 1,000 กรัม · 1 ลิตร = 1,000 มิลลิลิตร · ไข่หรือบรรจุภัณฑ์ ให้คำนวณเป็นหน่วยชิ้น</p></div>
+        <div class="vcard"><div class="vhead"><span class="vnum">3</span><h4>การรวมต้นทุนผันแปรรวม</h4></div>
+          <div class="sum-tiles"><span class="tile">แป้ง<b>22.50</b></span><i>+</i><span class="tile">เนย<b>60.00</b></span><i>+</i><span class="tile">ไข่<b>22.00</b></span><i>+</i><span class="tile">ถุง<b>24.00</b></span><i>+</i><span class="tile ghost">อื่น ๆ</span><i>=</i><span class="tile total">ต้นทุนผันแปรรวม</span></div>
+          <p>ต้นทุนผันแปรที่จะเพิ่มขึ้นตามปริมาณการผลิตให้นำมารวมกันทั้งหมด · <b>ยังไม่รวมต้นทุนคงที่ เช่น ค่าเช่าสถานที่</b></p></div>
+        <div class="vcard"><div class="vhead"><span class="vnum">4</span><h4>ผลกระทบของสินค้าชำรุดต่อต้นทุนต่อหน่วย</h4></div><div class="fig" data-fig="cookies"></div><p>ค่าใช้จ่ายรวม 200 บาท ผลิต 40 ชิ้น ชำรุด 8 ชิ้น<br>200 ÷ 32 ชิ้นที่พร้อมจำหน่าย = <b>6.25 บาท/หน่วย</b> (กรณีไม่มีของเสีย = 5 บาท/หน่วย)</p></div>
+      </div>
+    </article>
+
+    <section class="card" aria-labelledby="f1h">
+      <span class="step-label">สมการและสูตรคำนวณ</span>
+      <h2 id="f1h">4 ขั้นตอน การคำนวณต้นทุนผันแปรต่อหน่วย</h2>
+      <p class="formula-intro">ดำเนินการตามลำดับ 1 → 4 สำหรับรอบการผลิตหนึ่งครั้ง</p>
+      <div class="formulas" id="formulas1"></div>
+    </section>
+
+    <section class="card" aria-labelledby="lab1h">
+      <div class="lab-head">
+        <div><span class="step-label">ทดลองคำนวณสำหรับสินค้าของคุณ</span><h2 id="lab1h">ต้นทุนผันแปรต่อหน่วยของ<span id="nameEcho1">สินค้าของคุณ</span></h2></div>
+      </div>
+      <div class="example-bar" id="exampleBar1" hidden>
+        <span><strong>ตัวเลขตัวอย่างสำหรับการทดลอง</strong> สามารถปรับเปลี่ยนตามข้อมูลจริงได้</span>
+        <button class="btn small outline" type="button" id="startOwn">ล้างข้อมูลและเริ่มระบุเอง</button>
+      </div>
+
+      <div class="panel plain helper-box" id="step1" hidden>
+        <div class="helper-head">
+          <h3 class="panel-title" style="margin:0"><span class="step-badge">1</span>เครื่องมือคำนวณต้นทุนวัตถุดิบใช้ไปจริงรายรายการ</h3>
+          <button class="btn small outline" type="button" id="closeHelper">ปิดเครื่องมือช่วยคำนวณ</button>
+        </div>
+        <p class="panel-sub" style="margin-left:0">(ราคาที่ซื้อ ÷ ปริมาณที่ซื้อ) × ปริมาณที่ใช้จริง แล้วรวมยอดทุกรายการ</p>
+        <div class="row-head" aria-hidden="true"><span>รายการ</span><span>ราคาที่ซื้อ (บาท)</span><span>ปริมาณที่จัดซื้อ</span><span>ปริมาณที่ใช้จริง</span><span>ต้นทุนวัตถุดิบใช้ไปจริง</span><span></span></div>
+        <div class="rows" id="rows"></div>
+        <div class="helper-foot">
+          <button class="btn small outline" type="button" id="addRow">+ เพิ่มรายการวัตถุดิบ</button>
+          <span class="helper-total" id="helperTotal"></span>
+          <button class="btn small black" type="button" id="useTotal">ใช้ยอดรวมนี้</button>
+        </div>
+      </div>
+
+      <div class="dash">
+        <div class="dash-left">
+          <div class="panel plain">
+            <h3 class="panel-title">ระบุข้อมูลการผลิตรอบนี้</h3>
+            <div class="field" id="f-cost">
+              <label for="in-cost"><span class="fnum">2</span>ต้นทุนผันแปรรวม</label>
+              <div class="unit-wrap"><input type="text" inputmode="decimal" id="in-cost" autocomplete="off" aria-describedby="e-cost costHow"><span class="unit">บาท</span></div>
+              <span class="err" id="e-cost" role="alert"></span>
+              <span class="how" id="costHow">มูลค่าวัตถุดิบและบรรจุภัณฑ์ที่ใช้ในรอบนี้ทั้งหมด · <button type="button" class="linkbtn" id="openHelper">ไม่ทราบยอดรวม? คำนวณแยกรายรายการ</button></span>
+            </div>
+            <div class="field" id="f-made">
+              <label for="in-made"><span class="fnum">3</span>ปริมาณการผลิตรวม</label>
+              <div class="unit-wrap"><input type="text" inputmode="numeric" id="in-made" autocomplete="off" aria-describedby="e-made"><span class="unit">ชิ้น</span></div>
+              <span class="err" id="e-made" role="alert"></span>
+            </div>
+            <div class="field big-slider" id="f-waste">
+              <div class="bs-head"><label class="bs-label" for="r-waste"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10M9 14l6-3"/></svg>ปริมาณสินค้าชำรุด (ของเสีย)</label><span class="bs-value"><strong id="wasteBig">0</strong>ชิ้น</span></div>
+              <input type="range" id="r-waste" min="0" max="40" step="1">
+              <div class="bs-foot"><span>ปรับแถบสไลเดอร์ หรือกรอกตัวเลข</span><div class="unit-wrap mini"><input type="text" inputmode="numeric" id="in-waste" autocomplete="off" aria-label="ปริมาณสินค้าชำรุด" aria-describedby="e-waste"><span class="unit">ชิ้น</span></div></div>
+              <span class="err" id="e-waste" role="alert"></span>
+            </div>
+            <p class="ready-line" id="readyLine"></p>
+            <details class="more">
+              <summary>ระบุชื่อสินค้า (ไม่บังคับ)</summary>
+              <div class="field" id="f-name" style="margin:8px 0 0"><div class="unit-wrap"><input type="text" class="thai" id="in-name" autocomplete="off" maxlength="60" placeholder="เช่น คุกกี้ช็อกชิป" aria-label="ชื่อสินค้า"></div></div>
+            </details>
+          </div>
+          <button class="btn black full" type="button" id="calc1">คำนวณต้นทุนผันแปรต่อหน่วย</button>
+          <p class="status" id="status1" aria-live="polite"></p>
+        </div>
+
+        <div class="dash-right">
+          <div class="results" id="results1" aria-live="polite"></div>
+          <div class="panel plain chart-card" id="chart1Card">
+            <div class="chart-head">
+              <h3 class="panel-title" style="margin:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>อัตราสินค้าชำรุดที่สูงขึ้นส่งผลให้ต้นทุนผันแปรต่อหน่วยเพิ่มขึ้น</h3>
+              <div class="legend"><span><i class="cost" style="border-top-style:solid"></i>ต้นทุนผันแปรต่อหน่วยที่พร้อมจำหน่าย</span><span><i class="pt" style="background:var(--ink);box-shadow:0 0 0 2px #fff,0 0 0 3px var(--ink)"></i>สถานะปัจจุบัน</span></div>
+            </div>
+            <div id="chart1"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="next" style="margin-top:22px">
+        <p>คำนวณต้นทุนผันแปรต่อหน่วยเรียบร้อยแล้ว ดำเนินการวิเคราะห์ปริมาณการขาย ณ จุดคุ้มทุนในบทต่อไป</p>
+        <button class="btn" type="button" data-goto="2">เข้าสู่บทที่ 2 การวิเคราะห์จุดคุ้มทุน</button>
+      </div>
+    </section>
+  </section>
+
+  <!-- ================= LESSON 2 ================= -->
+  <section class="lesson" id="lesson-2" role="tabpanel" aria-labelledby="tab-2" hidden>
+    <div class="linked" id="linked"></div>
+
+    <article class="card">
+      <span class="step-label">บทที่ 2 · พิจารณาแผนภาพโครงสร้างทางการเงิน</span>
+      <h2>ต้นทุนคงที่และการวิเคราะห์จุดคุ้มทุน</h2>
+      <p class="lead" style="margin-top:6px">การกำหนดปริมาณการจำหน่ายขั้นต่ำ <b>เพื่อให้คุ้มทุน (ไม่เกิดผลขาดทุน)</b></p>
+      <div class="vgrid">
+        <div class="vcard"><div class="vhead"><span class="vnum">1</span><h4>การจำแนกประเภทต้นทุน (Fixed & Variable Costs)</h4></div><div class="fig" data-fig="compare"></div><p><b>ต้นทุนคงที่ (Fixed Costs)</b> เช่น ค่าเช่าสถานที่ ค่าจ้างรายวัน ซึ่งเป็นภาระค่าใช้จ่ายจำนวนคงที่ไม่แปรผันตามปริมาณการขาย</p></div>
+        <div class="vcard"><div class="vhead"><span class="vnum">2</span><h4>การคำนวณกำไรส่วนทบต่อหน่วย</h4></div><div class="fig" data-fig="price"></div><p>ราคาขายต่อหน่วย − ต้นทุนผันแปรต่อหน่วย = <b>กำไรส่วนทบต่อหน่วย</b><br>20 − 6.25 = 13.75 บาท</p></div>
+        <div class="vcard wide"><div class="vhead"><span class="vnum">3</span><h4>การชดเชยต้นทุนคงที่เพื่อบรรลุจุดคุ้มทุน</h4></div><div class="fig" data-fig="rent"></div><p>ต้นทุนคงที่ 550 บาท การขาย 1 หน่วยสร้างกำไรส่วนทบ 13.75 บาท · <b>เมื่อจำหน่ายได้ 40 หน่วย จะชดเชยต้นทุนคงที่ได้ทั้งหมดเท่ากับจุดคุ้มทุน</b> · การขายตั้งแต่หน่วยที่ 41 เป็นต้นไปคือส่วนกำไรสุทธิ</p></div>
+      </div>
+      <p class="tip-line"><b>ข้อสังเกต:</b> หากคำนวณปริมาณสินค้าได้ค่าทศนิยมให้ทำการปัดขึ้นเสมอ (เช่น 16.2 → 17 หน่วย) · กำหนดกรอบเวลาการคำนวณให้เป็นมาตรฐานเดียวกัน (เช่น ค่าเช่าเดือนละ 600 บาท หากเปิดขาย 20 วัน คิดเป็นต้นทุนคงที่วันละ 30 บาท)</p>
+    </article>
+
+    <section class="card" aria-labelledby="f2h">
+      <span class="step-label">สมการและสูตรคำนวณ</span>
+      <h2 id="f2h">การคำนวณกำไรส่วนทบ จุดคุ้มทุน และกำไรสุทธิ</h2>
+      <p class="formula-intro">สูตรที่ 1–2 คำนวณจุดคุ้มทุน · สูตรที่ 3–5 คำนวณรายได้และผลกำไรประจำวัน</p>
+      <div class="formulas" id="formulas2"></div>
+    </section>
+
+    <section class="card" aria-labelledby="lab2h">
+      <div><span class="step-label">ทดลองคำนวณสำหรับสินค้าของคุณ</span><h2 id="lab2h">การวิเคราะห์ปริมาณการขาย ณ จุดคุ้มทุน</h2></div>
+      <div id="lab2Blocked"></div>
+      <div class="dash" id="lab2">
+        <div class="dash-left">
+          <div class="panel plain">
+            <h3 class="panel-title">ระบุข้อมูลการดำเนินงานประจำวัน</h3>
+            <div class="field" id="f-fixed">
+              <label for="in-fixed">ต้นทุนคงที่ต่อวัน (Daily Fixed Costs)</label>
+              <div class="unit-wrap"><input type="text" inputmode="decimal" id="in-fixed" autocomplete="off" aria-describedby="e-fixed"><span class="unit">บาท/วัน</span></div>
+              <span class="err" id="e-fixed" role="alert"></span>
+              <span class="how">ค่าเช่าสถานที่ ค่าธรรมเนียม ค่าแรงงานประจำวัน</span>
+            </div>
+            <div class="field" id="f-price">
+              <label for="in-price">ราคาขายต่อหน่วย (Unit Selling Price)</label>
+              <div class="unit-wrap"><input type="text" inputmode="decimal" id="in-price" autocomplete="off" aria-describedby="e-price"><span class="unit">บาท</span></div>
+              <span class="err" id="e-price" role="alert"></span>
+            </div>
+            <div class="field big-slider" id="f-qty">
+              <div class="bs-head"><label class="bs-label" for="r-qty"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11h11.2L21 7H6.2"/><circle cx="9" cy="19.5" r="1.5"/><circle cx="18" cy="19.5" r="1.5"/></svg>ประมาณการปริมาณการขายต่อวัน</label><span class="bs-value"><strong id="qtyBig">0</strong>ชิ้น</span></div>
+              <input type="range" id="r-qty" min="0" max="60" step="1">
+              <div class="bs-foot"><span>ปรับแถบสไลเดอร์ หรือกรอกตัวเลข</span><div class="unit-wrap mini"><input type="text" inputmode="numeric" id="in-qty" autocomplete="off" aria-label="ประมาณการปริมาณการขายต่อวัน" aria-describedby="e-qty"><span class="unit">ชิ้น</span></div></div>
+              <span class="err" id="e-qty" role="alert"></span>
+            </div>
+          </div>
+          <button class="btn black full" type="button" id="calc2">คำนวณปริมาณการขาย ณ จุดคุ้มทุน</button>
+          <p class="status" id="status2" aria-live="polite"></p>
+        </div>
+        <div class="dash-right">
+          <div class="results" id="results2" aria-live="polite"></div>
+          <div class="panel plain chart-card" id="chart2Card">
+            <div class="chart-head">
+              <h3 class="panel-title" style="margin:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>การเปรียบเทียบรายได้จากการขายกับต้นทุนรวม</h3>
+              <div class="legend"><span><i class="rev"></i>รายได้จากการขาย</span><span><i class="cost"></i>ต้นทุนรวม</span><span><i class="be"></i>จุดคุ้มทุน</span></div>
+            </div>
+            <p class="chart-sub">พื้นที่ทางขวาของจุดตัด = กำไรสุทธิ · พื้นที่ทางซ้าย = ขาดทุนสุทธิ · เลือกจุดบนกราฟเพื่อพิจารณาปริมาณการขาย</p>
+            <div id="chart2"></div>
+            <div class="range-ctrl">
+              <label><input type="checkbox" id="rangeAuto" checked> ปรับมาตราส่วนกราฟอัตโนมัติ</label>
+              <label for="rangeMax">ขอบเขตการแสดงผลสูงสุด</label><input type="text" inputmode="numeric" id="rangeMax" disabled aria-label="ปริมาณสินค้าสูงสุดบนกราฟ"><span>ชิ้น</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <footer class="foot">
+    <span>ระบบบันทึกข้อมูลในเบราว์เซอร์นี้เท่านั้น · การแสดงผลตัวเลขใช้ทศนิยม 2 ตำแหน่ง</span>
+    <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span id="clearMsg" aria-live="polite"></span><button class="btn small outline" type="button" id="clearAll">ล้างข้อมูลที่บันทึก</button></span>
+  </footer>
+</div>
+
+<script id="core">
+/* ===== pure logic ===== */
+const UNITS={g:{g:'mass',f:1,t:'กรัม'},kg:{g:'mass',f:1000,t:'กก.'},ml:{g:'vol',f:1,t:'มล.'},l:{g:'vol',f:1000,t:'ลิตร'},pc:{g:'count',f:1,t:'ชิ้น'}};
+const MAXV=1e9;
+function parseValue(raw,o){
+  const s=String(raw??'').trim().replace(/[,\s]/g,'');
+  if(s==='')return {empty:true,err:o.required===false?null:`${o.label}: ยังไม่ได้ระบุข้อมูล`};
+  if(!/^-?(\d+\.?\d*|\.\d+)$/.test(s))return {err:`${o.label}: ระบุเป็นตัวเลขเท่านั้น`};
+  const n=Number(s);
+  if(!Number.isFinite(n)||Math.abs(n)>MAXV)return {err:`${o.label}: ค่าตัวเลขเกินขอบเขตที่กำหนด`};
+  if(n<0)return {err:`${o.label}: ต้องไม่เป็นค่าติดลบ`};
+  if(o.int&&!Number.isInteger(n))return {err:`${o.label}: ระบุเป็นจำนวนเต็ม`};
+  if(o.positive&&n<=0)return {err:`${o.label}: ต้องมีค่ามากกว่า 0`};
+  return {v:n};
+}
+function usedCost(price,bought,bu,used,uu){
+  const A=UNITS[bu],B=UNITS[uu];
+  if(!A||!B||A.g!==B.g)return {err:'หน่วยที่ซื้อและหน่วยที่ใช้ไม่สอดคล้องกัน'};
+  const b=bought*A.f,u=used*B.f;
+  if(b<=0)return {err:'ปริมาณที่ซื้อต้องมากกว่า 0'};
+  if(u>b+1e-9)return {err:'ปริมาณที่ใช้เกินกว่าปริมาณที่จัดซื้อ'};
+  return {v:price/b*u};
+}
+function unitCost(cost,made,waste){
+  if(waste>made)return {err:'waste>made'};
+  const ready=made-waste;
+  if(ready===0)return {err:'none-ready',ready:0};
+  return {ready,perUnit:cost/ready};
+}
+const ceilSafe=x=>Math.ceil(x-1e-9*Math.max(1,Math.abs(x)));
+function breakEven(F,p,v){
+  let m=p-v; if(Math.abs(m)<1e-9*Math.max(1,Math.abs(p),Math.abs(v)))m=0;
+  if(F>0){ if(m<=0)return {kind:'none',m}; const x=F/m; return {kind:'ok',x,min:ceilSafe(x),m}; }
+  if(m>0)return {kind:'zero',x:0,min:0,m};
+  if(m===0)return {kind:'flat',x:0,min:0,m};
+  return {kind:'loss',x:0,min:0,m};
+}
+const pl=(F,p,v,q)=>{const rev=p*q,total=F+v*q;return {rev,total,profit:rev-total};};
+const money=n=>(Math.abs(n)<0.005?0:n).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const int=n=>Math.round(n).toLocaleString('th-TH');
+const dec=n=>{if(Number.isInteger(n))return int(n);const r=Math.round(n*1000)/1000;return Math.abs(n-r)<1e-9?r.toLocaleString('th-TH',{maximumFractionDigits:3}):'≈ '+n.toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});};
+</script>
+
+<script>
+/* ===== picture helpers ===== */
+const C={ink:'#22241f',lime:'#c8ff0a',olive:'#6b8500',orange:'#ff5a18',peach:'#ffe3d3',grey:'#e6e7e0',line:'#cfd2c7',soft:'#41453d',cookie:'#f2c48d',crust:'#c98f4f',chip:'#6b4a2b'};
+const fmt2=n=>(Math.abs(n)<0.005?0:n).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtN=n=>Math.round(n).toLocaleString('th-TH');
+function svgWrap(W,H,body,label,maxW){return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${maxW||W}px" role="img" aria-label="${label}">${body}</svg>`;}
+function txt(x,y,t,o={}){return `<text x="${x}" y="${y}" text-anchor="${o.a||'start'}" style="font-size:${o.s||14}px;font-weight:${o.w||500};fill:${o.f||C.soft}">${t}</text>`;}
+function cookie(cx,cy,r,bad){
+  if(bad)return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${C.grey}" stroke="${C.line}" stroke-width="1.5"/><path d="M${cx-r*.5} ${cy-r*.5}L${cx+r*.5} ${cy+r*.5}M${cx+r*.5} ${cy-r*.5}L${cx-r*.5} ${cy+r*.5}" stroke="${C.orange}" stroke-width="2.6" stroke-linecap="round"/>`;
+  const k=r/12;return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${C.cookie}" stroke="${C.crust}" stroke-width="1.5"/><circle cx="${cx-4*k}" cy="${cy-3*k}" r="${1.9*k}" fill="${C.chip}"/><circle cx="${cx+3.5*k}" cy="${cy-4*k}" r="${1.6*k}" fill="${C.chip}"/><circle cx="${cx+1*k}" cy="${cy+4*k}" r="${1.9*k}" fill="${C.chip}"/><circle cx="${cx-4.5*k}" cy="${cy+3.5*k}" r="${1.3*k}" fill="${C.chip}"/>`;
+}
+function cookieGrid(made,waste){
+  const per=made>60?Math.ceil(made/60):1,n=Math.ceil(made/per),nw=Math.min(n,Math.round(waste/per));
+  const cols=Math.min(10,n),s=28,g=7,rows=Math.ceil(n/cols),W=cols*(s+g)-g,H=rows*(s+g)-g;let b='';
+  for(let i=0;i<n;i++){b+=cookie((i%cols)*(s+g)+s/2,Math.floor(i/cols)*(s+g)+s/2,s/2-1,i>=n-nw);}
+  return {svg:svgWrap(W,H,b,`ผลิต ${made} ชิ้น ชำรุด ${waste} ชิ้น`,W*1.15),per};
+}
+function flourFig(){
+  const W=420,H=150,seg=W/4;let b='';
+  b+=txt(0,16,'วัตถุดิบ 1 กก. = 1,000 กรัม',{w:700,f:C.ink});
+  for(let i=0;i<4;i++)b+=`<rect x="${i*seg+1}" y="26" width="${seg-2}" height="36" rx="8" fill="${i===0?C.orange:C.grey}"/>`;
+  b+=txt(seg/2,49,'ใช้ 250 ก.',{a:'middle',w:700,f:'#fff'})+txt(seg*2.5,49,'คงเหลือ 750 ก.',{a:'middle',w:600});
+  b+=txt(0,92,'มูลค่า 45 บาท',{w:700,f:C.ink});
+  b+=`<rect x="1" y="102" width="${seg-2}" height="36" rx="8" fill="${C.orange}"/><rect x="${seg+1}" y="102" width="${seg*3-2}" height="36" rx="8" fill="${C.grey}"/>`;
+  b+=txt(seg/2,125,'11.25 ฿',{a:'middle',w:700,f:'#fff'})+txt(seg*2.5,125,'33.75 ฿ บันทึกเป็นสต็อกรอบถัดไป',{a:'middle',w:600});
+  return svgWrap(W,H,b,'ใช้วัตถุดิบ 1 ใน 4 ถุง ต้นทุนที่รับรู้จริงจึงเป็น 1 ใน 4 ของ 45 บาท คือ 11.25 บาท');
+}
+function unitFig(){
+  const W=420,H=100;let b='';
+  b+=`<rect x="0" y="14" width="84" height="56" rx="10" fill="${C.ink}"/>`+txt(42,48,'1 กก.',{a:'middle',s:18,w:700,f:C.lime});
+  b+=txt(102,50,'=',{a:'middle',s:24,w:700,f:C.ink});
+  const sx=120,sw=28,g=2;for(let i=0;i<10;i++)b+=`<rect x="${sx+i*(sw+g)}" y="14" width="${sw}" height="56" rx="6" fill="${C.lime}" stroke="${C.olive}" stroke-width="1"/>`+txt(sx+i*(sw+g)+sw/2,47,'100',{a:'middle',s:11.5,w:700,f:C.ink});
+  b+=txt(sx,92,'10 ส่วน × 100 กรัม = 1,000 กรัม',{s:14,w:600});
+  return svgWrap(W,H,b,'1 กิโลกรัม เท่ากับ 1,000 กรัม');
+}
+function compareFig(){
+  const W=420,H=206;let b='';const bx=[14,68,122],bw=40,base=140;
+  const panel=(ox,title,hs,col,cap,capCol)=>{let t=txt(ox,16,title,{w:700,f:C.ink});hs.forEach((h,i)=>{t+=`<rect x="${ox+bx[i]}" y="${base-h}" width="${bw}" height="${h}" rx="6" fill="${col}"/>`+txt(ox+bx[i]+bw/2,base+20,[10,20,30][i]+' ชิ้น',{a:'middle',s:12.5});});t+=txt(ox+88,base+52,cap,{a:'middle',s:14,w:700,f:capCol});return t;};
+  b+=panel(0,'ต้นทุนผันแปร',[30,65,100],C.orange,'แปรผันตามปริมาณขาย',C.orange);
+  b+=panel(224,'ต้นทุนคงที่',[60,60,60],C.ink,'จำนวนคงที่ตลอดช่วง',C.ink);
+  b+=`<line x1="0" y1="${base}" x2="190" y2="${base}" stroke="${C.line}"/><line x1="224" y1="${base}" x2="${W}" y2="${base}" stroke="${C.line}"/>`;
+  return svgWrap(W,H,b,'ต้นทุนผันแปรเพิ่มขึ้นตามปริมาณการขาย ต้นทุนคงที่มีมูลค่าคงที่');
+}
+function priceSplit(p,v){
+  const W=420,H=86;if(!(p>0))return '';const tot=Math.max(p,v),sc=W/tot;let b='';
+  b+=txt(0,15,`ราคาขาย 1 หน่วย = ${fmt2(p)} บาท`,{w:700,f:C.ink});
+  const cw=Math.min(v,p)*sc;b+=`<rect x="0" y="24" width="${Math.max(cw,0)}" height="38" rx="8" fill="${C.orange}"/>`;
+  if(p>v){b+=`<rect x="${cw+2}" y="24" width="${(p-v)*sc-2}" height="38" rx="8" fill="${C.lime}"/>`;}
+  else if(v>p){b+=`<rect x="${p*sc}" y="24" width="${(v-p)*sc}" height="38" rx="8" fill="#fff" stroke="${C.orange}" stroke-dasharray="5 4" stroke-width="2"/>`;}
+  const inC=cw>110,inL=(p-v)*sc>110;
+  b+=cw>0?txt(inC?cw/2:0,inC?48:80,`ต้นทุนผันแปร ${fmt2(v)}`,{a:inC?'middle':'start',w:700,f:inC?'#fff':C.orange}):'';
+  if(p>v)b+=txt(inL?cw+(p-v)*sc/2:W,inL?48:80,`กำไรส่วนทบ ${fmt2(p-v)}`,{a:inL?'middle':'end',w:700,f:C.ink});
+  else b+=txt(W,80,v>p?`ขาดทุนส่วนทบ ${fmt2(v-p)}`:'กำไรส่วนทบเป็น 0',{a:'end',w:700,f:C.orange});
+  return svgWrap(W,H,b,`ราคาขาย ${fmt2(p)} บาท ต้นทุนผันแปร ${fmt2(v)} บาท กำไรส่วนทบ ${fmt2(p-v)} บาท`);
+}
+function rentBar(F,m,q){
+  const W=560,H=118;if(!(m>0))return '';const got=q*m,tot=Math.max(F,got,1e-9),sc=W/tot;let b='';
+  b+=txt(0,15,F>0?`ต้นทุนคงที่รวม ${fmt2(F)} บาท`:'ไม่มีต้นทุนคงที่',{w:700,f:C.ink});
+  if(F>0)b+=`<rect x="1" y="26" width="${F*sc-2}" height="40" rx="8" fill="#fff" stroke="${C.ink}" stroke-width="2" stroke-dasharray="6 4"/>`;
+  const cov=Math.min(got,F);if(cov>0)b+=`<rect x="1" y="26" width="${Math.max(cov*sc-2,1)}" height="40" rx="8" fill="${C.lime}"/>`;
+  if(got>F)b+=`<rect x="${F*sc+(F>0?2:0)}" y="26" width="${(got-F)*sc-(F>0?2:0)}" height="40" rx="8" fill="${C.olive}"/>`;
+  if(q>0&&q<=80){for(let i=1;i<q;i++){const x=i*m*sc;b+=`<line x1="${x}" y1="28" x2="${x}" y2="64" stroke="#fff" stroke-width="1.5" opacity=".85"/>`;}}
+  if(F>0&&got<F){const gx=got*sc;b+=txt(gx+(F-got)*sc/2,51,`ยังชดเชยไม่ครบ ขาดอีก ${fmt2(F-got)}`,{a:'middle',w:700,f:C.orange});}
+  if(F>0&&got>F&&(got-F)*sc>44)b+=txt(F*sc+(got-F)*sc/2,51,'กำไรสุทธิ',{a:'middle',w:700,f:'#fff',s:13});
+  if(F>0){const bk=Math.ceil(F/m-1e-9),fx=F*sc;b+=fx>260?txt(fx,15,`จุดคุ้มทุน ${fmtN(bk)} ชิ้น`,{a:'end',w:700,f:C.olive}):txt(Math.min(fx+6,W-4),15,`จุดคุ้มทุน ${fmtN(bk)} ชิ้น`,{a:fx+6>W-120?'end':'start',w:700,f:C.olive});}
+  if(F>0)b+=`<line x1="${F*sc}" y1="20" x2="${F*sc}" y2="72" stroke="${C.ink}" stroke-width="2"/>`;
+  b+=txt(0,92,`ขาย ${fmtN(q)} ชิ้น × กำไรส่วนทบหน่วยละ ${fmt2(m)} = ${fmt2(got)} บาท`,{s:13.5});
+  b+=txt(0,112,got>F+0.004?`ชดเชยต้นทุนคงที่ครบแล้ว บรรลุกำไรสุทธิ ${fmt2(got-F)} บาท`:Math.abs(got-F)<0.005?'ชดเชยต้นทุนคงที่ครบถ้วนพอดี = จุดคุ้มทุน':`ยังชดเชยต้นทุนคงที่ไม่ครบ ต้องเพิ่มปริมาณขาย`,{s:13.5,w:700,f:got>F+0.004?C.olive:Math.abs(got-F)<0.005?C.ink:C.orange});
+  return svgWrap(W,H,b,`นำกำไรส่วนทบจากการขาย ${q} ชิ้นไปชดเชยต้นทุนคงที่ ${fmt2(F)} บาท`);
+}
+function visL1(made,waste,cost){
+  const g=cookieGrid(made,waste),ready=made-waste;
+  return `<div class="vis"><h4>แผนภาพสรุปการจัดสรรต้นทุน</h4>${g.svg}<p class="vis-key"><span><i class="k-good"></i>สมบูรณ์พร้อมขาย ${fmtN(ready)} ชิ้น</span><span><i class="k-bad"></i>ชำรุด ${fmtN(waste)} ชิ้น</span>${g.per>1?`<span>1 สัญลักษณ์ ≈ ${g.per} ชิ้น</span>`:''}</p><p class="vis-cap">${ready>0?`ต้นทุนผันแปรรวม ${fmt2(cost)} บาท ถูกปันส่วนไปยังสินค้าสมบูรณ์ ${fmtN(ready)} ชิ้น`:'ไม่มีสินค้าสมบูรณ์ จึงไม่สามารถปันส่วนต้นทุนได้'}</p></div>`;
+}
+function visL2(F,p,v,q,be){
+  if(be.kind==='none'||be.kind==='loss'||be.kind==='flat')return `<div class="vis"><h4>แผนภาพโครงสร้างราคาและต้นทุน</h4>${priceSplit(p,v)}</div>`;
+  return `<div class="vis"><h4>แผนภาพการชดเชยต้นทุนคงที่</h4>${priceSplit(p,v)}<div style="height:8px"></div>${rentBar(F,be.m,q)}</div>`;
+}
+function renderStaticFigs(){
+  const map={flour:flourFig,unit:unitFig,compare:compareFig,
+    cookies:()=>cookieGrid(40,8).svg+'<p class="vis-key"><span><i class="k-good"></i>สมบูรณ์ 32 ชิ้น</span><span><i class="k-bad"></i>ชำรุด 8 ชิ้น</span></p>',
+    price:()=>priceSplit(20,6.25),rent:()=>rentBar(550,13.75,44)};
+  document.querySelectorAll('[data-fig]').forEach(el=>{try{el.innerHTML=map[el.dataset.fig]();}catch(e){}});
+}
+</script>
+<script>
+/* ===== MathML builder ===== */
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const M={
+  t:s=>`<mtext>${esc(s)}</mtext>`, n:s=>`<mn>${esc(s)}</mn>`, o:s=>`<mo>${esc(s)}</mo>`,
+  row:(...a)=>`<mrow>${a.join('')}</mrow>`, frac:(a,b)=>`<mfrac>${a}${b}</mfrac>`,
+  math:(body,label)=>`<math display="block" aria-label="${esc(label)}">${body}</math>`
+};
+const F1=[
+  {m:M.row(M.t('ต้นทุนวัตถุดิบใช้ไปจริง'),M.o('='),M.o('('),M.frac(M.t('ราคาจัดซื้อ'),M.t('ปริมาณจัดซื้อ')),M.o(')'),M.o('×'),M.t('ปริมาณใช้จริง')),a:'ต้นทุนวัตถุดิบใช้ไปจริง เท่ากับ ราคาจัดซื้อ หารด้วย ปริมาณจัดซื้อ คูณ ปริมาณใช้จริง',note:'บาท · หน่วยที่จัดซื้อและหน่วยที่ใช้จริงต้องสอดคล้องกัน'},
+  {m:M.row(M.t('ต้นทุนผันแปรรวม'),M.o('='),M.t('รายการที่ 1'),M.o('+'),M.t('รายการที่ 2'),M.o('+'),M.o('…')),a:'ต้นทุนผันแปรรวม เท่ากับ ต้นทุนวัตถุดิบใช้ไปจริงรายการที่ 1 บวก รายการที่ 2 บวกรายการถัดไปจนครบ',note:'บาท · รวมวัตถุดิบ บรรจุภัณฑ์ และวัสดุสิ้นเปลือง'},
+  {m:M.row(M.t('ปริมาณสินค้าสมบูรณ์ที่พร้อมจำหน่าย'),M.o('='),M.t('ปริมาณการผลิตรวม'),M.o('−'),M.t('ปริมาณสินค้าชำรุด')),a:'ปริมาณสินค้าสมบูรณ์ที่พร้อมจำหน่าย เท่ากับ ปริมาณการผลิตรวม ลบ ปริมาณสินค้าชำรุด',note:'ชิ้น · นับเฉพาะสินค้าสภาพสมบูรณ์พร้อมจำหน่าย'},
+  {m:M.row(M.t('ต้นทุนผันแปรต่อหน่วย'),M.o('='),M.frac(M.t('ต้นทุนผันแปรรวม'),M.t('ปริมาณสินค้าสมบูรณ์ที่พร้อมจำหน่าย'))),a:'ต้นทุนผันแปรต่อหน่วย เท่ากับ ต้นทุนผันแปรรวม หารด้วย ปริมาณสินค้าสมบูรณ์ที่พร้อมจำหน่าย',note:'บาท/ชิ้น · ยังไม่รวมต้นทุนคงที่'}
+];
+const F2=[
+  {m:M.row(M.t('กำไรส่วนทบต่อหน่วย'),M.o('='),M.t('ราคาขายต่อหน่วย'),M.o('−'),M.t('ต้นทุนผันแปรต่อหน่วย')),a:'กำไรส่วนทบต่อหน่วย เท่ากับ ราคาขายต่อหน่วย ลบ ต้นทุนผันแปรต่อหน่วย',note:'บาท/ชิ้น · ส่วนที่นำไปชดเชยต้นทุนคงที่'},
+  {m:M.row(M.t('ปริมาณการขาย ณ จุดคุ้มทุน'),M.o('='),M.frac(M.t('ต้นทุนคงที่รวม'),M.row(M.t('ราคาขายต่อหน่วย'),M.o('−'),M.t('ต้นทุนผันแปรต่อหน่วย')))),a:'ปริมาณการขาย ณ จุดคุ้มทุน เท่ากับ ต้นทุนคงที่รวม หารด้วย ราคาขายต่อหน่วย ลบ ต้นทุนผันแปรต่อหน่วย',note:'ชิ้น · ปัดเศษขึ้นเสมอ · ราคาขายต้องสูงกว่าต้นทุนผันแปร'},
+  {m:M.row(M.t('รายได้จากการขาย'),M.o('='),M.t('ราคาขายต่อหน่วย'),M.o('×'),M.t('ปริมาณการขาย')),a:'รายได้จากการขาย เท่ากับ ราคาขายต่อหน่วย คูณ ปริมาณการขาย',note:'บาท/วัน'},
+  {m:M.row(M.t('ต้นทุนรวม'),M.o('='),M.t('ต้นทุนคงที่'),M.o('+'),M.o('('),M.t('ต้นทุนผันแปรต่อหน่วย'),M.o('×'),M.t('ปริมาณการขาย'),M.o(')')),a:'ต้นทุนรวม เท่ากับ ต้นทุนคงที่ บวก ต้นทุนผันแปรต่อหน่วย คูณ ปริมาณการขาย',note:'บาท/วัน'},
+  {m:M.row(M.t('กำไรสุทธิ'),M.o('='),M.t('รายได้จากการขาย'),M.o('−'),M.t('ต้นทุนรวม')),a:'กำไรสุทธิ เท่ากับ รายได้จากการขาย ลบ ต้นทุนรวม',note:'หากเป็นค่าติดลบ หมายถึง ขาดทุนสุทธิ'}
+];
+function renderFormulas(el,list){el.innerHTML=list.map((f,i)=>`<div class="formula"><span class="num">${i+1}</span><div class="math-scroll">${M.math(f.m,f.a)}</div><small>${f.note}</small></div>`).join('');}
+renderFormulas(document.getElementById('formulas1'),F1);
+renderFormulas(document.getElementById('formulas2'),F2);
+renderStaticFigs();
+
+/* ===== state ===== */
+const KEY='edumarket-cost-lab-v1';
+const EXAMPLE={example:true,name:'คุกกี้ช็อกชิป',
+  rows:[{n:'แป้งสาลี',p:'45',b:'1',bu:'kg',u:'500',uu:'g'},{n:'เนยจืด',p:'120',b:'500',bu:'g',u:'250',uu:'g'},{n:'ช็อกโกแลตชิป',p:'85',b:'250',bu:'g',u:'200',uu:'g'},{n:'น้ำตาลทราย',p:'32',b:'1',bu:'kg',u:'300',uu:'g'},{n:'ไข่ไก่',p:'55',b:'10',bu:'pc',u:'4',uu:'pc'},{n:'ถุงใส่คุกกี้',p:'60',b:'100',bu:'pc',u:'40',uu:'pc'}],
+  cost:'206.10',made:'40',waste:'4',fixed:'150',price:'15',qty:'25',rangeAuto:true,rangeMax:''};
+const blankRow=()=>({n:'',p:'',b:'',bu:'g',u:'',uu:'g'});
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+if(!S||!Array.isArray(S.rows))S=structuredClone(EXAMPLE);
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+
+if(/claude|claudeusercontent/.test(location.hostname)||location.protocol==='file:'){$('backLink').hidden=true;$('brandLink').removeAttribute('href');}
+
+/* ===== inputs ===== */
+const FIELDS={
+  name:{el:'in-name'},
+  cost:{el:'in-cost',o:{label:'ต้นทุนผันแปรรวม'}},
+  made:{el:'in-made',o:{label:'ปริมาณการผลิตรวม',int:true,positive:true}},
+  waste:{el:'in-waste',o:{label:'ปริมาณสินค้าชำรุด',int:true},range:'r-waste'},
+  fixed:{el:'in-fixed',o:{label:'ต้นทุนคงที่ต่อวัน'}},
+  price:{el:'in-price',o:{label:'ราคาขายต่อหน่วย'}},
+  qty:{el:'in-qty',o:{label:'ประมาณการปริมาณการขายต่อวัน',int:true},range:'r-qty'}
+};
+function fillInputs(){
+  for(const k in FIELDS){$(FIELDS[k].el).value=S[k]??'';}
+  $('rangeAuto').checked=S.rangeAuto!==false;$('rangeMax').value=S.rangeMax||'';$('rangeMax').disabled=$('rangeAuto').checked;
+  renderRows();
+}
+function touched(){if(S.example){S.example=false;}}
+for(const k in FIELDS){
+  const f=FIELDS[k];
+  $(f.el).addEventListener('input',e=>{S[k]=e.target.value;touched();update();});
+  if(f.range)$(f.range).addEventListener('input',e=>{S[k]=e.target.value;$(f.el).value=e.target.value;touched();update();});
+}
+$('rangeAuto').addEventListener('change',e=>{S.rangeAuto=e.target.checked;$('rangeMax').disabled=e.target.checked;if(!e.target.checked&&!S.rangeMax){S.rangeMax=String(lastAutoX||50);$('rangeMax').value=S.rangeMax;}update();});
+$('rangeMax').addEventListener('input',e=>{S.rangeMax=e.target.value;update();});
+$('startOwn').addEventListener('click',()=>{S={example:false,name:'',rows:[blankRow()],cost:'',made:'',waste:'0',fixed:'',price:'',qty:'',rangeAuto:true,rangeMax:''};fillInputs();update();$('in-name').focus();});
+let clearArmed=false;
+$('clearAll').addEventListener('click',()=>{
+  if(!clearArmed){clearArmed=true;$('clearAll').textContent='กดอีกครั้งเพื่อยืนยัน';$('clearMsg').textContent='';setTimeout(()=>{if(clearArmed){clearArmed=false;$('clearAll').textContent='ล้างข้อมูลที่บันทึก';}},4000);return;}
+  clearArmed=false;try{localStorage.removeItem(KEY)}catch(e){}
+  S=structuredClone(EXAMPLE);fillInputs();update();$('clearAll').textContent='ล้างข้อมูลที่บันทึก';$('clearMsg').textContent='ล้างข้อมูลสำเร็จ รีเซ็ตเป็นข้อมูลตัวอย่าง';
+});
+
+/* ===== helper rows ===== */
+function unitSelect(v,aria){return `<select aria-label="${aria}">${Object.entries(UNITS).map(([k,u])=>`<option value="${k}"${k===v?' selected':''}>${u.t}</option>`).join('')}</select>`;}
+function renderRows(){
+  $('rows').innerHTML=S.rows.map((r,i)=>`<div class="row" data-i="${i}">
+    <label class="cell name"><span>รายการวัตถุดิบ</span><input data-k="n" value="${esc(r.n)}" placeholder="เช่น แป้งสาลี" aria-label="ชื่อรายการที่ ${i+1}"></label>
+    <label class="cell"><span>ราคาจัดซื้อ (บาท)</span><input data-k="p" inputmode="decimal" value="${esc(r.p)}" aria-label="ราคาจัดซื้อ รายการที่ ${i+1}"></label>
+    <div class="cell"><span>ปริมาณจัดซื้อ</span><div class="pair"><input data-k="b" inputmode="decimal" value="${esc(r.b)}" aria-label="ปริมาณจัดซื้อ รายการที่ ${i+1}">${unitSelect(r.bu,'หน่วยจัดซื้อ รายการที่ '+(i+1)).replace('<select','<select data-k="bu"')}</div></div>
+    <div class="cell"><span>ปริมาณใช้จริง</span><div class="pair"><input data-k="u" inputmode="decimal" value="${esc(r.u)}" aria-label="ปริมาณใช้จริง รายการที่ ${i+1}">${unitSelect(r.uu,'หน่วยใช้จริง รายการที่ '+(i+1)).replace('<select','<select data-k="uu"')}</div></div>
+    <div class="cell"><span>ต้นทุนวัตถุดิบใช้ไปจริง</span><div class="out" data-out></div></div>
+    <button type="button" class="del" aria-label="ลบรายการที่ ${i+1}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M6 18 18 6"/></svg></button>
+  </div>`).join('');
+}
+$('rows').addEventListener('input',e=>{const row=e.target.closest('.row');if(!row||!e.target.dataset.k)return;S.rows[+row.dataset.i][e.target.dataset.k]=e.target.value;touched();update();});
+$('rows').addEventListener('change',e=>{if(e.target.tagName==='SELECT'){const row=e.target.closest('.row');S.rows[+row.dataset.i][e.target.dataset.k]=e.target.value;touched();update();}});
+$('rows').addEventListener('click',e=>{const b=e.target.closest('.del');if(!b)return;const i=+b.closest('.row').dataset.i;S.rows.splice(i,1);if(!S.rows.length)S.rows.push(blankRow());touched();renderRows();update();});
+$('addRow').addEventListener('click',()=>{S.rows.push(blankRow());renderRows();update();$('rows').lastElementChild.querySelector('input').focus();});
+let helperSum=null;
+function computeRows(){
+  let sum=0,problems=0,used=0;
+  [...$('rows').children].forEach((el,i)=>{
+    const r=S.rows[i],out=el.querySelector('[data-out]');
+    const filled=[r.p,r.b,r.u].some(x=>String(x).trim()!=='');
+    if(!filled){out.textContent='–';out.className='out';return;}
+    const p=parseValue(r.p,{label:'ราคาจัดซื้อ'}),b=parseValue(r.b,{label:'ปริมาณจัดซื้อ'}),u=parseValue(r.u,{label:'ปริมาณใช้จริง'});
+    const e=p.err||b.err||u.err;let res=e?{err:e}:usedCost(p.v,b.v,r.bu,u.v,r.uu);
+    if(res.err){problems++;out.textContent=res.err;out.className='out bad';}
+    else{sum+=res.v;used++;out.textContent=money(res.v)+' ฿';out.className='out';}
+  });
+  helperSum=problems||!used?null:sum;rowProblems=problems;
+  $('helperTotal').innerHTML=problems?`โปรดแก้ไขข้อมูล ${problems} รายการให้ถูกต้องก่อน`:used?`ต้นทุนผันแปรรวม <strong>${money(sum)}</strong> บาท`:'ยังไม่มีรายการวัตถุดิบที่กรอกข้อมูลครบถ้วน';
+  $('useTotal').disabled=helperSum===null;
+}
+let rowProblems=0;
+function costInput(){return readField('cost');}
+$('openHelper').addEventListener('click',()=>{$('step1').hidden=false;$('step1').scrollIntoView({behavior:'smooth',block:'start'});});
+$('closeHelper').addEventListener('click',()=>{$('step1').hidden=true;$('in-cost').focus();});
+$('useTotal').addEventListener('click',()=>{if(helperSum===null)return;S.cost=(Math.round(helperSum*100)/100).toFixed(2);$('in-cost').value=S.cost;touched();$('step1').hidden=true;update();$('status1').textContent='บันทึกยอดรวมต้นทุนผันแปรเรียบร้อยแล้ว';$('in-cost').scrollIntoView({behavior:'smooth',block:'center'});});
+function readField(k){const f=FIELDS[k];const r=parseValue(S[k],f.o);const box=$(f.el).closest('.field');box.classList.toggle('invalid',!!r.err);const e=box.querySelector('.err');if(e)e.textContent=r.err||'';$(f.el).setAttribute('aria-invalid',r.err?'true':'false');return r;}
+function syncRange(k,max){const f=FIELDS[k];if(!f.range)return;const r=$(f.range);if(max!=null)r.max=max;const n=Number(S[k]);if(Number.isFinite(n))r.value=Math.min(Number(r.max),Math.max(Number(r.min),n));}
+
+/* ===== charts ===== */
+const NS='http://www.w3.org/2000/svg';
+function niceStep(range,target){const raw=range/Math.max(1,target);const p=Math.pow(10,Math.floor(Math.log10(raw||1)));const m=raw/p;return (m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*p;}
+function niceMax(v){if(v<=0)return 1;const s=niceStep(v,5);return Math.ceil(v/s-1e-9)*s;}
+function fmtAxis(v,step){return step<1?v.toLocaleString('th-TH',{minimumFractionDigits:step<0.1?2:1,maximumFractionDigits:2}):int(v);}
+function svgEl(tag,attrs,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;return e;}
+function frame(host,W,H,m,xMax,yMax,xTitle,xIntStep){
+  host.innerHTML='';const wrap=document.createElement('div');wrap.className='chart-wrap';host.appendChild(wrap);
+  const svg=svgEl('svg',{viewBox:`0 0 ${W} ${H}`,height:H,role:'img'});wrap.appendChild(svg);
+  const X=x=>m.l+(x/xMax)*(W-m.l-m.r),Y=y=>H-m.b-(y/yMax)*(H-m.t-m.b);
+  const ys=niceStep(yMax,5);for(let v=0;v<=yMax+1e-9;v+=ys){svg.appendChild(svgEl('line',{x1:m.l,x2:W-m.r,y1:Y(v),y2:Y(v),stroke:v===0?'#b9bcb1':'#e9eae4','stroke-width':1}));svg.appendChild(svgEl('text',{x:m.l-8,y:Y(v)+4,'text-anchor':'end',class:'num'},fmtAxis(v,ys)));}
+  let xs=xIntStep?Math.max(1,Math.round(niceStep(xMax,W<480?4:7))):niceStep(xMax,W<480?4:7);
+  for(let v=0;v<=xMax+1e-9;v+=xs){svg.appendChild(svgEl('line',{x1:X(v),x2:X(v),y1:H-m.b,y2:H-m.b+5,stroke:'#b9bcb1'}));svg.appendChild(svgEl('text',{x:X(v),y:H-m.b+20,'text-anchor':'middle',class:'num'},int(v)));}
+  svg.appendChild(svgEl('text',{x:(m.l+W-m.r)/2,y:H-6,'text-anchor':'middle'},xTitle));
+  const tip=document.createElement('div');tip.className='tip';tip.hidden=true;wrap.appendChild(tip);
+  return {wrap,svg,X,Y,tip,W,H};
+}
+function placeTip(c,px,py,html){c.tip.innerHTML=html;c.tip.hidden=false;const w=c.tip.offsetWidth,h=c.tip.offsetHeight;let x=px+14,y=py-h-10;if(x+w>c.wrap.clientWidth)x=px-w-14;if(x<0)x=0;if(y<0)y=py+14;c.tip.style.left=x+'px';c.tip.style.top=y+'px';}
+function tableHTML(head,rows,hl){return `<details class="table"><summary>ดูตารางแสดงรายละเอียดข้อมูล</summary><div class="table-scroll"><table><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr${r.hl?' class="hl"':''}>${r.c.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div></details>`;}
+
+function drawChart1(d){
+  const host=$('chart1');
+  if(!d){return;}
+  const W=Math.max(280,host.clientWidth||600),H=W<520?260:300,m={l:W<520?50:60,r:18,t:22,b:46};
+  const {cost,made,waste}=d;
+  const maxW=Math.max(0,made-1);const hasPt=waste<made;
+  const ys=[];for(let w=0;w<=maxW;w++)ys.push(cost/(made-w));
+  const yMax=niceMax(Math.max(...ys)*1.08);
+  const xMax=maxW===0?1:maxW;
+  host.insertAdjacentHTML('beforebegin','');
+  const c=frame(host,W,H,m,xMax,yMax,'ปริมาณสินค้าชำรุด (ชิ้น)',true);
+  host.insertAdjacentHTML('afterbegin','<div class="ylab">ต้นทุนผันแปรต่อหน่วยสินค้าสมบูรณ์ (บาท/ชิ้น)</div>');
+  const step=Math.max(1,Math.ceil((maxW+1)/400));
+  if(maxW>0){let dstr='';for(let w=0;w<=maxW;w+=step)dstr+=(w?'L':'M')+c.X(w).toFixed(1)+' '+c.Y(cost/(made-w)).toFixed(1);if((maxW)%step)dstr+='L'+c.X(maxW)+' '+c.Y(cost/(made-maxW));c.svg.appendChild(svgEl('path',{d:dstr,fill:'none',stroke:'#ff5a18','stroke-width':3,'stroke-linejoin':'round','stroke-linecap':'round'}));}
+  if(maxW<=30)for(let w=0;w<=maxW;w++)c.svg.appendChild(svgEl('circle',{cx:c.X(w),cy:c.Y(cost/(made-w)),r:3.5,fill:'#ff5a18'}));
+  if(hasPt){const cx=c.X(waste),cy=c.Y(cost/(made-waste));
+  c.svg.appendChild(svgEl('circle',{cx,cy,r:8,fill:'#22241f',stroke:'#fff','stroke-width':3}));
+  const lbl=`ชำรุด ${int(waste)} ชิ้น → ${money(cost/(made-waste))} บาท/หน่วย`;const right=cx<W*0.55;
+  c.svg.appendChild(svgEl('text',{x:right?cx+14:cx-14,y:Math.max(16,cy-14),'text-anchor':right?'start':'end',class:'lbl-strong'},lbl));}
+  const hit=svgEl('rect',{x:m.l,y:m.t,width:W-m.l-m.r,height:H-m.t-m.b,fill:'transparent'});c.svg.appendChild(hit);
+  const guide=svgEl('line',{y1:m.t,y2:H-m.b,stroke:'#22241f','stroke-dasharray':'3 4',opacity:0});c.svg.insertBefore(guide,hit);
+  const move=e=>{const r=c.svg.getBoundingClientRect();const px=(e.clientX-r.left)*(W/r.width);let w=Math.round((px-m.l)/(W-m.l-m.r)*xMax);w=Math.max(0,Math.min(maxW,w));guide.setAttribute('x1',c.X(w));guide.setAttribute('x2',c.X(w));guide.setAttribute('opacity',1);placeTip(c,c.X(w)*(r.width/W),c.Y(cost/(made-w))*(r.height/H),`ชำรุด <b>${int(w)}</b> ชิ้น<div class="r"><span>พร้อมขาย</span><span>${int(made-w)} ชิ้น</span></div><div class="r"><span>ต้นทุน/หน่วย</span><span>${money(cost/(made-w))} ฿</span></div>`);};
+  hit.addEventListener('pointermove',move);hit.addEventListener('pointerdown',move);hit.addEventListener('pointerleave',()=>{c.tip.hidden=true;guide.setAttribute('opacity',0);});
+  c.svg.setAttribute('aria-label',`กราฟวิเคราะห์ต้นทุนผันแปรต่อหน่วยเมื่อเกิดสินค้าชำรุด 0 ถึง ${maxW} ชิ้น ต้นทุนผันแปรรวม ${money(cost)} บาท ปริมาณการผลิต ${made} ชิ้น ปัจจุบันชำรุด ${waste} ชิ้น ${hasPt?'ต้นทุน '+money(cost/(made-waste))+' บาทต่อหน่วย':'ไม่มีสินค้าสมบูรณ์พร้อมจำหน่าย'}`);
+  let note=made===1?'ผลิต 1 ชิ้น แสดงผลแบบจุดเดี่ยว':`เมื่อปริมาณสินค้าชำรุดเพิ่มขึ้น ความชันของเส้นต้นทุนจะเพิ่มสูงขึ้น${hasPt?'':' · ปัจจุบันสินค้าชำรุดทั้งหมด'}`;
+  host.insertAdjacentHTML('beforeend',`<p class="chart-note">${note}</p>`);
+  const tStep=Math.max(1,Math.ceil((maxW+1)/20));const rows=[];for(let w=0;w<=maxW;w+=tStep)rows.push(w);if(hasPt&&!rows.includes(waste))rows.push(waste);rows.sort((a,b)=>a-b);
+  host.insertAdjacentHTML('beforeend',tableHTML(['สินค้าชำรุด (ชิ้น)','สินค้าสมบูรณ์ (ชิ้น)','ต้นทุนผันแปร/หน่วย (บาท)'],rows.map(w=>({hl:w===waste,c:[int(w),int(made-w),money(cost/(made-w))]}))));
+}
+
+let lastAutoX=null;
+function drawChart2(d){
+  const host=$('chart2');
+  const {F,p,v,q,be,X:xMax,beInRange}=d;
+  const W=Math.max(280,host.clientWidth||600),H=W<520?290:340,m={l:W<520?54:66,r:W<520?64:84,t:24,b:46};
+  const rev=x=>p*x,tot=x=>F+v*x;
+  const yMax=niceMax(Math.max(rev(xMax),tot(xMax),F,1)*1.06);
+  const c=frame(host,W,H,m,xMax,yMax,'ปริมาณการขายต่อวัน (ชิ้น)',true);
+  host.insertAdjacentHTML('afterbegin','<div class="ylab">จำนวนเงิน (บาท)</div>');
+  const xs=[0];const cross=(p-v)!==0?F/(p-v):null;if(cross!==null&&cross>0&&cross<xMax)xs.push(cross);xs.push(xMax);
+  for(let i=0;i<xs.length-1;i++){const a=xs[i],b=xs[i+1],mid=(a+b)/2;const g=rev(mid)-tot(mid);if(Math.abs(g)<1e-9)continue;
+    const pts=[[a,rev(a)],[b,rev(b)],[b,tot(b)],[a,tot(a)]].map(([x,y])=>`${c.X(x).toFixed(1)},${c.Y(y).toFixed(1)}`).join(' ');
+    c.svg.insertBefore(svgEl('polygon',{points:pts,fill:g>0?'rgba(200,255,10,.32)':'rgba(255,90,24,.13)'}),c.svg.firstChild);
+    const lx=c.X(mid),ly=c.Y((rev(mid)+tot(mid))/2);if(Math.abs(c.Y(rev(mid))-c.Y(tot(mid)))>22&&(c.X(b)-c.X(a))>60)c.svg.appendChild(svgEl('text',{x:lx,y:ly+4,'text-anchor':'middle',class:'lbl-strong',style:`fill:${g>0?'#3f5d0a':'#a8390d'}`},g>0?'กำไรสุทธิ':'ขาดทุนสุทธิ'));}
+  c.svg.appendChild(svgEl('line',{x1:c.X(0),y1:c.Y(tot(0)),x2:c.X(xMax),y2:c.Y(tot(xMax)),stroke:'#ff5a18','stroke-width':3,'stroke-dasharray':'9 6','stroke-linecap':'round'}));
+  c.svg.appendChild(svgEl('line',{x1:c.X(0),y1:c.Y(0),x2:c.X(xMax),y2:c.Y(rev(xMax)),stroke:'#2f6e0c','stroke-width':3,'stroke-linecap':'round'}));
+  let yR=c.Y(rev(xMax)),yT=c.Y(tot(xMax));if(Math.abs(yR-yT)<16){const mid=(yR+yT)/2;if(rev(xMax)>=tot(xMax)){yR=mid-9;yT=mid+9}else{yR=mid+9;yT=mid-9}}
+  if(be.kind==='flat'){c.svg.appendChild(svgEl('text',{x:W-m.r+6,y:yR+4,class:'lbl-strong'},'เส้นรายได้และต้นทุนทับซ้อน'));}
+  else{c.svg.appendChild(svgEl('text',{x:W-m.r+6,y:yR+4,class:'lbl-strong',style:'fill:#2f6e0c'},'รายได้จากการขาย'));c.svg.appendChild(svgEl('text',{x:W-m.r+6,y:yT+4,class:'lbl-strong',style:'fill:#c23d08'},'ต้นทุนรวม'));}
+  if(q!=null&&q<=xMax){const sx=c.X(q);c.svg.appendChild(svgEl('line',{x1:sx,x2:sx,y1:m.t,y2:H-m.b,stroke:'#22241f','stroke-dasharray':'3 4'}));
+    c.svg.appendChild(svgEl('circle',{cx:sx,cy:c.Y(tot(q)),r:5,fill:'#ff5a18',stroke:'#fff','stroke-width':2}));c.svg.appendChild(svgEl('circle',{cx:sx,cy:c.Y(rev(q)),r:5,fill:'#2f6e0c',stroke:'#fff','stroke-width':2}));
+    c.svg.appendChild(svgEl('text',{x:sx,y:m.t-8,'text-anchor':sx>W-120?'end':sx<120?'start':'middle',class:'lbl-strong'},`ปริมาณขาย ${int(q)} ชิ้น`));}
+  if((be.kind==='ok'||be.kind==='zero'||be.kind==='loss')&&beInRange){const bx=c.X(be.x),by=c.Y(rev(be.x));
+    c.svg.appendChild(svgEl('circle',{cx:bx,cy:by,r:8,fill:'#22241f',stroke:'#fff','stroke-width':3}));
+    const t=be.kind==='ok'?`จุดคุ้มทุน ${dec(be.x)} ชิ้น · ${money(rev(be.x))} ฿`:'จุดคุ้มทุน ณ 0 ชิ้น';const right=bx<W*0.5;
+    c.svg.appendChild(svgEl('text',{x:right?bx+14:bx-14,y:Math.min(H-m.b-8,by+22),'text-anchor':right?'start':'end',class:'lbl-strong'},t));}
+  const hit=svgEl('rect',{x:m.l,y:m.t,width:W-m.l-m.r,height:H-m.t-m.b,fill:'transparent',style:'cursor:crosshair'});c.svg.appendChild(hit);
+  const guide=svgEl('line',{y1:m.t,y2:H-m.b,stroke:'#6f7369','stroke-width':1,opacity:0});c.svg.insertBefore(guide,hit);
+  const toQ=e=>{const r=c.svg.getBoundingClientRect();const px=(e.clientX-r.left)*(W/r.width);return Math.max(0,Math.min(Math.floor(xMax),Math.round((px-m.l)/(W-m.l-m.r)*xMax)));};
+  let dragging=false;
+  const show=(e)=>{const x=toQ(e),r=c.svg.getBoundingClientRect();const v2=pl(F,p,v,x);guide.setAttribute('x1',c.X(x));guide.setAttribute('x2',c.X(x));guide.setAttribute('opacity',1);
+    placeTip(c,c.X(x)*(r.width/W),c.Y(Math.max(v2.rev,v2.total))*(r.height/H),`ขาย <b>${int(x)}</b> ชิ้น<div class="r"><span>รายได้จากการขาย</span><span>${money(v2.rev)}</span></div><div class="r"><span>ต้นทุนรวม</span><span>${money(v2.total)}</span></div><div class="r"><span>${v2.profit<-0.004?'ขาดทุนสุทธิ':'กำไรสุทธิ'}</span><span>${money(Math.abs(v2.profit))}</span></div>`);
+    if(dragging){setQty(x);}};
+  hit.addEventListener('pointermove',show);
+  hit.addEventListener('pointerdown',e=>{dragging=true;hit.setPointerCapture(e.pointerId);show(e);});
+  hit.addEventListener('pointerup',()=>{dragging=false;});
+  hit.addEventListener('pointerleave',()=>{if(!dragging){c.tip.hidden=true;guide.setAttribute('opacity',0);}});
+  c.svg.setAttribute('aria-label',`กราฟแสดงรายได้จากการขายและต้นทุนรวม 0 ถึง ${int(xMax)} ชิ้น ต้นทุนคงที่ ${money(F)} บาท ราคาขาย ${money(p)} บาท ต้นทุนผันแปร ${money(v)} บาทต่อหน่วย`);
+  const notes=[];
+  if(be.kind==='ok'&&!beInRange)notes.push(`จุดคุ้มทุนคำนวณได้ ${dec(be.x)} ชิ้น ซึ่งเกินขอบเขตการแสดงผล (ขอบเขตสูงสุด ${int(xMax)} ชิ้น) โปรดขยายมาตราส่วนกราฟเพื่อพิจารณาจุดตัด`);
+  if(q!=null&&q>xMax)notes.push(`ปริมาณการขายที่เลือก (${int(q)} ชิ้น) อยู่นอกขอบเขตการแสดงผลบนกราฟ`);
+  if(be.kind==='none')notes.push('ไม่พบจุดตัดทางบัญชี เนื่องจากราคาขายต่อหน่วยไม่สูงกว่าต้นทุนผันแปรต่อหน่วย เส้นต้นทุนรวมจึงอยู่สูงกว่าเส้นรายได้เสมอ');
+  if(notes.length)host.insertAdjacentHTML('beforeend',`<p class="chart-note">${notes.join('<br>')}</p>`);
+  const pts=new Set();const st=Math.max(1,niceStep(xMax,8));for(let x=0;x<=xMax+1e-9;x+=st)pts.add(Math.round(x));if(be.kind==='ok')pts.add(be.min);if(q!=null)pts.add(q);
+  host.insertAdjacentHTML('beforeend',tableHTML(['ปริมาณขาย (ชิ้น)','รายได้จากการขาย','ต้นทุนรวม','กำไร/ขาดทุนสุทธิ'],[...pts].sort((a,b)=>a-b).map(x=>{const r=pl(F,p,v,x);return {hl:x===q,c:[int(x)+(be.kind==='ok'&&x===be.min?' (จุดคุ้มทุน)':''),money(r.rev),money(r.total),(r.profit<-0.004?'−':'')+money(Math.abs(r.profit))]};})));
+}
+function setQty(x){S.qty=String(x);$('in-qty').value=S.qty;touched();update();}
+
+/* ===== update ===== */
+const subst=(label,body)=>`<div class="subst"><span class="lbl">${label}</span><div class="math-scroll">${body}</div></div>`;
+function blockedHTML(title,items){return `<div class="blocked"><strong>${title}</strong>${items.length?`<ul>${items.map(i=>`<li>${i}</li>`).join('')}</ul>`:''}</div>`;}
+let L1=null;
+function update(){
+  computeRows();
+  $('exampleBar1').hidden=!S.example;
+  $('nameEcho1').textContent=S.name&&S.name.trim()?S.name.trim():'สินค้าของคุณ';
+  /* ----- lesson 1 ----- */
+  const c=costInput(),mm=readField('made'),w=readField('waste');
+  syncRange('waste',Number.isFinite(mm.v)?mm.v:40);
+  $('wasteBig').textContent=w.err?'–':int(w.v);
+  $('readyLine').innerHTML=(!mm.err&&!w.err&&w.v<=mm.v)?`ปริมาณสินค้าพร้อมจำหน่าย = ${int(mm.v)} − ${int(w.v)} = <b>${int(mm.v-w.v)} ชิ้น</b>`:'ปริมาณสินค้าพร้อมจำหน่าย = ปริมาณการผลิตรวม − ปริมาณสินค้าชำรุด';
+  const errs=[c.err,mm.err,w.err].filter(Boolean);
+  L1=null;let why1=errs.slice();
+  if(!errs.length){
+    const u=unitCost(c.v,mm.v,w.v);
+    if(u.err==='waste>made'){why1=['ปริมาณสินค้าชำรุดเกินกว่าปริมาณการผลิตรวม โปรดแก้ไขให้ถูกต้อง'];const box=$('f-waste');box.classList.add('invalid');box.querySelector('.err').textContent='ปริมาณสินค้าชำรุดต้องไม่เกินปริมาณการผลิตรวม';}
+    else if(u.err==='none-ready'){why1=['สินค้าชำรุดทั้งหมด จึงไม่มีสินค้าสมบูรณ์สำหรับปันส่วนต้นทุน'];}
+    else L1={cost:c.v,made:mm.v,waste:w.v,ready:u.ready,perUnit:u.perUnit};
+  }
+  const r1=$('results1');
+  const noneReady=!errs.length&&why1.length===1&&mm.v===w.v;
+  if(!L1&&noneReady){
+    r1.innerHTML=`<div class="kpis"><div class="kpi ok"><span>ปริมาณสินค้าพร้อมจำหน่าย</span><strong>0<small>ชิ้น</small></strong></div><div class="kpi hot"><span>ต้นทุนผันแปรต่อหน่วย</span><strong class="msg">ไม่สามารถคำนวณได้</strong><em>ไม่มีสินค้าสมบูรณ์เป็นตัวหาร</em></div></div>${visL1(mm.v,w.v,c.v)}<div class="explain warn"><p>สินค้าชำรุดทั้งหมด จึงไม่สามารถปันส่วนต้นทุนต่อหน่วยได้ โปรดปรับลดปริมาณสินค้าชำรุดก่อนทำการคำนวณ</p></div>`;
+    drawChart1({cost:c.v,made:mm.v,waste:w.v});
+  }
+  else if(!L1){r1.innerHTML=blockedHTML(why1.length===1&&!errs.length?why1[0]:'ไม่สามารถคำนวณได้',why1.length===1&&!errs.length?[]:why1);
+    $('chart1').innerHTML=`<div class="chart-empty">${why1.length===1&&!errs.length?why1[0]:'โปรดระบุข้อมูล '+[c.err&&'ต้นทุนผันแปรรวม',mm.err&&'ปริมาณการผลิตรวม',w.err&&'ปริมาณสินค้าชำรุด'].filter(Boolean).join(' และ ')+' ให้ถูกต้อง กราฟจะแสดงผล ณ ที่นี้'}</div>`;}
+  else{
+    const {cost,made,waste,ready,perUnit}=L1;const base=cost/made;const inc=perUnit-base;
+    let ex;
+    if(waste===0){const one=made>1?cost/(made-1):null;ex=`<p>ไม่มีสินค้าชำรุด ต้นทุนผันแปรต่อหน่วยเท่ากับ ${money(perUnit)} บาท${one!==null?` · กรณีมีสินค้าชำรุด 1 ชิ้น ต้นทุนต่อหน่วยจะเพิ่มเป็น ${money(one)} บาท`:''}</p>`;}
+    else ex=`<p>เมื่อมีสินค้าชำรุด ${int(waste)} ชิ้น ต้นทุนผันแปรต่อหน่วยจะปรับเพิ่มจากฐาน ${money(base)} บาท เป็น <b>${money(perUnit)} บาท/หน่วย</b> (เพิ่มขึ้นหน่วยละ ${money(inc)} บาท)</p>`;
+    if(cost===0)ex='<p>ต้นทุนผันแปรรวมเป็น 0 บาท โปรดตรวจสอบการบันทึกรายการวัตถุดิบและบรรจุภัณฑ์</p>';
+    r1.innerHTML=`<div class="kpis"><div class="kpi ok"><span>สินค้าสมบูรณ์พร้อมจำหน่าย</span><strong>${int(ready)}<small>ชิ้น</small></strong></div><div class="kpi hot"><span>ต้นทุนผันแปรต่อหน่วย</span><strong>฿${money(perUnit)}</strong><em>เฉลี่ยต่อหน่วย</em></div></div>`+visL1(made,waste,cost)
+      +`<div class="strip"><span class="lbl">การแทนค่าตามสูตรที่ 4</span>ต้นทุนผันแปรรวม <b>${money(cost)}</b> บาท ÷ สินค้าสมบูรณ์ <b>${int(ready)}</b> ชิ้น = <b class="hot">${money(perUnit)} บาท/หน่วย</b></div>`
+      +`<div class="explain${waste>0?' info':''}">${ex}</div>`;
+    drawChart1(L1);
+  }
+  /* ----- lesson 2 ----- */
+  const linked=$('linked');
+  if(!L1){linked.innerHTML=`<div class="grow"><small>ต้นทุนผันแปรต่อหน่วยจากบทที่ 1</small><span style="color:#ffb08f">ยังไม่มีข้อมูล</span></div><button class="btn small" type="button" data-goto="1">ย้อนกลับไปบทที่ 1</button>`;}
+  else linked.innerHTML=`<div class="grow"><small>ต้นทุนผันแปรต่อหน่วยจากบทที่ 1${S.name&&S.name.trim()?' · '+esc(S.name.trim()):''}</small><strong>${money(L1.perUnit)}</strong> <span>บาท/ชิ้น</span></div><button class="btn small" type="button" data-goto="1">แก้ไขข้อมูลบทที่ 1</button>`;
+  const fx=readField('fixed'),pr=readField('price'),qq=readField('qty');
+  $('qtyBig').textContent=qq.err?'–':int(qq.v);
+  const r2=$('results2');
+  if(!L1){$('lab2Blocked').innerHTML=blockedHTML('ยังไม่มีข้อมูลต้นทุนผันแปรต่อหน่วยจากบทที่ 1',[...why1,'โปรดแก้ไขข้อมูลในบทที่ 1 ก่อนทำการวิเคราะห์จุดคุ้มทุน']);r2.innerHTML='';$('chart2').innerHTML='<div class="chart-empty">รอข้อมูลต้นทุนผันแปรต่อหน่วยจากบทที่ 1</div>';}
+  else{
+    $('lab2Blocked').innerHTML='';
+    const e2=[fx.err,pr.err,qq.err].filter(Boolean);
+    const F=fx.v,p=pr.v,v=L1.perUnit;
+    if(fx.err||pr.err){r2.innerHTML=blockedHTML('ไม่สามารถคำนวณได้',e2);$('chart2').innerHTML=`<div class="chart-empty">โปรดระบุข้อมูล ${[fx.err&&'ต้นทุนคงที่ต่อวัน',pr.err&&'ราคาขายต่อหน่วย'].filter(Boolean).join(' และ ')} ให้ถูกต้อง กราฟจะแสดงผล ณ ที่นี้</div>`;}
+    else{
+      const be=breakEven(F,p,v);const q=qq.err?null:qq.v;
+      const autoX=niceMax(Math.max(10,(q??0)*1.25,be.kind==='ok'?be.x*1.6:0,be.kind==='none'?20:0));lastAutoX=autoX;
+      let X=autoX,rangeErr=null;
+      if(S.rangeAuto===false){const rm=parseValue(S.rangeMax,{label:'ขอบเขตแสดงผล',int:true,positive:true});if(rm.err)rangeErr=rm.err;else X=rm.v;}
+      syncRange('qty',Math.max(60,niceMax(be.kind==='ok'?be.min*2:40),q??0));
+      const beInRange=be.kind==='ok'?be.x<=X:true;
+
+      let html='';var ladderH='';
+      const mDisp=money(p)+' − '+money(v);
+      if(be.kind==='ok'){
+        html+=`<div class="kpis"><div class="kpi lime"><span>ปริมาณขายขั้นต่ำเพื่อคุ้มทุน</span><strong>${int(be.min)}<small>ชิ้น/วัน</small></strong><em>เพื่อไม่ให้เกิดผลขาดทุน</em></div><div class="kpi plain"><span>จุดตัดคำนวณทางบัญชี</span><strong>${dec(be.x)}<small>ชิ้น</small></strong><em>${Number.isInteger(be.x)?'ลงตัวพอดี':'ทำการปัดเศษขึ้นเป็นจำนวนเต็ม'}</em></div></div>`;
+        html+=`<div class="strip">กำไรส่วนทบต่อหน่วย = ${money(p)} − ${money(v)} = <b>${money(be.m)} บาท</b><br>ปริมาณขาย ณ จุดคุ้มทุน = ${money(F)} ÷ ${money(be.m)} ${dec(be.x).startsWith('≈')?'':'= '}<b>${dec(be.x)} ชิ้น</b>${Number.isInteger(be.x)?'':` → ปัดเศษขึ้นเป็น <b class="hot">${int(be.min)} ชิ้น</b>`}</div>`;
+        const ex1=Number.isInteger(be.x);
+        var ladderH=`<ul class="ladder card-ladder">${be.min>1?`<li><i class="loss"></i>หน่วยที่ 1 ถึง ${int(be.min-1)}: อยู่ในภาวะขาดทุนสุทธิ</li>`:''}${ex1?`<li><i class="even"></i>หน่วยที่ ${int(be.min)}: เสมอตัวพอดี (จุดคุ้มทุน)</li><li><i class="gain"></i>ตั้งแต่หน่วยที่ ${int(be.min+1)} เป็นต้นไป: บรรลุกำไรสุทธิเพิ่มขึ้นหน่วยละ ${money(be.m)} บาท</li>`:`<li><i class="gain"></i>ตั้งแต่หน่วยที่ ${int(be.min)} เป็นต้นไป: เริ่มบรรลุกำไรสุทธิ และเพิ่มขึ้นหน่วยละ ${money(be.m)} บาท</li>`}</ul>`;
+      }else if(be.kind==='none'){
+        html+=`<div class="blocked"><strong>ไม่พบจุดคุ้มทุนที่เป็นไปได้</strong>ราคาขายต่อหน่วย (${money(p)} บาท) ${p<v?'ต่ำกว่า':'เท่ากับ'}ต้นทุนผันแปรต่อหน่วย (${money(v)} บาท) จึงไม่มีกำไรส่วนทบมาเสนอชดเชยต้นทุนคงที่ โปรดกำหนดราคาขายให้สูงกว่า ${money(v)} บาท</div>`;
+      }else if(be.kind==='zero'){html+=`<div class="kpis"><div class="kpi lime"><span>ปริมาณขาย ณ จุดคุ้มทุน</span><strong>0<small>ชิ้น</small></strong><em>ไม่มีภาระต้นทุนคงที่</em></div><div class="kpi plain"><span>กำไรส่วนทบต่อหน่วย</span><strong>${money(be.m)}<small>บาท</small></strong></div></div>`;}
+      else if(be.kind==='flat'){html+=`<div class="blocked"><strong>กำไรสุทธิเป็นศูนย์ทุกระดับการขาย</strong>ไม่มีภาระต้นทุนคงที่ และราคาขายเท่ากับต้นทุนผันแปรต่อหน่วย รายได้จากการขายเท่ากับต้นทุนรวมพอดีทุกกรณี</div>`;}
+      else{html+=`<div class="blocked"><strong>เกิดผลขาดทุนสุทธิทุกระดับการขาย</strong>แม้ไม่มีต้นทุนคงที่ แต่ราคาขาย (${money(p)} บาท) ต่ำกว่าต้นทุนผันแปรต่อหน่วย (${money(v)} บาท) การจำหน่ายแต่ละหน่วยจะเกิดผลขาดทุนส่วนทบ ${money(v-p)} บาท</div>`;}
+      html+=visL2(F,p,v,q===null?(be.kind==='ok'?be.min:0):q,be);
+      if(q===null){if(ladderH)html+=ladderH;html+=blockedHTML('ยังไม่สามารถแสดงผล ณ ปริมาณขายที่เลือกได้',[qq.err]);}
+      else{
+        const r=pl(F,p,v,q);const pos=r.profit>0.004,neg=r.profit<-0.004;
+        html+=`<div class="big" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="stat"><span>รายได้จากการขาย</span><strong>${money(r.rev)}</strong><em>บาท</em></div><div class="stat"><span>ต้นทุนรวม</span><strong>${money(r.total)}</strong><em>บาท</em></div><div class="stat ${pos?'good':neg?'bad':''}"><span>${neg?'ขาดทุนสุทธิ':'กำไรสุทธิ'}</span><strong>${neg?'−':''}${money(Math.abs(r.profit))}</strong><em>บาท (ณ ปริมาณขาย ${int(q)} ชิ้น)</em></div></div>`;
+        let ex='';
+        if(be.kind==='ok'){const diff=q-be.min;ex+=diff>=0?`<p>เมื่อจำหน่ายได้ ${int(q)} ชิ้น ${diff===0?'บรรลุจุดคุ้มทุนพอดี':`สูงกว่าจุดคุ้มทุน ${int(diff)} ชิ้น`} → ${pos?`<b>กำไรสุทธิ ${money(r.profit)} บาท</b>`:'ผลประกอบการเสมอตัวพอดี'}</p>`:`<p>เมื่อจำหน่ายได้ ${int(q)} ชิ้น ยังต่ำกว่าจุดคุ้มทุนอีก ${int(-diff)} ชิ้น → <b>ขาดทุนสุทธิ ${money(-r.profit)} บาท</b></p>`;
+          const up=breakEven(F,p+1,v),cut=breakEven(F*0.8,p,v);
+          ex+=`<p></p>`;}
+        else if(be.kind==='none'){ex=`<p>การจำหน่าย ${int(q)} ชิ้น ส่งผลให้เกิดผลขาดทุนสุทธิ ${money(-r.profit)} บาท โปรดพิจารณาปรับเพิ่มราคาขาย หรือปรับลดต้นทุนผันแปรในบทที่ 1</p>`;}
+        else if(be.kind==='zero'){ex=`<p>ไม่มีภาระต้นทุนคงที่ การจำหน่ายสินค้าชิ้นแรกจะสร้างกำไรสุทธิทันทีหน่วยละ ${money(be.m)} บาท</p>`;}
+        if(ex||ladderH)html+=`<div class="explain ${neg?'warn':pos?'':'info'}">${ex}${ladderH||''}</div>`;
+      }
+      r2.innerHTML=html;
+      if(rangeErr){$('chart2').innerHTML=`<div class="chart-empty">${rangeErr} หรือเปิดปรับมาตราส่วนอัตโนมัติ</div>`;}
+      else drawChart2({F,p,v,q,be,X,beInRange});
+    }
+  }
+  save();
+}
+/* ===== tabs ===== */
+function showTab(n){
+  n=n==='2'?'2':'1';
+  document.querySelectorAll('[role=tab]').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===n?'true':'false'));
+  $('lesson-1').hidden=n!=='1';$('lesson-2').hidden=n!=='2';
+  const h='#lesson-'+n;if(location.hash!==h){try{history.replaceState(null,'',h)}catch(e){location.hash=h}}
+  update();
+}
+document.querySelectorAll('[role=tab]').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+document.querySelector('.tabs').addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){const cur=document.querySelector('[role=tab][aria-selected=true]').dataset.tab;const n=cur==='1'?'2':'1';showTab(n);$('tab-'+n).focus();}});
+document.addEventListener('click',e=>{const g=e.target.closest('[data-goto]');if(!g)return;showTab(g.dataset.goto);window.scrollTo({top:document.querySelector('.tabs').offsetTop-12,behavior:'smooth'});});
+window.addEventListener('hashchange',()=>showTab(location.hash==='#lesson-2'?'2':'1'));
+$('calc1').addEventListener('click',()=>{update();$('status1').textContent=L1?'คำนวณเรียบร้อยแล้ว':'ยังไม่สามารถคำนวณได้ โปรดตรวจสอบข้อความแจ้งเตือน';$('results1').scrollIntoView({behavior:'smooth',block:'nearest'});});
+$('calc2').addEventListener('click',()=>{update();$('status2').textContent=$('results2').querySelector('.stat')?'คำนวณเรียบร้อยแล้ว':'ยังไม่สามารถคำนวณได้ โปรดตรวจสอบข้อความแจ้งเตือน';$('results2').scrollIntoView({behavior:'smooth',block:'nearest'});});
+let rz;new ResizeObserver(()=>{clearTimeout(rz);rz=setTimeout(update,80);}).observe(document.querySelector('.shell'));
+fillInputs();
+showTab(location.hash==='#lesson-2'?'2':'1');
+</script>
+
+</body></html>
