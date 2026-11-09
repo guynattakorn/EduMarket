@@ -1150,9 +1150,6 @@ function TopRoleSwitcher() {
         </div>
       </aside>
 
-        </div>
-      </aside>
-
       {/* Confirm Reset Dialog */}
       {showConfirmReset && (
         <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">

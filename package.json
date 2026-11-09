@@ -4,7 +4,8 @@
   "description": "EduMarket · ห้องเรียนที่ได้ลองขายจริง - Full Clone",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "npx esbuild app.js --bundle --loader:.js=jsx --format=esm --outfile=app.bundle.js --external:react --external:react-dom --external:react-dom/client"
   },
   "keywords": [
     "edumarket",

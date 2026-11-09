@@ -2,9 +2,29 @@ require('dotenv').config();
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 const db = require('./db/supabase');
 const { supabase, sb } = db;
 const auth = require('./db/auth');
+
+function ensureBundle() {
+  const appPath = path.join(__dirname, 'app.js');
+  const bundlePath = path.join(__dirname, 'app.bundle.js');
+  
+  if (!fs.existsSync(bundlePath) || (fs.existsSync(appPath) && fs.statSync(appPath).mtimeMs > fs.statSync(bundlePath).mtimeMs)) {
+    try {
+      console.log('[Build] Compiling app.js into browser-ready app.bundle.js...');
+      execSync('npx esbuild app.js --bundle --loader:.js=jsx --format=esm --outfile=app.bundle.js --external:react --external:react-dom --external:react-dom/client', {
+        cwd: __dirname,
+        stdio: 'ignore'
+      });
+      console.log('[Build] App bundle compiled successfully.');
+    } catch (e) {
+      console.warn('[Build] Warning during bundle:', e.message);
+    }
+  }
+}
+ensureBundle();
 
 const PORT = process.env.PORT || 3000;
 
@@ -133,6 +153,10 @@ const server = http.createServer(async (req, res) => {
   // ----------------------------------------------------------------
   // Static File Serving
   // ----------------------------------------------------------------
+  if (cleanUrl === '/app.bundle.js') {
+    ensureBundle();
+  }
+
   let filePath = path.join(__dirname, cleanUrl === '/' ? 'index.html' : cleanUrl);
 
   // SPA fallback for non-file requests

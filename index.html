@@ -15,6 +15,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+  <!-- Suppress Tailwind CDN advisory in development -->
+  <script>
+    const _origWarn = console.warn;
+    console.warn = function(...args) {
+      if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
+        return;
+      }
+      _origWarn.apply(console, args);
+    };
+  </script>
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -72,6 +83,6 @@
 
   <!-- Sync Bridge & Real Application Logic -->
   <script src="sync-bridge.js"></script>
-  <script type="module" src="app.js"></script>
+  <script type="module" src="app.bundle.js"></script>
 </body>
 </html>
