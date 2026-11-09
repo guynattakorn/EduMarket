@@ -1,18 +1,77 @@
 <!doctype html>
-<html lang="th">
+<html lang="th" class="h-full bg-slate-50 antialiased">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#c8ff00">
-  <meta name="description" content="แอปต้นแบบช่วยครูสอนธุรกิจ ผ่านบทเรียนและตลาดนัดในโรงเรียน">
-  <title>EduMarket · ห้องเรียนที่ได้ลองขายจริง</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='20' fill='%23c8ff00'/%3E%3Cpath d='M18 15h29v8H27v6h17v8H27v6h20v8H18z' fill='%23191919'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <meta name="theme-color" content="#10b981">
+  <meta name="description" content="EduMarket · ห้องเรียนธุรกิจจำลองและการเรียนรู้ผ่านตลาดนัดในโรงเรียน">
+  <title>EduMarket · ห้องเรียนที่ได้ลองขายจริง (High-Fidelity Prototype)</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%2310b981'/%3E%3Cpath d='M18 16h28v7H26v5h16v7H26v5h20v8H18z' fill='%23ffffff'/%3E%3C/svg%3E">
+
+  <!-- Google Fonts: Inter & Prompt (Thai) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              lime: '#c8ff00',
+            },
+            coral: {
+              50: '#fef2f2',
+              100: '#fee2e2',
+              400: '#f87171',
+              500: '#ef4444',
+              600: '#dc2626',
+            },
+            slate: {
+              850: '#172033',
+              900: '#0f172a',
+              950: '#090d16',
+            }
+          },
+          fontFamily: {
+            sans: ['Prompt', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- React 18 & ReactDOM 18 from esm.sh -->
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.3.1",
+        "react-dom": "https://esm.sh/react-dom@18.3.1",
+        "react-dom/client": "https://esm.sh/react-dom@18.3.1/client"
+      }
+    }
+  </script>
+
   <link rel="stylesheet" href="app.css">
 </head>
-<body>
-  <div id="root"></div>
+<body class="h-full font-sans text-slate-850 selection:bg-brand-500 selection:text-white bg-slate-50 overflow-x-hidden">
+  <div id="root" class="min-h-full flex flex-col"></div>
+
+  <!-- Sync Bridge & Real Application Logic -->
   <script src="sync-bridge.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>
-
