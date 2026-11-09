@@ -137,36 +137,78 @@ async function getState() {
       members: s.members || [],
     }));
 
+    const shopMap = {};
+    (shops || []).forEach(s => {
+      shopMap[s.id] = s.name;
+    });
+
     const mappedProducts = (products || []).map(p => ({
       id: p.id,
       shopId: p.shop_id,
+      storeId: p.shop_id,
+      storeName: shopMap[p.shop_id] || 'มินต์กับเพื่อน',
       name: p.name,
-      description: p.description,
-      price: Number(p.price),
-      cost: Number(p.cost),
-      stock: p.stock,
-      category: p.category,
-      emoji: p.emoji,
-      color: p.color,
+      title: p.name,
+      description: p.description || '',
+      price: Number(p.price) || 0,
+      cost: Number(p.cost) || 0,
+      stock: Number(p.stock) || 0,
+      category: p.category || 'อาหาร & เบเกอรี่',
+      emoji: p.emoji || '🥪',
+      color: p.color || 'emerald',
       image: p.image,
-      views: p.views,
-      wishBase: p.wish_base,
+      views: Number(p.views) || 0,
+      wishBase: Number(p.wish_base) || 0,
       wishedBy: p.wished_by || [],
       preorder: Boolean(p.preorder),
+      isPreorder: Boolean(p.preorder),
+      isVerified: true,
+      pickupWindow: 'พักกลางวัน 12:15 - 12:45',
       createdAt: p.created_at,
     }));
 
-    const mappedOrders = (orders || []).map(o => ({
-      id: o.id,
-      buyer: o.buyer_id,
-      shopId: o.shop_id,
-      items: o.items || [],
-      status: o.status,
-      pickup: o.pickup,
-      time: o.time,
-      date: o.created_at,
-      demo: Boolean(o.is_demo),
-    }));
+    const statusMapFromSupabase = {
+      awaiting: 'pending',
+      preparing: 'preparing',
+      confirmed: 'ready',
+      delivered: 'completed'
+    };
+
+    const mappedOrders = (orders || []).map(o => {
+      const itemsList = Array.isArray(o.items) ? o.items : [];
+      const meta = itemsList.find(i => i && i._meta) || {};
+      const cleanItems = itemsList.filter(i => i && !i._meta).map(it => ({
+        id: it.productId || it.id || 'p1',
+        title: it.name || it.title || 'สินค้า',
+        name: it.name || it.title || 'สินค้า',
+        price: Number(it.price) || 0,
+        cost: Number(it.cost) || 0,
+        qty: Number(it.qty) || 1
+      }));
+
+      const total = Number(meta.total) || cleanItems.reduce((sum, it) => sum + it.price * it.qty, 0);
+
+      return {
+        id: o.id,
+        code: meta.code || (o.id.replace(/\D/g, '').slice(-4) || '1234'),
+        buyerId: o.buyer_id || 'student2',
+        buyerName: meta.buyerName || 'ปัน (ม.4/1)',
+        buyer: o.buyer_id,
+        storeId: o.shop_id,
+        shopId: o.shop_id,
+        storeName: meta.storeName || shopMap[o.shop_id] || 'มินต์กับเพื่อน',
+        items: cleanItems,
+        total: total,
+        status: statusMapFromSupabase[o.status] || o.status || 'pending',
+        isPreorder: Boolean(meta.isPreorder),
+        pickupLocation: o.pickup || 'โรงอาหารกลาง (เสาต้นที่ 4)',
+        pickup: o.pickup,
+        pickupWindow: o.time || 'พักกลางวัน 12:15 - 12:45',
+        time: o.time,
+        date: o.created_at,
+        demo: Boolean(o.is_demo),
+      };
+    });
 
     const mappedReviews = (reviews || []).map(r => ({
       id: r.id,
@@ -197,11 +239,30 @@ async function getState() {
 
     const mappedAssignments = (assignments || []).map(a => ({
       id: a.id,
-      classId: a.class_id,
+      classId: a.class_id || 'c1',
       teacherId: a.teacher_id,
       title: a.title,
-      body: a.body,
-      due: a.due,
+      description: a.body || '',
+      body: a.body || '',
+      due: a.due || '2026-11-30',
+      submissionsCount: 4,
+      totalStudents: 12
+    }));
+
+    const mappedStores = (shops || []).map(s => ({
+      id: s.id,
+      name: s.name,
+      ownerId: s.members?.[0] || 'student1',
+      ownerName: s.name.split(' ')[0] || 'มินต์',
+      ownerAvatar: '👩🏻',
+      classId: s.class_id || 'c1',
+      category: 'อาหาร & เบเกอรี่',
+      tagline: s.tagline || '',
+      emoji: s.emoji || '🥪',
+      color: s.color || 'emerald',
+      isVerified: true,
+      rating: 4.8,
+      reviewCount: 20
     }));
 
     const mappedContents = (contents || []).map(c => ({
@@ -224,15 +285,35 @@ async function getState() {
       date: l.created_at,
     }));
 
+    const student1Modules = progressDict['student1'] || [];
+    const mappedLessons = {
+      costLesson: {
+        completed: student1Modules.includes('costLesson'),
+        batchCost: 350,
+        producedUnits: 20,
+        wastedUnits: 2,
+        unitCost: 19.44
+      },
+      pricingLesson: {
+        completed: student1Modules.includes('pricingLesson'),
+        fixedCost: 120,
+        unitCost: 19.44,
+        sellingPrice: 35,
+        breakEvenUnits: 8
+      }
+    };
+
     return {
       schema: 2,
       users: mappedUsers,
       classes: mappedClasses,
       shops: mappedShops,
+      stores: mappedStores,
       products: mappedProducts,
       orders: mappedOrders,
       reviews: mappedReviews,
       progress: progressDict,
+      lessons: mappedLessons,
       assignments: mappedAssignments,
       submissions: [],
       contents: mappedContents,
@@ -386,6 +467,16 @@ async function syncFullState(state) {
     return { mode: 'local' };
   }
 
+  const statusToSupabase = {
+    pending: 'awaiting',
+    preparing: 'preparing',
+    ready: 'confirmed',
+    completed: 'delivered',
+    awaiting: 'awaiting',
+    confirmed: 'confirmed',
+    delivered: 'delivered'
+  };
+
   try {
     const promises = [];
 
@@ -393,20 +484,20 @@ async function syncFullState(state) {
     if (Array.isArray(state.products) && state.products.length > 0) {
       const productRows = state.products.map(p => ({
         id: String(p.id),
-        shop_id: p.shopId,
-        name: p.name,
+        shop_id: p.shopId || p.storeId || 's1',
+        name: p.title || p.name || 'สินค้าใหม่',
         description: p.description || '',
         price: Number(p.price) || 0,
         cost: Number(p.cost) || 0,
         stock: Number(p.stock) || 0,
-        category: p.category || '',
-        emoji: p.emoji || '📦',
-        color: p.color || 'lime',
+        category: p.category || 'อาหาร & เบเกอรี่',
+        emoji: p.emoji || '🥪',
+        color: p.color || 'emerald',
         image: p.image || null,
         views: Number(p.views) || 0,
         wish_base: Number(p.wishBase) || 0,
         wished_by: p.wishedBy || [],
-        preorder: Boolean(p.preorder),
+        preorder: Boolean(p.isPreorder ?? p.preorder),
       }));
 
       promises.push(
@@ -418,15 +509,16 @@ async function syncFullState(state) {
     }
 
     // 2. Sync Shops
-    if (Array.isArray(state.shops) && state.shops.length > 0) {
-      const shopRows = state.shops.map(s => ({
+    const shopsList = state.shops || state.stores;
+    if (Array.isArray(shopsList) && shopsList.length > 0) {
+      const shopRows = shopsList.map(s => ({
         id: String(s.id),
         name: s.name,
         tagline: s.tagline || '',
         emoji: s.emoji || '🏪',
-        color: s.color || 'lime',
-        class_id: s.classId || null,
-        members: s.members || [],
+        color: s.color || 'emerald',
+        class_id: s.classId || 'c1',
+        members: s.members || [s.ownerId || 'student1'],
       }));
 
       promises.push(
@@ -439,17 +531,29 @@ async function syncFullState(state) {
 
     // 3. Sync Orders
     if (Array.isArray(state.orders) && state.orders.length > 0) {
-      const orderRows = state.orders.map(o => ({
-        id: String(o.id),
-        buyer_id: o.buyer || null,
-        shop_id: o.shopId,
-        items: o.items || [],
-        status: o.status || 'awaiting',
-        pickup: o.pickup || '',
-        time: o.time || '',
-        is_demo: Boolean(o.demo),
-        created_at: o.date || new Date().toISOString(),
-      }));
+      const orderRows = state.orders.map(o => {
+        const rawItems = Array.isArray(o.items) ? [...o.items] : [];
+        const metaItem = {
+          _meta: true,
+          code: o.code || '1234',
+          buyerName: o.buyerName || 'ปัน (ม.4/1)',
+          storeName: o.storeName || 'มินต์กับเพื่อน',
+          isPreorder: Boolean(o.isPreorder),
+          total: Number(o.total) || 0
+        };
+
+        return {
+          id: String(o.id),
+          buyer_id: o.buyerId === 'student2' || o.buyer === 'student2' ? 'student2' : null,
+          shop_id: o.storeId || o.shopId || 's1',
+          items: [...rawItems.filter(i => !i._meta), metaItem],
+          status: statusToSupabase[o.status] || 'awaiting',
+          pickup: o.pickupLocation || o.pickup || 'โรงอาหารกลาง (เสาต้นที่ 4)',
+          time: o.pickupWindow || o.time || 'พักกลางวัน 12:15 - 12:45',
+          is_demo: Boolean(o.demo),
+          created_at: o.date || new Date().toISOString(),
+        };
+      });
 
       promises.push(
         supabase.from('orders').upsert(orderRows, { onConflict: 'id' })
@@ -478,22 +582,40 @@ async function syncFullState(state) {
       );
     }
 
-    // 5. Sync Student Progress
-    if (state.progress && typeof state.progress === 'object') {
-      const progressRows = Object.entries(state.progress).map(([student_id, modules]) => ({
-        student_id,
-        modules: modules || [],
-        updated_at: new Date().toISOString(),
+    // 5. Sync Student Progress & Lessons
+    const modules = [];
+    if (state.lessons?.costLesson?.completed) modules.push('costLesson');
+    if (state.lessons?.pricingLesson?.completed) modules.push('pricingLesson');
+    if (modules.length > 0) {
+      promises.push(
+        supabase.from('student_progress').upsert({
+          student_id: 'student1',
+          modules,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'student_id' })
+          .then(({ error }) => {
+            if (error) console.error('[Supabase Sync Error] Progress:', error.message);
+          })
+      );
+    }
+
+    // 6. Sync Assignments
+    if (Array.isArray(state.assignments) && state.assignments.length > 0) {
+      const assignRows = state.assignments.map(a => ({
+        id: String(a.id),
+        class_id: a.classId || 'c1',
+        teacher_id: 'teacher1',
+        title: a.title,
+        body: a.description || a.body || '',
+        due: a.due || '2026-11-30',
       }));
 
-      if (progressRows.length > 0) {
-        promises.push(
-          supabase.from('student_progress').upsert(progressRows, { onConflict: 'student_id' })
-            .then(({ error }) => {
-              if (error) console.error('[Supabase Sync Error] Progress:', error.message);
-            })
-        );
-      }
+      promises.push(
+        supabase.from('assignments').upsert(assignRows, { onConflict: 'id' })
+          .then(({ error }) => {
+            if (error) console.error('[Supabase Sync Error] Assignments:', error.message);
+          })
+      );
     }
 
     await Promise.all(promises);

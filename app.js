@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, createContext, useMemo } from 'react';
+import React, { useState, useEffect, useContext, createContext, useMemo, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 
 // ====================================================================
@@ -380,13 +380,16 @@ export function AppProvider({ children }) {
   });
 
   const [toasts, setToasts] = useState([]);
+  const [syncStatus, setSyncStatus] = useState({
+    status: 'syncing', // 'synced' | 'syncing' | 'offline' | 'error'
+    lastSync: null,
+    isCloud: true,
+    error: null
+  });
 
-  // Save to LocalStorage on state change
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (e) {}
-  }, [state]);
+  const isHydratedRef = useRef(false);
+  const syncTimeoutRef = useRef(null);
+  const isSyncingRef = useRef(false);
 
   // Toast Helper
   const showToast = (message, type = 'success') => {
@@ -395,6 +398,226 @@ export function AppProvider({ children }) {
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
     }, 3800);
+  };
+
+  // 1. Initial State Hydration from Supabase Cloud on mount
+  useEffect(() => {
+    let isMounted = true;
+
+    async function initialHydrate() {
+      try {
+        const [healthRes, stateRes] = await Promise.all([
+          fetch('/api/health').catch(() => null),
+          fetch('/api/state').catch(() => null)
+        ]);
+
+        let isCloud = true;
+        if (healthRes && healthRes.ok) {
+          const health = await healthRes.json();
+          isCloud = health.database === 'supabase_cloud';
+        }
+
+        if (stateRes && stateRes.ok && isMounted) {
+          const cloud = await stateRes.json();
+          setState(prev => {
+            const mergedProducts = Array.isArray(cloud.products) && cloud.products.length > 0 ? cloud.products : prev.products;
+            const mergedStores = Array.isArray(cloud.stores) && cloud.stores.length > 0
+              ? cloud.stores
+              : (Array.isArray(cloud.shops) && cloud.shops.length > 0 ? cloud.shops : prev.stores);
+            const mergedOrders = Array.isArray(cloud.orders) && cloud.orders.length > 0 ? cloud.orders : prev.orders;
+            const mergedAssignments = Array.isArray(cloud.assignments) && cloud.assignments.length > 0 ? cloud.assignments : prev.assignments;
+            const mergedLessons = cloud.lessons || prev.lessons;
+
+            return {
+              ...prev,
+              products: mergedProducts,
+              stores: mergedStores,
+              orders: mergedOrders,
+              assignments: mergedAssignments,
+              lessons: mergedLessons
+            };
+          });
+
+          const nowStr = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          setSyncStatus({
+            status: 'synced',
+            lastSync: nowStr,
+            isCloud,
+            error: null
+          });
+          showToast(isCloud ? 'ซิงค์ข้อมูลกับ Supabase Cloud อัตโนมัติแล้ว ☁️' : 'เชื่อมต่อฐานข้อมูลเรียบร้อยแล้ว ✨', 'info');
+        }
+      } catch (err) {
+        console.warn('[EduMarket Auto-Sync] Initial fetch failed:', err);
+        if (isMounted) {
+          setSyncStatus({
+            status: 'offline',
+            lastSync: null,
+            isCloud: false,
+            error: err.message
+          });
+        }
+      } finally {
+        if (isMounted) {
+          isHydratedRef.current = true;
+        }
+      }
+    }
+
+    initialHydrate();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // 2. Debounced Auto-Sync to Supabase whenever state mutations occur
+  useEffect(() => {
+    // Save to local storage for instant offline resilience
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {}
+
+    // Skip sending before first hydrate
+    if (!isHydratedRef.current) return;
+
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
+    }
+
+    setSyncStatus(prev => ({ ...prev, status: 'syncing' }));
+
+    syncTimeoutRef.current = setTimeout(async () => {
+      try {
+        isSyncingRef.current = true;
+        const res = await fetch('/api/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ state })
+        });
+
+        if (res.ok) {
+          const nowStr = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          setSyncStatus(prev => ({
+            ...prev,
+            status: 'synced',
+            lastSync: nowStr,
+            error: null
+          }));
+        } else {
+          throw new Error(`Sync returned ${res.status}`);
+        }
+      } catch (err) {
+        console.warn('[EduMarket Auto-Sync] Sync failed:', err.message);
+        setSyncStatus(prev => ({
+          ...prev,
+          status: 'error',
+          error: err.message
+        }));
+      } finally {
+        isSyncingRef.current = false;
+      }
+    }, 600);
+
+    return () => {
+      if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+    };
+  }, [state.products, state.orders, state.assignments, state.lessons, state.stores]);
+
+  // 3. Multi-user Periodic Sync: Background polling every 4.5 seconds
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (isSyncingRef.current || !isHydratedRef.current || document.hidden) return;
+
+      try {
+        const res = await fetch('/api/state');
+        if (res.ok) {
+          const cloud = await res.json();
+          setState(prev => {
+            let changed = false;
+
+            // Check if remote orders changed
+            let nextOrders = prev.orders;
+            if (Array.isArray(cloud.orders)) {
+              if (cloud.orders.length !== prev.orders.length) {
+                nextOrders = cloud.orders;
+                changed = true;
+              } else {
+                const prevMap = new Map(prev.orders.map(o => [o.id, o.status]));
+                for (const ro of cloud.orders) {
+                  if (prevMap.get(ro.id) !== ro.status) {
+                    nextOrders = cloud.orders;
+                    changed = true;
+                    break;
+                  }
+                }
+              }
+            }
+
+            // Check if remote products changed
+            let nextProducts = prev.products;
+            if (Array.isArray(cloud.products) && cloud.products.length !== prev.products.length) {
+              nextProducts = cloud.products;
+              changed = true;
+            }
+
+            // Check if remote assignments changed
+            let nextAssignments = prev.assignments;
+            if (Array.isArray(cloud.assignments) && cloud.assignments.length !== prev.assignments.length) {
+              nextAssignments = cloud.assignments;
+              changed = true;
+            }
+
+            if (!changed) return prev;
+
+            return {
+              ...prev,
+              orders: nextOrders,
+              products: nextProducts,
+              assignments: nextAssignments
+            };
+          });
+
+          const nowStr = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          setSyncStatus(prev => ({ ...prev, status: 'synced', lastSync: nowStr }));
+        }
+      } catch (e) {}
+    }, 4500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // 4. Force Manual Sync Action
+  const triggerManualSync = async () => {
+    setSyncStatus(prev => ({ ...prev, status: 'syncing' }));
+    try {
+      const res = await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ state })
+      });
+      if (res.ok) {
+        const stateRes = await fetch('/api/state');
+        if (stateRes.ok) {
+          const fresh = await stateRes.json();
+          setState(prev => ({
+            ...prev,
+            products: Array.isArray(fresh.products) && fresh.products.length ? fresh.products : prev.products,
+            orders: Array.isArray(fresh.orders) && fresh.orders.length ? fresh.orders : prev.orders,
+            assignments: Array.isArray(fresh.assignments) && fresh.assignments.length ? fresh.assignments : prev.assignments,
+            stores: Array.isArray(fresh.stores) && fresh.stores.length ? fresh.stores : prev.stores
+          }));
+        }
+        const nowStr = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        setSyncStatus({ status: 'synced', lastSync: nowStr, isCloud: true, error: null });
+        showToast('ซิงค์ข้อมูลล่าสุดกับ Supabase Cloud เรียบร้อยแล้ว ☁️', 'success');
+      } else {
+        throw new Error(`Sync returned ${res.status}`);
+      }
+    } catch (e) {
+      setSyncStatus(prev => ({ ...prev, status: 'error', error: e.message }));
+      showToast('การซิงค์ขัดข้อง: ' + e.message, 'error');
+    }
   };
 
   // Switch Role Mode
@@ -409,7 +632,7 @@ export function AppProvider({ children }) {
   };
 
   // Reset Demo Data
-  const resetDemoData = () => {
+  const resetDemoData = async () => {
     const freshState = {
       mode: 'buyer',
       selectedClassId: 'c1',
@@ -439,6 +662,15 @@ export function AppProvider({ children }) {
     setState(freshState);
     localStorage.removeItem(STORAGE_KEY);
     showToast('รีเซ็ตข้อมูลทดสอบทั้งหมดเรียบร้อยแล้ว ✨', 'info');
+    
+    // Sync reset to Supabase
+    try {
+      await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ state: freshState })
+      });
+    } catch (e) {}
   };
 
   // Cart Actions
@@ -682,6 +914,8 @@ export function AppProvider({ children }) {
         createAssignment,
         isStoreUnlocked,
         showToast,
+        syncStatus,
+        triggerManualSync,
         setSelectedClassId: (id) => setState(p => ({ ...p, selectedClassId: id }))
       }}
     >
@@ -796,7 +1030,7 @@ function QRCodeSVG({ value = '', size = 140 }) {
 // 4. TOP FLOATING QUICK ROLE SWITCHER
 // ====================================================================
 function TopRoleSwitcher() {
-  const { mode, setMode, resetDemoData, cart } = useEdu();
+  const { mode, setMode, resetDemoData, cart, syncStatus, triggerManualSync } = useEdu();
   const [showConfirmReset, setShowConfirmReset] = useState(false);
 
   return (
@@ -863,17 +1097,58 @@ function TopRoleSwitcher() {
             </button>
           </div>
 
-          {/* Reset Demo Data Action */}
+          {/* Actions & Sync Status */}
           <div className="flex items-center gap-2">
+            {/* Supabase Auto-Sync Badge */}
+            <button
+              onClick={triggerManualSync}
+              title="ซิงค์อัตโนมัติกับ Supabase Cloud (คลิกเพื่อบังคับซิงค์ทันที)"
+              className={`text-xs px-2.5 py-1.5 rounded-lg border transition-all flex items-center gap-2 ${
+                syncStatus?.status === 'syncing'
+                  ? 'bg-amber-500/10 border-amber-500/40 text-amber-300'
+                  : syncStatus?.status === 'error'
+                  ? 'bg-red-500/10 border-red-500/40 text-red-300'
+                  : 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/20 shadow-sm'
+              }`}
+            >
+              <span className="relative flex h-2 w-2">
+                {syncStatus?.status === 'syncing' ? (
+                  <span className="animate-spin inline-block w-2 h-2 border-2 border-amber-400 border-t-transparent rounded-full" />
+                ) : (
+                  <>
+                    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                      syncStatus?.status === 'error' ? 'bg-red-400' : 'bg-emerald-400'
+                    }`} />
+                    <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                      syncStatus?.status === 'error' ? 'bg-red-500' : 'bg-emerald-400'
+                    }`} />
+                  </>
+                )}
+              </span>
+              <span className="font-semibold text-[11px] flex items-center gap-1">
+                <span>{syncStatus?.isCloud ? 'Supabase Sync' : 'Local DB'}</span>
+                {syncStatus?.status === 'syncing' && <span className="text-[10px] text-amber-300 font-normal">...</span>}
+              </span>
+              {syncStatus?.lastSync && (
+                <span className="text-[10px] text-slate-400 hidden sm:inline">
+                  {syncStatus.lastSync}
+                </span>
+              )}
+            </button>
+
+            {/* Reset Demo Data Action */}
             <button
               onClick={() => setShowConfirmReset(true)}
               title="รีเซ็ตข้อมูลตัวอย่างทั้งหมดกลับสู่ค่าเริ่มต้น"
               className="text-xs text-slate-400 hover:text-red-300 hover:bg-red-500/10 px-2.5 py-1.5 rounded-lg border border-slate-700 hover:border-red-500/40 transition-colors flex items-center gap-1.5"
             >
               <span>🔄</span>
-              <span className="hidden sm:inline">Reset Demo</span>
+              <span className="hidden sm:inline">Reset</span>
             </button>
           </div>
+
+        </div>
+      </aside>
 
         </div>
       </aside>
