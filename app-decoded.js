@@ -6,6 +6,23 @@ var Gu = "edu-marketplace-classroom-v2",
       subtitle: "บทเรียนฉบับเต็ม พร้อมตัวอย่างและเครื่องมือคำนวณ",
       icon: "🪙",
       color: "lime",
+      src: "lesson-cost-break-even.html",
+    },
+    {
+      id: "demand",
+      title: "ความต้องการของตลาด",
+      subtitle: "วางแผนยอดขายให้ตรงกับความต้องการของตลาด",
+      icon: "📈",
+      color: "lime",
+      src: "market-demand.html",
+    },
+    {
+      id: "stock",
+      title: "สต็อกสินค้า",
+      subtitle: "วางแผนสต็อกให้พอดี ไม่ขาดไม่เหลือ",
+      icon: "📦",
+      color: "lime",
+      src: "stock.html",
     },
   ],
   completedLessons = (progress = []) =>
@@ -2101,7 +2118,7 @@ function Wh() {
               }),
               (0, s.jsx)("h1", { children: "ทุกการลอง คือการเรียนรู้ ✦" }),
               (0, s.jsx)("p", {
-                children: "เรียนรู้การคำนวณต้นทุนและจุดคุ้มทุน พร้อมทดลองกับร้านของเรา",
+                children: "เรียนรู้เรื่องต้นทุน ตลาด และสต็อก พร้อมทดลองกับร้านของเรา",
               }),
             ],
           }),
@@ -2756,6 +2773,7 @@ function LegacyFh({ moduleId: t }) {
 }
 function Fh({ moduleId: t }) {
   let { data: e, user: a, dispatch: l, setLesson: n, toast: i } = Q(),
+    c = Ea.find((lesson) => lesson.id === t),
     E = (e.progress[a.id] || []).includes(t),
     Z = () => {
       (l({ type: "COMPLETE", user: a.id, module: t }),
@@ -2776,19 +2794,15 @@ function Fh({ moduleId: t }) {
       (0, s.jsxs)("div", {
         className: "lesson-banner lime",
         children: [
-          (0, s.jsx)("span", { children: "🪙" }),
+          (0, s.jsx)("span", { children: c.icon }),
           (0, s.jsxs)("div", {
             children: [
               (0, s.jsx)("div", {
                 className: "eyebrow",
                 children: "บทเรียนหลักฉบับเต็ม",
               }),
-              (0, s.jsx)("h1", {
-                children: "คู่มือการคำนวณต้นทุนและจุดคุ้มทุน",
-              }),
-              (0, s.jsx)("p", {
-                children: "อ่าน ทำความเข้าใจ และทดลองคำนวณไปพร้อมกัน",
-              }),
+              (0, s.jsx)("h1", { children: c.title }),
+              (0, s.jsx)("p", { children: c.subtitle }),
             ],
           }),
           (0, s.jsx)(dt, {
@@ -2798,8 +2812,8 @@ function Fh({ moduleId: t }) {
         ],
       }),
       (0, s.jsx)("iframe", {
-        title: "คู่มือการคำนวณต้นทุนและจุดคุ้มทุน",
-        src: "lesson-cost-break-even.html",
+        title: c.title,
+        src: c.src,
         style: {
           width: "100%",
           height: "min(78vh, 900px)",

@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>สต็อกสินค้า · EduMarket</title>
+<meta name="description" content="หัวข้อ 3: ทำสต็อกให้พอดี ทุนจม กำไรที่พลาด และเครื่องมือหาจุดพอดี">
+<meta name="theme-color" content="#c8ff0a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<style>
+/* Layout: EduMarket app shell (paper card on peach) → lime lesson banner → two lesson tabs, each = article → formulas → lab (inputs | results) → live chart. Single light theme, same as the app. */
+:root{
+  --lime:#c8ff0a; --lime-soft:#f1ffc4; --orange:#ff5a18; --peach:#ffd1b8; --peach-soft:#fff0e6;
+  --outside:#edbfa8; --paper:#f7f7f5; --card:#ffffff; --line:#e7e7e3; --line-strong:#d7d9d1;
+  --ink:#22241f; --text:#242424; --soft:#555a50; --muted:#6f7369; --sage:#f3f5ec;
+  --good-bg:#eefbd8; --good:#3f5d0a; --bad-bg:#fff0e5; --bad:#a8390d;
+  --rev:#2f6e0c; --cost:#ff5a18; --profit-fill:rgba(200,255,10,.30); --loss-fill:rgba(255,90,24,.13); --grid:#e9eae4;
+  --f-th:"Noto Sans Thai",system-ui,sans-serif; --f-num:"Space Grotesk","Noto Sans Thai",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--outside);color:var(--text);font-family:var(--f-th);font-size:15px;line-height:1.7;font-synthesis:none}
+h1,h2,h3,p{margin:0}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+input:focus{outline:2px solid #b7e928;outline-offset:1px}
+
+.shell{max-width:1120px;margin:24px auto;background:var(--paper);border-radius:32px;box-shadow:0 20px 60px #713d2712;padding-left:max(40px,env(safe-area-inset-left,0px));padding-right:max(40px,env(safe-area-inset-right,0px));padding-bottom:40px;width:calc(100% - 48px)}
+.topbar{height:88px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line)}
+.brand{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-num);font-weight:700;font-size:24px;letter-spacing:-1px;line-height:1;color:var(--ink);text-decoration:none}
+.brand-mark{display:flex;align-items:center;justify-content:center;background:var(--lime);width:42px;height:42px;border-radius:12px;font-size:29px;letter-spacing:-7px;padding-right:6px;transform:rotate(-5deg)}
+.brand-mark span{margin-top:6px}
+.brand-thin{font-weight:500}
+.back{font-size:14px;font-weight:600;color:var(--ink);text-decoration:none;border:1px solid var(--line-strong);border-radius:14px;padding:9px 16px;background:#fff}
+
+.banner{display:flex;align-items:center;gap:22px;background:var(--lime);border-radius:26px;padding:26px 28px;margin:26px 0 18px}
+.banner-icon{width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center;flex-shrink:0}
+.banner h1{font-size:clamp(26px,3.2vw,34px);line-height:1.25;font-weight:800;letter-spacing:-.5px;color:var(--ink);text-wrap:balance}
+.banner p{color:#3d4a12;margin-top:4px;max-width:58ch}
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:30px;padding:4px 12px;font-size:13px;font-weight:700;white-space:nowrap;background:#eeefea;color:var(--ink)}
+.banner .chip{background:#fff;margin-left:auto}
+
+.tabs{display:flex;gap:6px;padding:6px;background:#e9eae5;border-radius:18px;max-width:900px;margin:0 0 26px}
+.tabs button{flex:1;border:0;background:transparent;border-radius:13px;padding:10px 12px;font-weight:600;font-size:14px;line-height:1.35;color:#4b5046;text-align:left;display:flex;gap:10px;align-items:center;min-height:52px}
+.tabs button b{font-family:var(--f-num);font-size:18px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#fff;color:var(--ink);flex-shrink:0}
+.tabs button[aria-selected="true"]{background:var(--ink);color:#fff}
+.tabs button[aria-selected="true"] b{background:var(--lime)}
+
+.lesson{display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
+.card{background:var(--card);border:1px solid #e8e9e1;border-radius:24px;padding:26px}
+.step-label{display:block;font-family:var(--f-num);font-weight:700;font-size:13px;letter-spacing:.3px;color:#6f7d55;margin-bottom:8px}
+h2{font-size:23px;line-height:1.4;font-weight:750;color:var(--ink);text-wrap:balance}
+h3{font-size:18px;line-height:1.45;font-weight:700;color:var(--ink)}
+
+.article{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start}
+.prose{display:grid;gap:14px;max-width:62ch;min-width:0;font-size:15.5px}
+.prose h3{margin-top:10px}
+.prose h3:first-of-type{margin-top:0}
+.prose p{color:#33362f}
+.example{background:var(--sage);border-radius:16px;padding:14px 18px;font-size:15px;color:#2f332b}
+.example b{color:var(--ink)}
+.side{display:grid;gap:12px;position:sticky;top:16px}
+.keypoint{border-radius:20px;padding:18px 20px;background:var(--peach-soft);border:1px solid #ffd9c3}
+.keypoint strong{display:block;font-size:16px;color:var(--ink);margin-bottom:4px}
+.keypoint p{font-size:14px;color:#5b3a28}
+.keypoint.lime{background:var(--lime-soft);border-color:#e3f7a2}
+.keypoint.lime p{color:#3d4a12}
+
+.formulas{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.formula{min-width:0;display:grid;grid-template-columns:34px minmax(0,1fr);gap:4px 14px;align-items:start;background:#f6f7f1;border-radius:18px;padding:16px 18px}
+.formula .num{font-family:var(--f-num);font-weight:700;width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--lime);display:grid;place-items:center;font-size:15px;margin-top:6px}
+.math-scroll{overflow-x:auto;min-width:0;padding:2px 0}
+.formula small{grid-column:2;color:var(--muted);font-size:13px;line-height:1.6}
+math{font-family:var(--f-th);font-size:19px;color:var(--ink)}
+math[display="block"]{display:block;text-align:left;margin:0}
+math mn{font-family:var(--f-num)}
+.formula-intro{color:var(--soft);margin:6px 0 16px;max-width:66ch}
+
+.lab-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.example-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;background:var(--peach-soft);border:1px dashed #f3b391;border-radius:16px;padding:12px 16px;margin:14px 0 4px;font-size:14px;color:#6b3a1f}
+.example-bar strong{color:#8a3810}
+.lab{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:26px;margin-top:18px}
+.group-title{font-size:15px;font-weight:700;color:var(--ink);margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.group-title i{font-style:normal;font-family:var(--f-num);font-size:12px;background:var(--ink);color:var(--lime);border-radius:8px;padding:1px 7px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field>label,.field>.lbl{font-size:14px;font-weight:600;color:#3f453a}
+.field .unit-wrap{display:flex;align-items:stretch;border:1px solid #e2e3dd;border-radius:13px;background:#fff;overflow:hidden}
+.field .unit-wrap:focus-within{outline:2px solid #b7e928;outline-offset:1px}
+.field input[type="text"]{flex:1;min-width:0;border:0;padding:11px 14px;font-size:16px;background:transparent;font-family:var(--f-num);font-weight:500}
+.field input.thai{font-family:var(--f-th);font-weight:400}
+.field input[type="text"]:focus{outline:none}
+.unit{display:flex;align-items:center;padding:0 14px;background:#f4f5f0;color:var(--soft);font-size:13.5px;white-space:nowrap;border-left:1px solid #e9eae4}
+.field .err{font-size:13px;color:var(--bad);display:none}
+.field.invalid .unit-wrap{border-color:#f0a07c;background:#fffaf7}
+.field.invalid .err{display:block}
+.range-row{display:flex;align-items:center;gap:12px;font-size:12.5px;color:var(--muted)}
+input[type="range"]{flex:1;accent-color:#6b8500;height:24px;min-width:0}
+
+.helper{border:1px solid var(--line);border-radius:18px;padding:16px;background:#fbfbf9;margin-bottom:18px}
+.helper summary{cursor:pointer;font-weight:700;color:var(--ink);list-style-position:outside;margin-left:4px}
+.helper summary small{font-weight:500;color:var(--muted);font-size:13px}
+.rows{display:grid;gap:10px;margin-top:14px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 34px;gap:8px 10px;align-items:end;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px}
+.row .cell{display:flex;flex-direction:column;gap:3px;min-width:0}
+.row .cell span{font-size:12px;color:var(--muted);font-weight:600}
+.row input,.row select{width:100%;min-width:0;border:1px solid #e2e3dd;border-radius:10px;padding:8px 9px;font-size:14.5px;background:#fff}
+.row .pair{display:flex;gap:4px}
+.row .pair input{flex:1}
+.row .pair select{width:auto;flex:0 0 auto;padding:8px 4px;font-size:13px;background:#f4f5f0}
+.row .out{font-family:var(--f-num);font-weight:700;font-size:15px;color:var(--ink);padding:6px 0}
+.row .out.bad{font-family:var(--f-th);font-weight:500;font-size:12.5px;color:var(--bad);line-height:1.4}
+.row .cell.name{grid-column:1 / 3}
+.row>.cell:nth-child(2),.row>.cell:nth-child(4){grid-column:1}
+.row>.cell:nth-child(3),.row>.cell:nth-child(5){grid-column:2 / 4}
+.row .del{grid-column:3;grid-row:1;align-self:end;width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;color:var(--muted)}
+.helper-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+.helper-total{font-size:14px;color:var(--soft)}
+.helper-total strong{font-family:var(--f-num);font-size:20px;color:var(--ink);margin-left:6px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;border:1px solid transparent;border-radius:14px;padding:10px 20px;background:var(--lime);font-size:15px;font-weight:700;line-height:1.3;color:var(--ink);white-space:nowrap;transition:transform .15s}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.black{background:var(--ink);color:#fff}
+.btn.outline{background:#fff;border-color:var(--line-strong)}
+.btn.small{min-height:38px;font-size:13.5px;padding:7px 14px;border-radius:11px}
+.btn.full{width:100%}
+
+.results{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-content:start;min-width:0}
+.big{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{border:1px solid #e8e9e2;background:#fff;border-radius:18px;padding:14px 18px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat span{font-size:13px;color:var(--muted);font-weight:600}
+.stat strong{font-family:var(--f-num);font-size:26px;line-height:1.3;color:var(--ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.stat em{font-style:normal;font-size:13px;color:var(--soft)}
+.stat.hero{background:var(--ink);border-color:var(--ink)}
+.stat.hero span,.stat.hero em{color:#cfd3c6}
+.stat.hero strong{color:var(--lime)}
+.stat.good{background:var(--good-bg);border-color:#d7efb0}
+.stat.good strong{color:var(--good)}
+.stat.bad{background:var(--bad-bg);border-color:#ffd6c2}
+.stat.bad strong{color:var(--bad)}
+.subst{background:#f6f7f1;border-radius:16px;padding:12px 16px}
+.subst .lbl{font-size:13px;color:var(--muted);font-weight:600;display:block;margin-bottom:2px}
+.subst math{font-size:17px}
+.explain{border-radius:16px;padding:14px 16px;background:var(--good-bg);color:#33461a;font-size:14.5px}
+.explain.warn{background:var(--bad-bg);color:#7a3112}
+.explain.info{background:var(--sage);color:#3a3f33}
+.explain p+p{margin-top:6px}
+.blocked{border:1px dashed #f0a07c;background:#fffaf7;border-radius:18px;padding:18px;color:#7a3112}
+.blocked strong{display:block;color:var(--bad);margin-bottom:4px}
+.blocked ul{margin:6px 0 0;padding-left:20px}
+.status{font-size:13px;color:var(--good);min-height:20px}
+
+.linked{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;background:var(--ink);color:#e9ecdf;border-radius:22px;padding:16px 22px}
+.linked strong{font-family:var(--f-num);font-size:24px;color:var(--lime)}
+.linked .grow{flex:1;min-width:200px}
+.linked small{display:block;color:#b9bfae;font-size:13px}
+.linked .btn{background:transparent;border-color:#55594d;color:#fff}
+
+.chart-card{margin-top:22px}
+.chart-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:10px;margin-bottom:10px}
+.chart-head p{color:var(--soft);font-size:14px;max-width:62ch}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13.5px;color:var(--soft)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{display:inline-block;width:24px;height:0;border-top:3px solid}
+.legend i.rev{border-color:var(--rev)}
+.legend i.cost{border-color:var(--cost);border-top-style:dashed}
+.legend i.pt{width:12px;height:12px;border:0;border-radius:50%;background:var(--orange);box-shadow:0 0 0 2px #fff,0 0 0 3px var(--orange)}
+.legend i.be{width:12px;height:12px;border:0;border-radius:50%;background:var(--ink)}
+.chart-wrap{position:relative;width:100%;min-width:0;touch-action:pan-y}
+.chart-wrap svg{display:block;width:100%;overflow:visible}
+.chart-wrap svg text{font-family:var(--f-th);fill:var(--soft);font-size:12.5px}
+.chart-wrap svg text.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.chart-wrap svg text.lbl-strong{fill:var(--ink);font-weight:700;font-size:13px}
+.chart-wrap svg text{paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+.ylab{font-size:13px;color:var(--muted);margin-bottom:4px}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;border-radius:12px;padding:8px 12px;font-size:13px;line-height:1.55;min-width:150px;box-shadow:0 8px 24px #0002;z-index:2}
+.tip b{font-family:var(--f-num);color:var(--lime)}
+.tip .r{display:flex;justify-content:space-between;gap:14px}
+.tip .r span:last-child{font-family:var(--f-num)}
+.chart-note{margin-top:10px;font-size:14px;color:var(--soft)}
+.chart-empty{display:grid;place-items:center;text-align:center;min-height:180px;border:1px dashed var(--line-strong);border-radius:18px;color:var(--soft);padding:18px;font-size:14.5px}
+details.table{margin-top:12px;font-size:14px}
+details.table summary{cursor:pointer;font-weight:600;color:var(--ink)}
+.table-scroll{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:13px;color:var(--muted);font-weight:600}
+td{font-family:var(--f-num)}
+tr.hl td{background:var(--lime-soft);font-weight:700}
+
+.next{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:4px}
+.next p{color:var(--soft);font-size:14px}
+.range-ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:14px;color:var(--soft);margin-top:10px}
+.range-ctrl label{display:inline-flex;align-items:center;gap:6px}
+.range-ctrl input[type="checkbox"]{accent-color:#6b8500;width:18px;height:18px}
+.range-ctrl input[type="text"]{width:88px;border:1px solid #e2e3dd;border-radius:10px;padding:6px 10px;font-family:var(--f-num)}
+.range-ctrl input:disabled{background:#f4f5f0;color:var(--muted)}
+
+/* dashboard lab (inputs left, results + live chart right) */
+.dash{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:24px;margin-top:18px;align-items:start}
+.dash-left,.dash-right{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;min-width:0}
+.dash-left .status{margin:-8px 0 0}
+.panel{border-radius:20px;padding:20px;border:1px solid;min-width:0}
+.panel.sage{background:#f6f7f1;border-color:#e6e8dc}
+.panel.peach{background:var(--peach-soft);border-color:#ffd9c3}
+.panel.plain{background:#fff;border-color:#e8e9e1}
+.panel-title{display:flex;gap:8px;align-items:center;font-size:17px;font-weight:700;color:var(--ink);margin-bottom:14px;line-height:1.4}
+.panel-title svg{flex-shrink:0;color:#6b8500}
+.panel .helper{margin:12px 0 0;background:#fff}
+.big-slider{margin:0;gap:8px}
+.bs-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.bs-label{font-weight:700;color:var(--ink)!important;font-size:15px!important;display:flex;gap:8px;align-items:center;line-height:1.4}
+.bs-label svg{flex-shrink:0;color:var(--orange)}
+.bs-value{font-family:var(--f-num);font-weight:700;color:#c23d08;font-size:15px;white-space:nowrap;display:flex;align-items:baseline;gap:6px}
+.bs-value strong{font-size:32px;line-height:1}
+.big-slider input[type=range]{width:100%;accent-color:#6b8500;height:30px;margin:4px 0 0}
+.bs-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted)}
+.unit-wrap.mini{width:132px;flex-shrink:0}
+.field .unit-wrap.mini input[type=text]{padding:7px 10px;font-size:15px}
+.unit-wrap.mini .unit{padding:0 10px}
+.bs-hint{text-align:center;font-size:13.5px;color:#a8390d;font-weight:500;margin-top:2px}
+.kpis{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.kpi{border-radius:20px;padding:18px 14px;text-align:center;border:1px solid;display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0;min-height:128px}
+.kpi span{font-size:13.5px;font-weight:700}
+.kpi strong{font-family:var(--f-num);font-weight:700;font-size:clamp(34px,4.2vw,46px);line-height:1.15;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kpi strong small{font-size:17px;margin-left:6px;font-weight:600}
+.kpi strong.msg{font-family:var(--f-th);font-size:21px;line-height:1.4}
+.kpi em{font-style:normal;font-size:13px;opacity:.85}
+.kpi.ok{background:var(--good-bg);border-color:#d7efb0;color:var(--good)}
+.kpi.hot{background:var(--bad-bg);border-color:#ffd6c2;color:#c23d08}
+.kpi.lime{background:var(--lime);border-color:#b8ec00;color:var(--ink)}
+.kpi.plain{background:#fff;border-color:#e8e9e1;color:var(--ink)}
+.kpi.plain span,.kpi.plain em{color:var(--muted)}
+.strip{background:#f6f7f1;border:1px solid #e6e8dc;border-radius:14px;padding:12px 16px;text-align:center;color:var(--soft);font-size:14.5px;line-height:1.75;font-variant-numeric:tabular-nums}
+.strip b{color:var(--ink);font-family:var(--f-num);font-weight:700}
+.strip b.hot{color:#c23d08}
+.strip .lbl{display:block;font-size:12.5px;color:var(--muted);font-weight:600}
+.dash .chart-card{margin-top:0}
+.chart-sub{font-size:13.5px;color:var(--soft);margin:-4px 0 8px}
+@media (max-width:980px){.dash{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.kpi{min-height:0;padding:14px 10px}.kpi strong{font-size:30px}.kpi strong small{font-size:14px}.kpi span{font-size:12.5px}}
+@media (max-width:330px){.kpis{grid-template-columns:minmax(0,1fr)}}
+
+.name-field{margin:0}
+.step-badge{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--lime);font-family:var(--f-num);font-size:15px;display:grid;place-items:center;flex-shrink:0}
+.panel-title small{font-weight:500;color:var(--muted);font-size:13.5px}
+.panel-sub{font-size:13.5px;color:var(--soft);margin:-8px 0 12px 36px;line-height:1.6}
+.panel.dim .rows,.panel.dim #addRow{opacity:.45}
+.manual-note{font-size:13.5px;background:#fff;border:1px dashed var(--line-strong);border-radius:12px;padding:8px 12px;margin-bottom:10px;color:var(--soft)}
+.seg{display:flex;gap:4px;padding:4px;background:#e9eae5;border-radius:13px}
+.seg button{flex:1;border:0;background:transparent;border-radius:10px;padding:8px 10px;font-size:13.5px;font-weight:600;color:#4b5046;min-height:38px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+#in-cost[readonly]{background:#f4f5f0;color:var(--ink);font-weight:700;cursor:default}
+.how{font-size:13px;color:var(--muted)}
+.ready-line{margin-top:6px;padding:10px 12px;background:#fff;border-radius:12px;text-align:center;font-size:14.5px;color:var(--soft)}
+.ready-line b{color:var(--good);font-family:var(--f-num)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.row{background:#fff}
+
+.pre-dash{display:grid;gap:14px;margin-top:18px}
+.pre-dash .name-field{max-width:420px}
+.pre-dash .panel-sub{margin-bottom:10px}
+.row-head{display:none}
+@media (min-width:761px){
+  .row-head{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr) 34px;gap:10px;padding:0 11px;margin-top:4px;font-size:12.5px;font-weight:600;color:var(--muted)}
+  .pre-dash .rows{margin-top:6px;gap:6px}
+  .pre-dash .row{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr) 34px;align-items:center;padding:8px 10px}
+  .pre-dash .row>.cell{grid-column:auto!important}
+  .pre-dash .row .cell>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .pre-dash .row .del{grid-column:6;grid-row:1}
+  .pre-dash .row .out{text-align:right;padding-right:4px}
+}
+
+.lead{font-size:16.5px;color:var(--ink)}
+.kicker{margin-top:6px}
+ol.points{list-style:none;counter-reset:pt;margin:0;padding:0;display:grid;gap:12px}
+ol.points li{counter-increment:pt;display:grid;grid-template-columns:32px minmax(0,1fr);gap:2px 12px}
+ol.points li::before{content:counter(pt);grid-row:1 / 3;width:30px;height:30px;border-radius:50%;background:var(--lime);color:var(--ink);font-family:var(--f-num);font-weight:700;display:grid;place-items:center;margin-top:2px}
+ol.points h4{margin:0;font-size:16px;color:var(--ink);line-height:1.5}
+ol.points p{color:#33362f}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.compare>div{border-radius:16px;padding:14px 16px;border:1px solid}
+.compare strong{display:block;color:var(--ink);font-size:15.5px}
+.compare p{font-size:14px;color:var(--soft)}
+.cmp-a{background:var(--peach-soft);border-color:#ffd9c3}
+.cmp-b{background:var(--lime-soft);border-color:#e3f7a2}
+ul.ladder{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px}
+ul.ladder li{display:flex;align-items:center;gap:8px}
+ul.ladder i{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+ul.ladder i.loss{background:var(--orange)}ul.ladder i.even{background:var(--ink)}ul.ladder i.gain{background:#6b8500}
+.card-ladder{margin:8px 0 0!important;padding:8px 0 0!important;border-top:1px solid #dfe1d8;font-size:14.5px}
+@media (max-width:520px){.compare{grid-template-columns:1fr}}
+
+/* ---- v5: calmer, higher-contrast palette & fewer visible fields ---- */
+:root{--muted:#585c53;--soft:#41453d}
+.step-label{color:#4d5a2c}
+.panel.plain{background:#fff;border-color:#dfe1d8}
+.panel-title{font-size:18px}
+.field>label,.field>.lbl{font-size:15px;color:var(--ink);display:flex;align-items:center;gap:8px}
+.fnum{width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--lime);font-family:var(--f-num);font-size:12.5px;display:grid;place-items:center;flex-shrink:0}
+.field .unit-wrap{border-color:#cfd2c7}
+.unit{background:#f1f2ec;color:#3f433b;font-size:14px}
+.how{font-size:13.5px;color:var(--muted)}
+.linkbtn{border:0;background:none;padding:0;color:#3b5a00;font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:13.5px}
+.big-slider{border-top:1px solid var(--line);padding-top:14px;margin-top:4px}
+.bs-label svg{color:var(--ink)}
+.bs-value{color:var(--ink)}
+.bs-foot{color:var(--muted);font-size:13.5px}
+.ready-line{background:#f3f4ef;color:var(--soft);font-size:15px;margin-top:12px}
+.ready-line b{color:var(--ink)}
+details.more{margin-top:12px;font-size:14px}
+details.more summary{cursor:pointer;color:var(--soft);font-weight:600}
+.helper-box{margin-top:16px}
+.helper-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.helper-box .rows{margin-top:6px;gap:6px}
+.helper-total{font-size:15px;color:var(--soft)}
+.helper-total strong{font-family:var(--f-num);font-size:20px;color:var(--ink)}
+@media (min-width:761px){
+  .helper-box .row{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr) 34px;align-items:center;padding:8px 10px}
+  .helper-box .row>.cell{grid-column:auto!important}
+  .helper-box .row .cell>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .helper-box .row .del{grid-column:6;grid-row:1}
+  .helper-box .row .out{text-align:right;padding-right:4px}
+}
+.kpi{min-height:136px}
+.kpi.ok{background:#fff;border-color:#dfe1d8;color:var(--ink)}
+.kpi.ok span,.kpi.ok em{color:var(--muted)}
+.kpi.hot{background:var(--ink);border-color:var(--ink);color:#fff}
+.kpi.hot span,.kpi.hot em{color:#d9dccf}
+.kpi.hot strong{color:var(--lime)}
+.kpi.plain{border-color:#dfe1d8}
+.strip{background:#fff;border-color:#dfe1d8;color:var(--soft);font-size:15px}
+.strip b.hot{color:var(--ink);background:var(--lime);padding:1px 6px;border-radius:6px}
+.explain{background:#f3f4ef;color:#2f332b;font-size:15px}
+.explain.info{background:#f3f4ef;color:#2f332b}
+.explain.warn{background:#fff3ec;color:#7a2d0c}
+.stat{border-color:#dfe1d8}
+.stat span,.stat em{color:var(--muted)}
+.chart-wrap svg text{fill:#4a4e45;font-size:13px}
+.chart-note,.chart-sub{color:var(--muted)}
+.example-bar{background:#fff;border:1px solid #f0b896;color:#5c2f15}
+.example-bar strong{color:#8a3810}
+.keypoint p{color:#4b3325}
+.keypoint.lime p{color:#34410f}
+
+/* ---- v7: picture-first lessons ---- */
+.vgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+.vcard{background:#fff;border:1px solid #dfe1d8;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.vcard.wide{grid-column:1 / -1}
+.vcard>p{font-size:15.5px;color:#2f332b;line-height:1.65}
+.vhead{display:flex;align-items:center;gap:10px}
+.vhead h4{margin:0;font-size:17px;color:var(--ink);line-height:1.4}
+.vnum{width:30px;height:30px;border-radius:50%;background:var(--lime);color:var(--ink);font-family:var(--f-num);font-weight:700;display:grid;place-items:center;flex-shrink:0}
+.fig{background:#f7f7f5;border-radius:14px;padding:14px;display:grid;justify-items:center;gap:8px}
+.fig svg{display:block;height:auto}
+.fig svg text,.vis svg text{font-family:var(--f-th)}
+.sum-tiles{display:flex;flex-wrap:wrap;align-items:center;gap:6px;background:#f7f7f5;border-radius:14px;padding:14px}
+.sum-tiles i{font-style:normal;font-weight:700;font-size:18px;color:var(--ink)}
+.tile{display:flex;flex-direction:column;align-items:center;background:#fff;border:1px solid #dfe1d8;border-radius:12px;padding:6px 10px;font-size:13.5px;color:var(--soft);line-height:1.3}
+.tile b{font-family:var(--f-num);font-size:16px;color:var(--ink)}
+.tile.ghost{border-style:dashed;justify-content:center;min-height:48px}
+.tile.total{background:var(--ink);border-color:var(--ink);color:var(--lime);font-weight:700;justify-content:center;min-height:48px}
+.tip-line{margin-top:14px;background:var(--lime-soft);border:1px solid #e3f7a2;border-radius:14px;padding:12px 16px;font-size:15px;color:#2f3a0c}
+.vis{background:#fff;border:1px solid #dfe1d8;border-radius:20px;padding:16px 18px;display:grid;gap:10px;justify-items:center}
+.vis h4{margin:0;justify-self:start;font-size:15px;color:var(--ink)}
+.vis-key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--soft);justify-self:center}
+.vis-key span{display:inline-flex;align-items:center;gap:6px}
+.vis-key i{width:14px;height:14px;border-radius:50%;display:inline-block}
+.k-good{background:#f2c48d;border:1.5px solid #c98f4f}
+.k-bad{background:#e6e7e0;border:1.5px solid #ff5a18}
+.vis-cap{font-size:15px;font-weight:600;color:var(--ink);text-align:center}
+@media (max-width:760px){.vgrid{grid-template-columns:minmax(0,1fr)}.fig{padding:10px}}
+
+/* ---- v8: lesson 3 ---- */
+.steps3{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap}
+.steps3>i{font-style:normal;align-self:center;font-weight:700;font-size:20px;color:var(--ink)}
+.s3{flex:1 1 180px;background:#f7f7f5;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px;color:var(--ink);min-width:0}
+.s3 svg{color:var(--ink);background:var(--lime);border-radius:10px;padding:5px;width:36px;height:36px;margin-bottom:4px}
+.s3 b{font-size:15.5px}.s3 span{font-size:14px;color:var(--soft);line-height:1.55}
+.week{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.day{border:1.5px solid #dfe1d8;background:#fff;border-radius:14px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--soft);line-height:1.3;min-height:86px}
+.day b{font-size:14px;color:var(--ink)}
+.day.on{background:var(--lime);border-color:var(--ink);color:var(--ink)}
+.type-chips{display:flex;flex-wrap:wrap;gap:6px}
+.type-chips button{display:inline-flex;align-items:center;gap:6px;border:1.5px solid #dfe1d8;background:#fff;border-radius:30px;padding:6px 12px 6px 9px;font-size:13.5px;font-weight:600;color:var(--ink)}
+.type-chips small{color:var(--muted);font-family:var(--f-num);font-weight:700}
+.type-chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.type-chips button[aria-pressed="true"] small{color:var(--lime)}
+.type-chips button[aria-pressed="true"] svg g path,.type-chips button[aria-pressed="true"] svg g rect,.type-chips button[aria-pressed="true"] svg g circle{stroke:#fff}
+.day-head{flex-wrap:wrap;margin-bottom:12px}
+.day-head b{margin-left:auto;font-family:var(--f-th);font-size:15px;background:var(--lime);border-radius:10px;padding:2px 10px}
+.switch{display:flex;align-items:flex-start;gap:8px;font-size:14.5px;font-weight:600;color:var(--ink);border-top:1px solid var(--line);padding-top:12px;margin-top:4px;cursor:pointer;flex-wrap:wrap}
+.switch input{width:18px;height:18px;accent-color:#6b8500;margin-top:3px}
+.switch small{font-weight:400;color:var(--muted);font-size:13px}
+.k-left{background:#f2c48d;opacity:.5;border:1.5px solid #c98f4f}
+.k-miss{background:#fff;border:2px dashed #ff5a18}
+.muted-s{font-size:13.5px;color:var(--muted)}
+@media (max-width:520px){.big .stat{padding:12px 10px}.big .stat strong{font-size:19px;overflow-wrap:normal;white-space:nowrap}.big .stat span,.big .stat em{font-size:12px}}
+@media (max-width:760px){.tabs{flex-direction:column}.tabs button{min-height:44px}.day{min-height:78px;font-size:11px}}
+
+/* ---- v9: scenarios, mistakes, lesson-3 controls ---- */
+.scene{margin-top:16px;border:1.5px solid var(--ink);border-radius:20px;padding:18px 20px;background:#fff}
+.scene-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.scene-head h4{margin:0;font-size:17px;color:var(--ink)}
+.scene-tag,.oops-tag{font-size:12.5px;font-weight:700;border-radius:20px;padding:3px 10px;background:var(--ink);color:var(--lime);white-space:nowrap}
+.scene-story{margin-top:8px;font-size:15.5px;color:#2f332b}
+.scene-steps{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+.scene-steps li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;background:#f7f7f5;border-radius:12px;padding:10px 12px;font-size:15px;color:#2f332b;line-height:1.6}
+.scene-steps .sn{width:24px;height:24px;border-radius:50%;background:var(--lime);color:var(--ink);font-family:var(--f-num);font-weight:700;font-size:13px;display:grid;place-items:center;margin-top:2px}
+.scene-steps b{color:var(--ink);font-family:var(--f-num)}
+.scene-steps b.hl{background:var(--lime);padding:0 6px;border-radius:6px}
+.scene-steps b.neg{color:#a8390d}
+.scene-end{margin-top:10px;font-size:14px;color:var(--muted)}
+.oops{margin-top:12px;border-radius:16px;padding:14px 18px;background:#fff3ec;border:1px solid #f6c8ad}
+.oops-tag{background:#a8390d;color:#fff}
+.oops ul{margin:8px 0 0;padding-left:20px;display:grid;gap:4px;font-size:15px;color:#4a2412}
+.oops b{color:#7a2d0c}
+ul.why{margin:-4px 0 0;padding-left:20px;display:grid;gap:2px;font-size:15px;color:#2f332b}
+.presets-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;font-size:14px;font-weight:600;color:var(--soft)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.presets button{border:1.5px solid #dfe1d8;background:#fff;border-radius:30px;padding:6px 12px;font-size:13.5px;font-weight:600;color:var(--ink)}
+.presets button[aria-pressed="true"]{background:var(--lime);border-color:var(--ink)}
+.mult-row{margin-top:12px;background:#f7f7f5;border-radius:14px;padding:12px 14px}
+.mult-row input[type=range]{width:100%;accent-color:#6b8500;height:28px}
+.flash-box{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:10px;background:#fff8f3;border:1px dashed #f0b896;border-radius:14px;padding:12px}
+.flash-box .field{margin:0;min-width:0}
+.flash-box .unit-wrap{min-width:0}
+.k-flash{background:#f2c48d;border:1.5px solid #ff5a18;box-shadow:inset 0 0 0 3px #fff}
+
+/* ---- v10 ---- */
+.eg{justify-self:start;font-size:12.5px;font-weight:700;background:var(--ink);color:var(--lime);border-radius:20px;padding:2px 10px;margin-bottom:-2px}
+.mult-explain{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:center}
+.mult-text{display:grid;gap:8px;font-size:15.5px;color:#2f332b}
+.big-eq{font-size:17px;color:var(--ink);background:var(--lime-soft);border:1px solid #e3f7a2;border-radius:12px;padding:10px 12px}
+.use-eq{background:#f7f7f5;border-radius:12px;padding:8px 12px}
+.day em{font-style:normal;font-family:var(--f-num);font-weight:700;font-size:14px;color:var(--ink);margin-top:2px}
+.week-total{margin-top:8px;font-size:14px;color:var(--soft)}
+.week-total b{font-family:var(--f-num);color:var(--ink)}
+.mult-more{margin-top:12px}
+@media (max-width:760px){.mult-explain{grid-template-columns:minmax(0,1fr)}}
+
+/* ---- v11: lesson 4 ---- */
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.two .field{min-width:0}
+.use-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:-4px 0 14px}
+.zb{position:relative;display:flex;height:12px;border-radius:6px;overflow:hidden;margin-top:2px}
+.zb span{height:100%}
+.z-under{background:#ffe08a}.z-safe{background:#c8ff0a}.z-over{background:#ffb08f}
+.zb i{position:absolute;top:-3px;bottom:-3px;width:3px;margin-left:-1.5px;background:var(--ink);border-radius:2px}
+.zb-lbl{display:flex;justify-content:space-between;gap:6px;font-size:12.5px;font-weight:600;color:var(--soft);margin-top:4px}
+.safety-btns{display:flex;flex-wrap:wrap;gap:6px}
+.chipbtn{border:1.5px solid #dfe1d8;background:#fff;border-radius:20px;padding:4px 10px;font-size:13px;font-weight:600;color:var(--ink)}
+.zone{display:grid;gap:2px;border-radius:18px;padding:14px 18px;border:2px solid}
+.zone b{font-size:18px}
+.zone span{font-size:15px}
+.zone.z-ok{background:var(--lime);border-color:var(--ink);color:var(--ink)}
+.zone.z-safe{background:var(--lime-soft);border-color:#b8ec00;color:#2f3a0c}
+.zone.z-miss{background:#fff6d6;border-color:#e5a50a;color:#5c4100}
+.zone.z-over{background:#fff3ec;border-color:#ff5a18;color:#7a2d0c}
+@media (max-width:520px){.two{grid-template-columns:minmax(0,1fr)}}
+
+/* ---- v12: 3 topics ---- */
+.topics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
+.topics button{display:flex;align-items:center;gap:12px;text-align:left;border:1.5px solid #dfe1d8;background:#fff;border-radius:18px;padding:12px 14px;min-height:68px;color:var(--ink)}
+.topics button b{font-family:var(--f-num);font-size:18px;width:34px;height:34px;border-radius:50%;background:#eeefea;display:grid;place-items:center;flex-shrink:0}
+.topics button span{display:flex;flex-direction:column;line-height:1.35;min-width:0}
+.topics button strong{font-size:16px}
+.topics button small{font-size:12.5px;color:var(--muted)}
+.topics button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.topics button[aria-selected="true"] b{background:var(--lime);color:var(--ink)}
+.topics button[aria-selected="true"] small{color:#cfd3c6}
+.subnav{display:flex;gap:6px;padding:5px;background:#e9eae5;border-radius:14px;max-width:620px;margin:0 0 22px}
+.subnav button{flex:1;border:0;background:transparent;border-radius:10px;padding:8px 12px;font-size:14px;font-weight:600;color:#4b5046;text-align:left;line-height:1.35}
+.subnav button b{font-family:var(--f-num);margin-right:4px}
+.subnav button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px #0001}
+.topics+.lesson{margin-top:10px}
+@media (max-width:760px){.topics{grid-template-columns:minmax(0,1fr);gap:6px}.topics button{min-height:56px;padding:8px 12px}.subnav{flex-direction:column}}
+
+/* ---- v13: wrapping formulas ---- */
+.eq{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;min-width:0;padding:2px 0}
+.eq math{font-size:19px;margin:0}
+.eq .op{font-family:var(--f-num);font-size:22px;font-weight:600;color:var(--ink);line-height:1}
+@media (max-width:520px){.eq math{font-size:16.5px}.eq .op{font-size:19px}}
+
+footer.foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-top:30px;padding-top:18px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+
+@media (max-width:900px){
+  .article{grid-template-columns:1fr}
+  .side{position:static;grid-template-columns:1fr 1fr}
+  .lab{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .shell{margin:0;width:100%;border-radius:0;box-shadow:none;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:28px;min-height:100vh}
+  .topbar{height:66px}
+  .brand{font-size:21px}.brand-mark{width:36px;height:36px;font-size:25px}
+  .banner{flex-wrap:wrap;padding:20px;gap:14px;margin-top:16px}
+  .banner-icon{width:58px;height:58px}
+  .banner .chip{margin-left:0}
+  .tabs button{font-size:13px;padding:8px}
+  .card{padding:18px;border-radius:20px}
+  .side{grid-template-columns:1fr}
+  math{font-size:16px}
+  .subst math{font-size:15px}
+  .stat strong{font-size:23px}
+}
+@media (max-width:420px){.big{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="./" id="brandLink" aria-label="EduMarket หน้าแรก"><span class="brand-mark" aria-hidden="true">e<span>m</span></span><span>edu<span class="brand-thin">market</span></span></a>
+    <a class="back" id="backLink" href="./">กลับไปหน้าแอป</a>
+  </header>
+
+  <section class="banner" aria-labelledby="pageTitle">
+    <div class="banner-icon" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22241f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/></svg></div>
+    <div>
+      <h1 id="pageTitle">สต็อกสินค้า</h1>
+      <p>ทำมากไปทุนจม ทำน้อยไปเสียโอกาส หาจำนวนที่ทำแล้วกำไรมากสุด</p>
+    </div>
+    <span class="chip">หัวข้อ 3 · คู่มือคิดเงินร้านค้า</span>
+  </section>
+  <!-- ================= LESSON 4 ================= -->
+  <section class="lesson" id="lesson-4">
+    <article class="card">
+      <span class="step-label">หัวข้อ 3 · ดูภาพก่อน</span>
+      <h2>สต็อกสินค้า: ทำให้พอดี</h2>
+      <p class="lead" style="margin-top:6px">ทำมากไป <b>ทุนจม</b> · ทำน้อยไป <b>เสียโอกาส</b></p>
+      <div class="vgrid">
+        <div class="vcard"><div class="vhead"><span class="vnum">1</span><h4>2 ปัญหาของสต็อก</h4></div><div class="fig" data-fig4="stock" data-eg></div><p><b>ทำมากไป (Overstock)</b> ขายไม่หมด เงินจมไปกับของเหลือ<br><b>ทำน้อยไป (Stockout)</b> เพื่อนมาซื้อแต่ของหมด กำไรหายไป</p></div>
+        <div class="vcard"><div class="vhead"><span class="vnum">2</span><h4>ทำเท่าไร กำไรมากสุด</h4></div><div class="fig" data-fig4="compare3" data-eg></div><p>แซนวิช คนอยากซื้อ 50 ชิ้น<br>ทำ <b>50 พอดี</b> ได้มากสุด ทำน้อยหรือมากไปได้แค่ 450</p></div>
+        <div class="vcard wide"><div class="vhead"><span class="vnum">3</span><h4>3 ขั้นหาจุดพอดี (Sweet Spot)</h4></div>
+          <div class="steps3">
+            <div class="s3"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6v3H9zM6 6h12v15H6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><b>ดูยอดจองก่อน</b><span>ยอด Pre-order ใน Edu-Marketplace = ขายได้แน่ ๆ อย่างน้อยเท่านี้</span></div>
+            <i aria-hidden="true">→</i>
+            <div class="s3"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><b>ทำเผื่อแค่ 10–20%</b><span>เช่น จอง 50 ทำเผื่อ 5–10 ชิ้น อย่าเผื่อเกินสองเท่า</span></div>
+            <i aria-hidden="true">→</i>
+            <div class="s3"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><b>ปรับตามวัน</b><span>วันสอบ กีฬาสี ทำเพิ่ม · ฝนตก ทำน้อยลง</span></div>
+          </div></div>
+      </div>
+      <div class="scene"><div class="scene-head"><span class="scene-tag">สถานการณ์</span><h4>ฟ้าขายแซนวิช ชิ้นละ 30 บาท</h4></div><p class="scene-story">ต้นทุนชิ้นละ 15 บาท · คนอยากซื้อ 50 ชิ้น · ฟ้าลองคิด 3 แบบ</p><ol class="scene-steps"><li><span class="sn">1</span><div>ขาย 1 ชิ้น เหลือเงิน 30 − 15 = <b>15 บาท</b></div></li><li><span class="sn">2</span><div>ทำ 30 ชิ้น: ขายหมด กำไร 30 × 15 = <b>450</b> · แต่ขาดไป 20 ชิ้น พลาดกำไร 20 × 15 = <b class="neg">300 บาท</b></div></li><li><span class="sn">3</span><div>ทำ 70 ชิ้น: ขายได้ 50 กำไร 50 × 15 = 750 · เหลือ 20 ชิ้น ทุนจม 20 × 15 = 300 → เหลือกำไร <b>450</b></div></li><li><span class="sn">4</span><div>ทำ 50 ชิ้น พอดี: กำไร 50 × 15 = <b class="hl">750 บาท</b> สูงสุด</div></li></ol><p class=scene-end>ทำน้อยไปกับทำมากไป ได้ 450 เท่ากัน แต่เสียไปคนละแบบ</p></div>
+      <div class="oops"><span class="oops-tag">ระวังพลาด</span><ul><li><b>ทำเผื่อเกินสองเท่า</b> เพราะกลัวไม่พอ สุดท้ายเหลือทิ้ง</li><li><b>คิดว่าทำเยอะ = กำไรเยอะ</b> จริง ๆ แล้วของที่เหลือดึงกำไรลง</li></ul></div>
+    </article>
+
+    <section class="card" aria-labelledby="f4h">
+      <span class="step-label">สูตรของบทนี้</span>
+      <h2 id="f4h">ทุนจม กำไรที่พลาด และกำไร</h2>
+      <div class="formulas" id="formulas4"></div>
+    </section>
+
+    <section class="card" aria-labelledby="lab4h">
+      <span class="step-label">เครื่องมือหาจุดพอดี (Sweet Spot Finder)</span>
+      <h2 id="lab4h">ลองเลื่อนดู ทำกี่ชิ้นกำไรมากสุด</h2>
+      <div class="dash">
+        <div class="dash-left">
+          <div class="panel plain">
+            <h3 class="panel-title">กรอกข้อมูลสินค้า</h3>
+            <div class="two">
+              <div class="field" id="f-v4"><label for="in-v4">ต้นทุนต่อชิ้น</label><div class="unit-wrap"><input type="text" inputmode="decimal" id="in-v4" autocomplete="off"><span class="unit">บาท</span></div><span class="err" role="alert"></span></div>
+              <div class="field" id="f-p4"><label for="in-p4">ราคาขายต่อชิ้น</label><div class="unit-wrap"><input type="text" inputmode="decimal" id="in-p4" autocomplete="off"><span class="unit">บาท</span></div><span class="err" role="alert"></span></div>
+            </div>
+            <div class="field" id="f-d4"><label for="in-d4">คนอยากซื้อ (คาดการณ์)</label><div class="unit-wrap"><input type="text" inputmode="numeric" id="in-d4" autocomplete="off"><span class="unit">ชิ้น</span></div><span class="err" role="alert"></span><span class="how">จากยอดจอง หรือยอดที่คาดตามวัน</span></div>
+            <div class="field big-slider" id="f-m4">
+              <div class="bs-head"><label class="bs-label" for="r-m4">จะทำกี่ชิ้น</label><span class="bs-value"><strong id="m4Big">0</strong>ชิ้น</span></div>
+              <input type="range" id="r-m4" min="0" max="100" step="1">
+              <div id="zoneBar"></div>
+              <div class="bs-foot"><span class="safety-btns"><button type="button" class="chipbtn" data-safety="0">พอดี</button><button type="button" class="chipbtn" data-safety="10">เผื่อ 10%</button><button type="button" class="chipbtn" data-safety="20">เผื่อ 20%</button></span><div class="unit-wrap mini"><input type="text" inputmode="numeric" id="in-m4" autocomplete="off" aria-label="จำนวนที่จะทำ"><span class="unit">ชิ้น</span></div></div>
+              <span class="err" role="alert"></span>
+            </div>
+          </div>
+        </div>
+        <div class="dash-right"><div class="results" id="res4" aria-live="polite"></div></div>
+      </div>
+    </section>
+  </section>
+
+  <footer class="foot">
+    <span>ข้อมูลเก็บไว้ในเบราว์เซอร์นี้เท่านั้น · ตัวเลขแสดงปัด 2 ตำแหน่ง</span>
+    <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span id="clearMsg" aria-live="polite"></span><button class="btn small outline" type="button" id="clearAll">ล้างข้อมูลที่บันทึก</button></span>
+  </footer>
+</div>
+
+<script id="core">
+/* ===== pure logic (tested separately) ===== */
+const UNITS={g:{g:'mass',f:1,t:'กรัม'},kg:{g:'mass',f:1000,t:'กก.'},ml:{g:'vol',f:1,t:'มล.'},l:{g:'vol',f:1000,t:'ลิตร'},pc:{g:'count',f:1,t:'ชิ้น'}};
+const MAXV=1e9;
+function parseValue(raw,o){
+  const s=String(raw??'').trim().replace(/[,\s]/g,'');
+  if(s==='')return {empty:true,err:o.required===false?null:`${o.label}: ยังไม่ได้กรอก`};
+  if(!/^-?(\d+\.?\d*|\.\d+)$/.test(s))return {err:`${o.label}: ใส่เป็นตัวเลขเท่านั้น`};
+  const n=Number(s);
+  if(!Number.isFinite(n)||Math.abs(n)>MAXV)return {err:`${o.label}: ตัวเลขใหญ่เกินไป`};
+  if(n<0)return {err:`${o.label}: ต้องไม่ติดลบ`};
+  if(o.int&&!Number.isInteger(n))return {err:`${o.label}: ใส่เป็นจำนวนเต็ม`};
+  if(o.positive&&n<=0)return {err:`${o.label}: ต้องมากกว่า 0`};
+  return {v:n};
+}
+function usedCost(price,bought,bu,used,uu){
+  const A=UNITS[bu],B=UNITS[uu];
+  if(!A||!B||A.g!==B.g)return {err:'หน่วยที่ซื้อกับที่ใช้คนละแบบกัน'};
+  const b=bought*A.f,u=used*B.f;
+  if(b<=0)return {err:'ปริมาณที่ซื้อต้องมากกว่า 0'};
+  if(u>b+1e-9)return {err:'ใช้มากกว่าที่ซื้อ ถ้าซื้อหลายแพ็ก ใส่ปริมาณรวม'};
+  return {v:price/b*u};
+}
+function unitCost(cost,made,waste){
+  if(waste>made)return {err:'waste>made'};
+  const ready=made-waste;
+  if(ready===0)return {err:'none-ready',ready:0};
+  return {ready,perUnit:cost/ready};
+}
+const ceilSafe=x=>Math.ceil(x-1e-9*Math.max(1,Math.abs(x)));
+function breakEven(F,p,v){
+  let m=p-v; if(Math.abs(m)<1e-9*Math.max(1,Math.abs(p),Math.abs(v)))m=0;
+  if(F>0){ if(m<=0)return {kind:'none',m}; const x=F/m; return {kind:'ok',x,min:ceilSafe(x),m}; }
+  if(m>0)return {kind:'zero',x:0,min:0,m};
+  if(m===0)return {kind:'flat',x:0,min:0,m};
+  return {kind:'loss',x:0,min:0,m};
+}
+const pl=(F,p,v,q)=>{const rev=p*q,total=F+v*q;return {rev,total,profit:rev-total};};
+const money=n=>(Math.abs(n)<0.005?0:n).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const int=n=>Math.round(n).toLocaleString('th-TH');
+const dec=n=>{if(Number.isInteger(n))return int(n);const r=Math.round(n*1000)/1000;return Math.abs(n-r)<1e-9?r.toLocaleString('th-TH',{maximumFractionDigits:3}):'≈ '+n.toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});};
+</script>
+
+<script>
+/* ===== picture helpers (inline SVG, shared by the lesson articles and the live lab) ===== */
+const C={ink:'#22241f',lime:'#c8ff0a',olive:'#6b8500',orange:'#ff5a18',peach:'#ffe3d3',grey:'#e6e7e0',line:'#cfd2c7',soft:'#41453d',cookie:'#f2c48d',crust:'#c98f4f',chip:'#6b4a2b'};
+const fmt2=n=>(Math.abs(n)<0.005?0:n).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtN=n=>Math.round(n).toLocaleString('th-TH');
+function svgWrap(W,H,body,label,maxW){return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${maxW||W}px" role="img" aria-label="${label}">${body}</svg>`;}
+function txt(x,y,t,o={}){return `<text x="${x}" y="${y}" text-anchor="${o.a||'start'}" style="font-size:${o.s||14}px;font-weight:${o.w||500};fill:${o.f||C.soft}">${t}</text>`;}
+function cookie(cx,cy,r,bad){
+  if(bad)return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${C.grey}" stroke="${C.line}" stroke-width="1.5"/><path d="M${cx-r*.5} ${cy-r*.5}L${cx+r*.5} ${cy+r*.5}M${cx+r*.5} ${cy-r*.5}L${cx-r*.5} ${cy+r*.5}" stroke="${C.orange}" stroke-width="2.6" stroke-linecap="round"/>`;
+  const k=r/12;return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${C.cookie}" stroke="${C.crust}" stroke-width="1.5"/><circle cx="${cx-4*k}" cy="${cy-3*k}" r="${1.9*k}" fill="${C.chip}"/><circle cx="${cx+3.5*k}" cy="${cy-4*k}" r="${1.6*k}" fill="${C.chip}"/><circle cx="${cx+1*k}" cy="${cy+4*k}" r="${1.9*k}" fill="${C.chip}"/><circle cx="${cx-4.5*k}" cy="${cy+3.5*k}" r="${1.3*k}" fill="${C.chip}"/>`;
+}
+function cookieGrid(made,waste){
+  const per=made>60?Math.ceil(made/60):1,n=Math.ceil(made/per),nw=Math.min(n,Math.round(waste/per));
+  const cols=Math.min(10,n),s=28,g=7,rows=Math.ceil(n/cols),W=cols*(s+g)-g,H=rows*(s+g)-g;let b='';
+  for(let i=0;i<n;i++){b+=cookie((i%cols)*(s+g)+s/2,Math.floor(i/cols)*(s+g)+s/2,s/2-1,i>=n-nw);}
+  return {svg:svgWrap(W,H,b,`ทำ ${made} ชิ้น เสีย ${waste} ชิ้น`,W*1.15),per};
+}
+function flourFig(){
+  const W=420,H=150,seg=W/4;let b='';
+  b+=txt(0,16,'แป้ง 1 กก. = 1,000 กรัม',{w:700,f:C.ink});
+  for(let i=0;i<4;i++)b+=`<rect x="${i*seg+1}" y="26" width="${seg-2}" height="36" rx="8" fill="${i===0?C.orange:C.grey}"/>`;
+  b+=txt(seg/2,49,'ใช้ 250 ก.',{a:'middle',w:700,f:'#fff'})+txt(seg*2.5,49,'เหลือ 750 ก.',{a:'middle',w:600});
+  b+=txt(0,92,'เงิน 45 บาท',{w:700,f:C.ink});
+  b+=`<rect x="1" y="102" width="${seg-2}" height="36" rx="8" fill="${C.orange}"/><rect x="${seg+1}" y="102" width="${seg*3-2}" height="36" rx="8" fill="${C.grey}"/>`;
+  b+=txt(seg/2,125,'11.25 ฿',{a:'middle',w:700,f:'#fff'})+txt(seg*2.5,125,'33.75 ฿ เก็บไว้รอบหน้า',{a:'middle',w:600});
+  return svgWrap(W,H,b,'ใช้แป้ง 1 ใน 4 ถุง ต้นทุนจึงเป็น 1 ใน 4 ของ 45 บาท คือ 11.25 บาท');
+}
+function unitFig(){
+  const W=420,H=100;let b='';
+  b+=`<rect x="0" y="14" width="84" height="56" rx="10" fill="${C.ink}"/>`+txt(42,48,'1 กก.',{a:'middle',s:18,w:700,f:C.lime});
+  b+=txt(102,50,'=',{a:'middle',s:24,w:700,f:C.ink});
+  const sx=120,sw=28,g=2;for(let i=0;i<10;i++)b+=`<rect x="${sx+i*(sw+g)}" y="14" width="${sw}" height="56" rx="6" fill="${C.lime}" stroke="${C.olive}" stroke-width="1"/>`+txt(sx+i*(sw+g)+sw/2,47,'100',{a:'middle',s:11.5,w:700,f:C.ink});
+  b+=txt(sx,92,'10 ก้อน × 100 กรัม = 1,000 กรัม',{s:14,w:600});
+  return svgWrap(W,H,b,'1 กิโลกรัม เท่ากับ 10 ก้อน ก้อนละ 100 กรัม รวม 1,000 กรัม');
+}
+function compareFig(){
+  const W=420,H=206;let b='';const bx=[14,68,122],bw=40,base=140;
+  const panel=(ox,title,hs,col,cap,capCol)=>{let t=txt(ox,16,title,{w:700,f:C.ink});hs.forEach((h,i)=>{t+=`<rect x="${ox+bx[i]}" y="${base-h}" width="${bw}" height="${h}" rx="6" fill="${col}"/>`+txt(ox+bx[i]+bw/2,base+20,[10,20,30][i]+' ชิ้น',{a:'middle',s:12.5});});t+=txt(ox+88,base+52,cap,{a:'middle',s:14,w:700,f:capCol});return t;};
+  b+=panel(0,'ต้นทุนตามชิ้น',[30,65,100],C.orange,'ขายมาก จ่ายมาก',C.orange);
+  b+=panel(224,'ค่าใช้จ่ายตายตัว',[60,60,60],C.ink,'จ่ายเท่าเดิม',C.ink);
+  b+=`<line x1="0" y1="${base}" x2="190" y2="${base}" stroke="${C.line}"/><line x1="224" y1="${base}" x2="${W}" y2="${base}" stroke="${C.line}"/>`;
+  return svgWrap(W,H,b,'ต้นทุนตามชิ้นสูงขึ้นเมื่อขายมาก ค่าใช้จ่ายตายตัวเท่าเดิม');
+}
+function priceSplit(p,v){
+  const W=420,H=86;if(!(p>0))return '';const tot=Math.max(p,v),sc=W/tot;let b='';
+  b+=txt(0,15,`ขาย 1 ชิ้น ได้ ${fmt2(p)} บาท`,{w:700,f:C.ink});
+  const cw=Math.min(v,p)*sc;b+=`<rect x="0" y="24" width="${Math.max(cw,0)}" height="38" rx="8" fill="${C.orange}"/>`;
+  if(p>v){b+=`<rect x="${cw+2}" y="24" width="${(p-v)*sc-2}" height="38" rx="8" fill="${C.lime}"/>`;}
+  else if(v>p){b+=`<rect x="${p*sc}" y="24" width="${(v-p)*sc}" height="38" rx="8" fill="#fff" stroke="${C.orange}" stroke-dasharray="5 4" stroke-width="2"/>`;}
+  const inC=cw>110,inL=(p-v)*sc>110;
+  b+=cw>0?txt(inC?cw/2:0,inC?48:80,`ต้นทุน ${fmt2(v)}`,{a:inC?'middle':'start',w:700,f:inC?'#fff':C.orange}):'';
+  if(p>v)b+=txt(inL?cw+(p-v)*sc/2:W,inL?48:80,`เหลือ ${fmt2(p-v)}`,{a:inL?'middle':'end',w:700,f:C.ink});
+  else b+=txt(W,80,v>p?`ขาดทุนชิ้นละ ${fmt2(v-p)}`:'ไม่เหลือเงินเลย',{a:'end',w:700,f:C.orange});
+  return svgWrap(W,H,b,`ราคา ${fmt2(p)} บาท ต้นทุน ${fmt2(v)} บาท เหลือ ${fmt2(p-v)} บาท`);
+}
+function rentBar(F,m,q){
+  const W=560,H=118;if(!(m>0))return '';const got=q*m,tot=Math.max(F,got,1e-9),sc=W/tot;let b='';
+  b+=txt(0,15,F>0?`ค่าใช้จ่ายตายตัว ${fmt2(F)} บาท`:'ไม่มีค่าใช้จ่ายตายตัว',{w:700,f:C.ink});
+  if(F>0)b+=`<rect x="1" y="26" width="${F*sc-2}" height="40" rx="8" fill="#fff" stroke="${C.ink}" stroke-width="2" stroke-dasharray="6 4"/>`;
+  const cov=Math.min(got,F);if(cov>0)b+=`<rect x="1" y="26" width="${Math.max(cov*sc-2,1)}" height="40" rx="8" fill="${C.lime}"/>`;
+  if(got>F)b+=`<rect x="${F*sc+(F>0?2:0)}" y="26" width="${(got-F)*sc-(F>0?2:0)}" height="40" rx="8" fill="${C.olive}"/>`;
+  if(q>0&&q<=80){for(let i=1;i<q;i++){const x=i*m*sc;b+=`<line x1="${x}" y1="28" x2="${x}" y2="64" stroke="#fff" stroke-width="1.5" opacity=".85"/>`;}}
+  if(F>0&&got<F){const gx=got*sc;b+=txt(gx+(F-got)*sc/2,51,`ยังขาด ${fmt2(F-got)}`,{a:'middle',w:700,f:C.orange});}
+  if(F>0&&got>F&&(got-F)*sc>44)b+=txt(F*sc+(got-F)*sc/2,51,'กำไร',{a:'middle',w:700,f:'#fff',s:13});
+  if(F>0){const bk=Math.ceil(F/m-1e-9),fx=F*sc;b+=fx>260?txt(fx,15,`เต็มที่ ${fmtN(bk)} ชิ้น`,{a:'end',w:700,f:C.olive}):txt(Math.min(fx+6,W-4),15,`เต็มที่ ${fmtN(bk)} ชิ้น`,{a:fx+6>W-120?'end':'start',w:700,f:C.olive});}
+  if(F>0)b+=`<line x1="${F*sc}" y1="20" x2="${F*sc}" y2="72" stroke="${C.ink}" stroke-width="2"/>`;
+  b+=txt(0,92,`ขาย ${fmtN(q)} ชิ้น × เหลือชิ้นละ ${fmt2(m)} = ${fmt2(got)} บาท`,{s:13.5});
+  b+=txt(0,112,got>F+0.004?`จ่ายค่าใช้จ่ายตายตัวครบ แล้วเหลือเป็นกำไร ${fmt2(got-F)} บาท`:Math.abs(got-F)<0.005?'เติมเต็มพอดี = จุดคุ้มทุน':`ยังไม่เต็ม ต้องขายเพิ่ม`,{s:13.5,w:700,f:got>F+0.004?C.olive:Math.abs(got-F)<0.005?C.ink:C.orange});
+  return svgWrap(W,H,b,`เติมเงินเหลือจากการขาย ${q} ชิ้นลงในค่าใช้จ่ายตายตัว ${fmt2(F)} บาท`);
+}
+function visL1(made,waste,cost){
+  const g=cookieGrid(made,waste),ready=made-waste;
+  return `<div class="vis"><h4>ภาพรอบนี้ของคุณ</h4>${g.svg}<p class="vis-key"><span><i class="k-good"></i>ดี ${fmtN(ready)} ชิ้น</span><span><i class="k-bad"></i>เสีย ${fmtN(waste)} ชิ้น</span>${g.per>1?`<span>1 ภาพ ≈ ${g.per} ชิ้น</span>`:''}</p><p class="vis-cap">${ready>0?`เงิน ${fmt2(cost)} บาท แบ่งให้แค่ ${fmtN(ready)} ชิ้นที่ดี`:'ไม่มีชิ้นดีเลย จึงแบ่งเงินไม่ได้'}</p></div>`;
+}
+function visL2(F,p,v,q,be){
+  if(be.kind==='none'||be.kind==='loss'||be.kind==='flat')return `<div class="vis"><h4>ดูเป็นภาพ</h4>${priceSplit(p,v)}</div>`;
+  return `<div class="vis"><h4>ดูเป็นภาพ</h4>${priceSplit(p,v)}<div style="height:8px"></div>${rentBar(F,be.m,q)}</div>`;
+}
+function renderStaticFigs(){
+  const map={flour:flourFig,unit:unitFig,compare:compareFig,
+    cookies:()=>cookieGrid(40,8).svg+'<p class="vis-key"><span><i class="k-good"></i>ดี 32 ชิ้น</span><span><i class="k-bad"></i>เสีย 8 ชิ้น</span></p>',
+    price:()=>priceSplit(20,6.25),rent:()=>rentBar(550,13.75,44)};
+  document.querySelectorAll('[data-fig]').forEach(el=>{try{el.innerHTML=(el.dataset.eg!=null?'<span class="eg">เช่น</span>':'')+map[el.dataset.fig]();}catch(e){}});
+}
+</script>
+<script>
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const M={
+  t:s=>`<mtext>${esc(s)}</mtext>`, n:s=>`<mn>${esc(s)}</mn>`, o:s=>`<mo>${esc(s)}</mo>`,
+  row:(...a)=>`<mrow>${a.join('')}</mrow>`, frac:(a,b)=>`<mfrac>${a}${b}</mfrac>`,
+  math:(body,label)=>`<math display="block" aria-label="${esc(label)}">${body}</math>`
+};
+function mathPieces(m){
+  let body=m.startsWith('<mrow>')&&m.endsWith('</mrow>')?m.slice(6,-7):m;
+  const out=[];let depth=0,cur='';const re=/<\/?[a-z]+[^>]*>|[^<]+/g;let t;
+  while((t=re.exec(body))){const tok=t[0];cur+=tok;if(tok[0]==='<'){if(tok[1]==='/')depth--;else depth++;}if(depth===0&&tok[0]==='<'){out.push(cur);cur='';}}
+  if(cur)out.push(cur);
+  // keep an opening "(" with the next piece and ")" with the previous one, and operators with the term after them
+  const merged=[];for(let i=0;i<out.length;i++){const p=out[i];
+    if(/^<mo>\)<\/mo>$/.test(p)&&merged.length){merged[merged.length-1]+=p;continue;}
+    if(/^<mo>\(<\/mo>$/.test(p)&&i+1<out.length){out[i+1]=p+out[i+1];continue;}
+    if(/^<mo>=<\/mo>$/.test(p)&&merged.length){merged[merged.length-1]+=p;continue;}
+    merged.push(p);}
+  return merged;
+}
+function renderFormulas(el,list){el.innerHTML=list.map((f,i)=>`<div class="formula"><span class="num">${i+1}</span><div class="eq" role="math" aria-label="${esc(f.a)}">${mathPieces(f.m).map(p=>{const op=p.match(/^<mo>([^<]*)<\/mo>$/);return op?`<span class="op" aria-hidden="true">${op[1]}</span>`:`<math displaystyle="true" aria-hidden="true">${p}</math>`;}).join('')}</div><small>${f.note}</small></div>`).join('');}
+const $=id=>document.getElementById(id);
+if(/claude|claudeusercontent/.test(location.hostname)||location.protocol==='file:'){$('backLink').hidden=true;$('brandLink').removeAttribute('href');}
+function blockedHTML(title,items){return `<div class="blocked"><strong>${title}</strong>${items.length?`<ul>${items.map(i=>`<li>${i}</li>`).join('')}</ul>`:''}</div>`;}
+
+function setErr(id,r){const bx=$(id);bx.classList.toggle('invalid',!!(r&&r.err));const e=bx.querySelector('.err');if(e)e.textContent=(r&&r.err)||'';}
+const KEY='edumarket-stock-v1';
+const EXAMPLE={l4:{v:'15',p:'30',d:'50',m:'70'}};
+let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+if(!S||!S.l4)S=structuredClone(EXAMPLE);
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+/* ===== lesson 4: stock sweet spot ===== */
+const C4={over:'#ff5a18',miss:'#e5a50a',missSoft:'#fff1c2'};
+const prof4=(v,p,D,M)=>(p-v)*Math.min(M,D)-v*Math.max(0,M-D);
+function stockFig(){
+  const W=420,H=150,r=13;let b='';
+  const row=(ox,step,n,good,bad)=>{let t='',cs=[];for(let i=0;i<n;i++){const cx=ox+r+2+i*step;cs.push(cx);t+=i<good?cookie(cx,64,r,false):bad==='left'?`<g opacity=".35">${cookie(cx,64,r,false)}</g>`:`<circle cx="${cx}" cy="64" r="${r}" fill="#fff" stroke="${C4.miss}" stroke-width="2.2" stroke-dasharray="4 3"/>`;}return {t,cs};};
+  const a=row(0,28,7,5,'left');b+=txt(0,16,'ทำมากไป',{w:700,f:C.ink,s:14})+txt(0,34,'ทำ 7 คนซื้อ 5',{s:12.5})+a.t;
+  let x1=a.cs[5]-r-4,x2=a.cs[6]+r+4;b+=`<rect x="${x1}" y="86" width="${x2-x1}" height="24" rx="12" fill="${C4.over}"/>`+txt((x1+x2)/2,103,'จมทุน',{a:'middle',w:700,f:'#fff',s:12.5});
+  const ox=228,c=row(ox,36,5,3,'miss');b+=txt(ox,16,'ทำน้อยไป',{w:700,f:C.ink,s:14})+txt(ox,34,'ทำ 3 คนซื้อ 5',{s:12.5})+c.t;
+  x1=c.cs[3]-r-4;x2=c.cs[4]+r+4;b+=`<rect x="${x1}" y="86" width="${x2-x1}" height="24" rx="12" fill="${C4.miss}"/>`+txt((x1+x2)/2,103,'ของหมด',{a:'middle',w:700,f:C.ink,s:12.5});
+  b+=txt(0,138,'จมทุน = เงินหายไปกับของเหลือ',{s:12.5,w:600,f:'#a8390d'})+txt(ox,138,'ของหมด = กำไรหายไป',{s:12.5,w:600,f:'#7a5600'});
+  return svgWrap(W,H,b,'ทำมากไปเหลือของจมทุน ทำน้อยไปของหมดเสียโอกาส');
+}
+function compare3Fig(){
+  const W=420,H=236,bot=176,sc=130/750,bw=78,xs=[20,170,320];let b='';
+  const lab=['ทำ 30','ทำ 50','ทำ 70'],sub=['ทำน้อยไป','พอดี','ทำมากไป'];
+  // 30: profit 450, missed 300
+  b+=`<rect x="${xs[0]}" y="${bot-750*sc}" width="${bw}" height="${300*sc}" rx="7" fill="${C4.missSoft}" stroke="${C4.miss}" stroke-width="2" stroke-dasharray="5 4"/>`+txt(xs[0]+bw/2,bot-750*sc+300*sc/2+5,'พลาด 300',{a:'middle',w:700,f:'#7a5600',s:12.5});
+  b+=`<rect x="${xs[0]}" y="${bot-450*sc}" width="${bw}" height="${450*sc}" rx="7" fill="${C.lime}"/>`+txt(xs[0]+bw/2,bot-450*sc/2+5,'450',{a:'middle',w:700,f:C.ink,s:15});
+  // 50: 750
+  b+=`<rect x="${xs[1]}" y="${bot-750*sc}" width="${bw}" height="${750*sc}" rx="7" fill="${C.lime}" stroke="${C.ink}" stroke-width="2.5"/>`+txt(xs[1]+bw/2,bot-750*sc/2+5,'750',{a:'middle',w:700,f:C.ink,s:17});
+  b+=txt(xs[1]+bw/2,bot-750*sc-10,'กำไรสูงสุด',{a:'middle',w:700,f:C.olive,s:13});
+  // 70: 750 - 300 => 450
+  b+=`<rect x="${xs[2]}" y="${bot-450*sc}" width="${bw}" height="${450*sc}" rx="7" fill="${C.lime}"/>`+txt(xs[2]+bw/2,bot-450*sc/2+5,'450',{a:'middle',w:700,f:C.ink,s:15});
+  b+=`<rect x="${xs[2]}" y="${bot-750*sc}" width="${bw}" height="${300*sc}" rx="7" fill="#ffe3d3" stroke="${C4.over}" stroke-width="2"/>`+txt(xs[2]+bw/2,bot-750*sc+300*sc/2+5,'ทุนจม −300',{a:'middle',w:700,f:'#a8390d',s:12.5});
+  xs.forEach((x,i)=>{b+=txt(x+bw/2,bot+20,lab[i]+' ชิ้น',{a:'middle',w:700,f:C.ink,s:13.5})+txt(x+bw/2,bot+40,sub[i],{a:'middle',s:12.5,w:600,f:i===1?C.olive:C.soft});});
+  b+=`<line x1="0" y1="${bot}" x2="${W}" y2="${bot}" stroke="${C.line}"/>`;
+  return svgWrap(W,H,b,'แซนวิช คนอยากซื้อ 50 ชิ้น ทำ 30 กำไร 450 ทำ 50 กำไร 750 ทำ 70 กำไร 450');
+}
+function lossBars(over,miss){
+  const W=420,H=190,bot=140,mx=Math.max(over,miss,1),sc=110/mx,bw=110,xs=[60,250];let b='';
+  [[over,C4.over,'ทุนจมกับของเหลือ','#a8390d'],[miss,C4.miss,'กำไรที่พลาดไป','#7a5600']].forEach(([v,col,t,tc],i)=>{const x=xs[i],h=Math.max(v*sc,v>0?3:0);
+    if(h>0)b+=`<rect x="${x}" y="${bot-h}" width="${bw}" height="${h}" rx="8" fill="${col}"/>`;
+    b+=txt(x+bw/2,bot-h-8,fmt2(v)+' ฿',{a:'middle',w:700,f:v>0?tc:C.olive,s:16});
+    b+=txt(x+bw/2,bot+22,t,{a:'middle',w:700,f:C.ink,s:13.5})+txt(x+bw/2,bot+40,i?'(ทำน้อยไป)':'(ทำมากไป)',{a:'middle',s:12.5});});
+  b+=`<line x1="20" y1="${bot}" x2="${W-20}" y2="${bot}" stroke="${C.line}"/>`;
+  return svgWrap(W,H,b,`ทุนจม ${fmt2(over)} บาท กำไรที่พลาด ${fmt2(miss)} บาท`);
+}
+function profitCurve(v,p,D,M,xMax){
+  const W=420,H=210,m={l:44,r:12,t:26,b:40},iw=W-m.l-m.r,ih=H-m.t-m.b;let b='';
+  const pts=[0,D,xMax],ys=pts.map(x=>prof4(v,p,D,x)),ymax=Math.max(...ys,prof4(v,p,D,M),1),ymin=Math.min(...ys,prof4(v,p,D,M),0);
+  const X=x=>m.l+x/xMax*iw,Y=y=>m.t+(ymax-y)/(ymax-ymin)*ih;
+  b+=`<line x1="${m.l}" y1="${Y(0)}" x2="${W-m.r}" y2="${Y(0)}" stroke="${C.line}"/>`+txt(m.l-6,Y(0)+4,'0',{a:'end',s:12});
+  b+=`<polyline points="${pts.map((x,i)=>X(x)+','+Y(ys[i])).join(' ')}" fill="none" stroke="${C.ink}" stroke-width="3" stroke-linejoin="round"/>`;
+  b+=`<circle cx="${X(D)}" cy="${Y(ys[1])}" r="7" fill="${C.lime}" stroke="${C.ink}" stroke-width="2.5"/>`;
+  b+=txt(X(D),Y(ys[1])-12,`จุดพอดี ${fmtN(D)} ชิ้น`,{a:X(D)<90?'start':X(D)>W-90?'end':'middle',w:700,f:C.olive,s:13});
+  const yc=prof4(v,p,D,M);b+=`<line x1="${X(M)}" y1="${m.t}" x2="${X(M)}" y2="${H-m.b}" stroke="${C.ink}" stroke-dasharray="3 4"/><circle cx="${X(M)}" cy="${Y(yc)}" r="6" fill="${C.orange}" stroke="#fff" stroke-width="2"/>`;
+  b+=txt(X(M),H-m.b+16,`ตอนนี้ ${fmtN(M)}`,{a:X(M)<60?'start':X(M)>W-60?'end':'middle',w:700,f:C.ink,s:12.5});
+  b+=txt(m.l,H-4,'0',{s:12})+txt(W-m.r,H-4,`${fmtN(xMax)} ชิ้น`,{a:'end',s:12})+txt(m.l+iw/2,H-4,'จำนวนที่ทำ →',{a:'middle',s:12});
+  b+=txt(m.l,14,'กำไร (บาท)',{s:12,w:600});
+  return svgWrap(W,H,b,`กำไรตามจำนวนที่ทำ สูงสุดเมื่อทำ ${D} ชิ้น`);
+}
+function renderL4Static(){
+  const m={stock:stockFig,compare3:compare3Fig};
+  document.querySelectorAll('[data-fig4]').forEach(el=>{try{el.innerHTML=(el.dataset.eg!=null?'<span class="eg">เช่น</span>':'')+m[el.dataset.fig4]();}catch(e){}});
+}
+function update4(v1,p2){
+  const L=S.l4;
+  const fv=parseValue(L.v,{label:'ต้นทุนต่อชิ้น'}),fp=parseValue(L.p,{label:'ราคาขายต่อชิ้น'}),fd=parseValue(L.d,{label:'คนอยากซื้อ',int:true}),fm=parseValue(L.m,{label:'จำนวนที่ทำ',int:true});
+  setErr('f-v4',fv);setErr('f-p4',fp);setErr('f-d4',fd);setErr('f-m4',fm);
+  const xMax=fd.err?100:Math.max(20,Math.ceil(fd.v*2/10)*10);$('r-m4').max=xMax;if(!fm.err)$('r-m4').value=Math.min(xMax,fm.v);
+  $('m4Big').textContent=fm.err?'–':fmtN(fm.v);
+  const out=$('res4');
+  const errs=[fv.err,fp.err,fd.err,fm.err].filter(Boolean);
+  if(errs.length){out.innerHTML=blockedHTML('ยังคำนวณไม่ได้',errs);$('zoneBar').innerHTML='';return;}
+  const v=fv.v,p=fp.v,D=fd.v,M=fm.v,mg=p-v;
+  const safe=Math.ceil(D*1.2-1e-9);
+  // zone bar under slider
+  const pc=x=>Math.min(100,x/xMax*100);
+  $('zoneBar').innerHTML=`<div class="zb"><span class="z-under" style="width:${pc(D)}%"></span><span class="z-safe" style="width:${pc(safe)-pc(D)}%"></span><span class="z-over" style="width:${100-pc(safe)}%"></span><i style="left:${pc(D)}%"></i></div><div class="zb-lbl"><span>ทำน้อยไป</span><span>พอดี ${fmtN(D)}${safe>D?` · เผื่อถึง ${fmtN(safe)}`:''}</span><span>ทำมากไป</span></div>`;
+  if(mg<=0){out.innerHTML=`<div class="blocked"><strong>ราคาขายไม่สูงกว่าต้นทุน</strong>ขายชิ้นละ ${fmt2(p)} แต่ทุน ${fmt2(v)} บาท ไม่ว่าทำกี่ชิ้นก็ไม่มีกำไร · ลองตั้งราคาใหม่</div>`;return;}
+  const sold=Math.min(M,D),left=Math.max(0,M-D),missN=Math.max(0,D-M),over=left*v,miss=missN*mg,profit=prof4(v,p,D,M),best=mg*D;
+  let zone,cls,msg;
+  if(M===D){zone='จุดพอดี (Sweet Spot)';cls='z-ok';msg=`ไม่มีทุนจม ไม่พลาดกำไร · ได้กำไรสูงสุด ${fmt2(best)} บาท`;}
+  else if(M<D){zone='ทำน้อยไป';cls='z-miss';msg=`คุณเสียโอกาสได้กำไรเพิ่ม ${fmt2(miss)} บาท เพราะทำของมาไม่พอขาย (ขาด ${fmtN(missN)} ชิ้น)`;}
+  else if(M<=safe){zone='ทำเผื่อ (Safety Stock)';cls='z-safe';msg=`ทำเผื่อ ${fmtN(left)} ชิ้น (${Math.round(left/D*100)}%) ถ้ามีคนมาซื้อเพิ่มก็ไม่พลาด แต่ถ้าไม่มี ทุนจม ${fmt2(over)} บาท`;}
+  else{zone='ทำมากไป';cls='z-over';msg=`กำไรถูกดึงลง ${fmt2(over)} บาท เพราะมีเงินทุนจมอยู่กับของเหลือ ${fmtN(left)} ชิ้น`;}
+  out.innerHTML=`<div class="zone ${cls}"><b>${zone}</b><span>${msg}</span></div>`
+   +`<div class="vis"><h4>ทุนจม เทียบ กำไรที่พลาด</h4>${lossBars(over,miss)}</div>`
+   +`<div class="kpis"><div class="kpi ${M===D?'lime':'plain'}"><span>กำไรตอนนี้</span><strong>${profit<-0.004?'−':''}${fmt2(Math.abs(profit))}<small>บาท</small></strong><em>ขาย ${fmtN(sold)} × ${fmt2(mg)}${left?` − ทุนจม ${fmt2(over)}`:''}</em></div><div class="kpi hot"><span>กำไรสูงสุด (ทำ ${fmtN(D)} ชิ้น)</span><strong>${fmt2(best)}</strong><em>${M===D?'คุณอยู่ที่จุดนี้แล้ว':'ห่างอยู่ '+fmt2(best-profit)+' บาท'}</em></div></div>`
+   +`<div class="vis"><h4>กำไรตามจำนวนที่ทำ</h4>${profitCurve(v,p,D,M,Math.max(xMax,M))}<p class="vis-cap">กำไรสูงสุดอยู่ที่ยอดที่คนอยากซื้อ ไม่ใช่ที่ทำเยอะที่สุด</p></div>`
+   +`<p class="muted-s">ยังไม่หักค่าใช้จ่ายตายตัว เช่น ค่าเช่าแผง</p>`;
+}
+function bindL4(){
+  const L=()=>S.l4;const map={'in-v4':'v','in-p4':'p','in-d4':'d','in-m4':'m'};
+  Object.entries(map).forEach(([id,k])=>$(id).addEventListener('input',e=>{L()[k]=e.target.value;update();}));
+  $('r-m4').addEventListener('input',e=>{L().m=e.target.value;$('in-m4').value=e.target.value;update();});
+  document.querySelectorAll('[data-safety]').forEach(b=>b.addEventListener('click',()=>{const fd=parseValue(L().d,{label:'',int:true});if(fd.err)return;L().m=String(Math.ceil(fd.v*(1+Number(b.dataset.safety)/100)-1e-9));$('in-m4').value=L().m;update();}));
+}
+function fill4(){const L=S.l4;$('in-v4').value=L.v;$('in-p4').value=L.p;$('in-d4').value=L.d;$('in-m4').value=L.m;}
+
+const F4=[
+  {m:M.row(M.t('ทุนจมกับของเหลือ'),M.o('='),M.t('ของเหลือ'),M.o('×'),M.t('ต้นทุนต่อชิ้น')),a:'ทุนจมกับของเหลือ เท่ากับ ของเหลือ คูณ ต้นทุนต่อชิ้น',note:'บาท · เช่น 20 × 15 = 300'},
+  {m:M.row(M.t('กำไรที่พลาด'),M.o('='),M.t('ของที่ขาด'),M.o('×'),M.t('เงินเหลือต่อชิ้น')),a:'กำไรที่พลาด เท่ากับ ของที่ขาด คูณ เงินเหลือต่อชิ้น',note:'บาท · เช่น 20 × 15 = 300 (ค่าเสียโอกาส)'},
+  {m:M.row(M.t('กำไร'),M.o('='),M.row(M.t('จำนวนที่ขายได้'),M.o('×'),M.t('เงินเหลือต่อชิ้น')),M.o('−'),M.t('ทุนจมกับของเหลือ')),a:'กำไร เท่ากับ จำนวนที่ขายได้ คูณ เงินเหลือต่อชิ้น ลบ ทุนจมกับของเหลือ',note:'บาท · ยังไม่หักค่าใช้จ่ายตายตัว · เช่น 50 × 15 − 300 = 450'}
+];
+renderFormulas(document.getElementById('formulas4'),F4);
+renderL4Static();bindL4();
+function fillAll(){fill4();}
+function update(){update4(null,null);save();}
+let clearArmed=false;
+$('clearAll').addEventListener('click',()=>{
+  if(!clearArmed){clearArmed=true;$('clearAll').textContent='กดอีกครั้งเพื่อยืนยัน';$('clearMsg').textContent='';setTimeout(()=>{if(clearArmed){clearArmed=false;$('clearAll').textContent='ล้างข้อมูลที่บันทึก';}},4000);return;}
+  clearArmed=false;try{localStorage.removeItem(KEY)}catch(e){}
+  S=structuredClone(EXAMPLE);fillAll();update();$('clearAll').textContent='ล้างข้อมูลที่บันทึก';$('clearMsg').textContent='ล้างแล้ว กลับเป็นข้อมูลตัวอย่าง';
+});
+
+fillAll();update();
+</script>
+</body>
+</html>

@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ความต้องการของตลาด · EduMarket</title>
+<meta name="description" content="หัวข้อ 2: ขายให้ถูกเวลา ตัวคูณของวัน และวางแผนว่าแต่ละวันควรทำกี่ชิ้น">
+<meta name="theme-color" content="#c8ff0a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<style>
+/* Layout: EduMarket app shell (paper card on peach) → lime lesson banner → two lesson tabs, each = article → formulas → lab (inputs | results) → live chart. Single light theme, same as the app. */
+:root{
+  --lime:#c8ff0a; --lime-soft:#f1ffc4; --orange:#ff5a18; --peach:#ffd1b8; --peach-soft:#fff0e6;
+  --outside:#edbfa8; --paper:#f7f7f5; --card:#ffffff; --line:#e7e7e3; --line-strong:#d7d9d1;
+  --ink:#22241f; --text:#242424; --soft:#555a50; --muted:#6f7369; --sage:#f3f5ec;
+  --good-bg:#eefbd8; --good:#3f5d0a; --bad-bg:#fff0e5; --bad:#a8390d;
+  --rev:#2f6e0c; --cost:#ff5a18; --profit-fill:rgba(200,255,10,.30); --loss-fill:rgba(255,90,24,.13); --grid:#e9eae4;
+  --f-th:"Noto Sans Thai",system-ui,sans-serif; --f-num:"Space Grotesk","Noto Sans Thai",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--outside);color:var(--text);font-family:var(--f-th);font-size:15px;line-height:1.7;font-synthesis:none}
+h1,h2,h3,p{margin:0}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+input:focus{outline:2px solid #b7e928;outline-offset:1px}
+
+.shell{max-width:1120px;margin:24px auto;background:var(--paper);border-radius:32px;box-shadow:0 20px 60px #713d2712;padding-left:max(40px,env(safe-area-inset-left,0px));padding-right:max(40px,env(safe-area-inset-right,0px));padding-bottom:40px;width:calc(100% - 48px)}
+.topbar{height:88px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line)}
+.brand{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-num);font-weight:700;font-size:24px;letter-spacing:-1px;line-height:1;color:var(--ink);text-decoration:none}
+.brand-mark{display:flex;align-items:center;justify-content:center;background:var(--lime);width:42px;height:42px;border-radius:12px;font-size:29px;letter-spacing:-7px;padding-right:6px;transform:rotate(-5deg)}
+.brand-mark span{margin-top:6px}
+.brand-thin{font-weight:500}
+.back{font-size:14px;font-weight:600;color:var(--ink);text-decoration:none;border:1px solid var(--line-strong);border-radius:14px;padding:9px 16px;background:#fff}
+
+.banner{display:flex;align-items:center;gap:22px;background:var(--lime);border-radius:26px;padding:26px 28px;margin:26px 0 18px}
+.banner-icon{width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center;flex-shrink:0}
+.banner h1{font-size:clamp(26px,3.2vw,34px);line-height:1.25;font-weight:800;letter-spacing:-.5px;color:var(--ink);text-wrap:balance}
+.banner p{color:#3d4a12;margin-top:4px;max-width:58ch}
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:30px;padding:4px 12px;font-size:13px;font-weight:700;white-space:nowrap;background:#eeefea;color:var(--ink)}
+.banner .chip{background:#fff;margin-left:auto}
+
+.tabs{display:flex;gap:6px;padding:6px;background:#e9eae5;border-radius:18px;max-width:900px;margin:0 0 26px}
+.tabs button{flex:1;border:0;background:transparent;border-radius:13px;padding:10px 12px;font-weight:600;font-size:14px;line-height:1.35;color:#4b5046;text-align:left;display:flex;gap:10px;align-items:center;min-height:52px}
+.tabs button b{font-family:var(--f-num);font-size:18px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#fff;color:var(--ink);flex-shrink:0}
+.tabs button[aria-selected="true"]{background:var(--ink);color:#fff}
+.tabs button[aria-selected="true"] b{background:var(--lime)}
+
+.lesson{display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
+.card{background:var(--card);border:1px solid #e8e9e1;border-radius:24px;padding:26px}
+.step-label{display:block;font-family:var(--f-num);font-weight:700;font-size:13px;letter-spacing:.3px;color:#6f7d55;margin-bottom:8px}
+h2{font-size:23px;line-height:1.4;font-weight:750;color:var(--ink);text-wrap:balance}
+h3{font-size:18px;line-height:1.45;font-weight:700;color:var(--ink)}
+
+.article{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start}
+.prose{display:grid;gap:14px;max-width:62ch;min-width:0;font-size:15.5px}
+.prose h3{margin-top:10px}
+.prose h3:first-of-type{margin-top:0}
+.prose p{color:#33362f}
+.example{background:var(--sage);border-radius:16px;padding:14px 18px;font-size:15px;color:#2f332b}
+.example b{color:var(--ink)}
+.side{display:grid;gap:12px;position:sticky;top:16px}
+.keypoint{border-radius:20px;padding:18px 20px;background:var(--peach-soft);border:1px solid #ffd9c3}
+.keypoint strong{display:block;font-size:16px;color:var(--ink);margin-bottom:4px}
+.keypoint p{font-size:14px;color:#5b3a28}
+.keypoint.lime{background:var(--lime-soft);border-color:#e3f7a2}
+.keypoint.lime p{color:#3d4a12}
+
+.formulas{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.formula{min-width:0;display:grid;grid-template-columns:34px minmax(0,1fr);gap:4px 14px;align-items:start;background:#f6f7f1;border-radius:18px;padding:16px 18px}
+.formula .num{font-family:var(--f-num);font-weight:700;width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--lime);display:grid;place-items:center;font-size:15px;margin-top:6px}
+.math-scroll{overflow-x:auto;min-width:0;padding:2px 0}
+.formula small{grid-column:2;color:var(--muted);font-size:13px;line-height:1.6}
+math{font-family:var(--f-th);font-size:19px;color:var(--ink)}
+math[display="block"]{display:block;text-align:left;margin:0}
+math mn{font-family:var(--f-num)}
+.formula-intro{color:var(--soft);margin:6px 0 16px;max-width:66ch}
+
+.lab-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.example-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;background:var(--peach-soft);border:1px dashed #f3b391;border-radius:16px;padding:12px 16px;margin:14px 0 4px;font-size:14px;color:#6b3a1f}
+.example-bar strong{color:#8a3810}
+.lab{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:26px;margin-top:18px}
+.group-title{font-size:15px;font-weight:700;color:var(--ink);margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.group-title i{font-style:normal;font-family:var(--f-num);font-size:12px;background:var(--ink);color:var(--lime);border-radius:8px;padding:1px 7px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field>label,.field>.lbl{font-size:14px;font-weight:600;color:#3f453a}
+.field .unit-wrap{display:flex;align-items:stretch;border:1px solid #e2e3dd;border-radius:13px;background:#fff;overflow:hidden}
+.field .unit-wrap:focus-within{outline:2px solid #b7e928;outline-offset:1px}
+.field input[type="text"]{flex:1;min-width:0;border:0;padding:11px 14px;font-size:16px;background:transparent;font-family:var(--f-num);font-weight:500}
+.field input.thai{font-family:var(--f-th);font-weight:400}
+.field input[type="text"]:focus{outline:none}
+.unit{display:flex;align-items:center;padding:0 14px;background:#f4f5f0;color:var(--soft);font-size:13.5px;white-space:nowrap;border-left:1px solid #e9eae4}
+.field .err{font-size:13px;color:var(--bad);display:none}
+.field.invalid .unit-wrap{border-color:#f0a07c;background:#fffaf7}
+.field.invalid .err{display:block}
+.range-row{display:flex;align-items:center;gap:12px;font-size:12.5px;color:var(--muted)}
+input[type="range"]{flex:1;accent-color:#6b8500;height:24px;min-width:0}
+
+.helper{border:1px solid var(--line);border-radius:18px;padding:16px;background:#fbfbf9;margin-bottom:18px}
+.helper summary{cursor:pointer;font-weight:700;color:var(--ink);list-style-position:outside;margin-left:4px}
+.helper summary small{font-weight:500;color:var(--muted);font-size:13px}
+.rows{display:grid;gap:10px;margin-top:14px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 34px;gap:8px 10px;align-items:end;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px}
+.row .cell{display:flex;flex-direction:column;gap:3px;min-width:0}
+.row .cell span{font-size:12px;color:var(--muted);font-weight:600}
+.row input,.row select{width:100%;min-width:0;border:1px solid #e2e3dd;border-radius:10px;padding:8px 9px;font-size:14.5px;background:#fff}
+.row .pair{display:flex;gap:4px}
+.row .pair input{flex:1}
+.row .pair select{width:auto;flex:0 0 auto;padding:8px 4px;font-size:13px;background:#f4f5f0}
+.row .out{font-family:var(--f-num);font-weight:700;font-size:15px;color:var(--ink);padding:6px 0}
+.row .out.bad{font-family:var(--f-th);font-weight:500;font-size:12.5px;color:var(--bad);line-height:1.4}
+.row .cell.name{grid-column:1 / 3}
+.row>.cell:nth-child(2),.row>.cell:nth-child(4){grid-column:1}
+.row>.cell:nth-child(3),.row>.cell:nth-child(5){grid-column:2 / 4}
+.row .del{grid-column:3;grid-row:1;align-self:end;width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;color:var(--muted)}
+.helper-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+.helper-total{font-size:14px;color:var(--soft)}
+.helper-total strong{font-family:var(--f-num);font-size:20px;color:var(--ink);margin-left:6px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;border:1px solid transparent;border-radius:14px;padding:10px 20px;background:var(--lime);font-size:15px;font-weight:700;line-height:1.3;color:var(--ink);white-space:nowrap;transition:transform .15s}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.black{background:var(--ink);color:#fff}
+.btn.outline{background:#fff;border-color:var(--line-strong)}
+.btn.small{min-height:38px;font-size:13.5px;padding:7px 14px;border-radius:11px}
+.btn.full{width:100%}
+
+.results{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-content:start;min-width:0}
+.big{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{border:1px solid #e8e9e2;background:#fff;border-radius:18px;padding:14px 18px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat span{font-size:13px;color:var(--muted);font-weight:600}
+.stat strong{font-family:var(--f-num);font-size:26px;line-height:1.3;color:var(--ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.stat em{font-style:normal;font-size:13px;color:var(--soft)}
+.stat.hero{background:var(--ink);border-color:var(--ink)}
+.stat.hero span,.stat.hero em{color:#cfd3c6}
+.stat.hero strong{color:var(--lime)}
+.stat.good{background:var(--good-bg);border-color:#d7efb0}
+.stat.good strong{color:var(--good)}
+.stat.bad{background:var(--bad-bg);border-color:#ffd6c2}
+.stat.bad strong{color:var(--bad)}
+.subst{background:#f6f7f1;border-radius:16px;padding:12px 16px}
+.subst .lbl{font-size:13px;color:var(--muted);font-weight:600;display:block;margin-bottom:2px}
+.subst math{font-size:17px}
+.explain{border-radius:16px;padding:14px 16px;background:var(--good-bg);color:#33461a;font-size:14.5px}
+.explain.warn{background:var(--bad-bg);color:#7a3112}
+.explain.info{background:var(--sage);color:#3a3f33}
+.explain p+p{margin-top:6px}
+.blocked{border:1px dashed #f0a07c;background:#fffaf7;border-radius:18px;padding:18px;color:#7a3112}
+.blocked strong{display:block;color:var(--bad);margin-bottom:4px}
+.blocked ul{margin:6px 0 0;padding-left:20px}
+.status{font-size:13px;color:var(--good);min-height:20px}
+
+.linked{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;background:var(--ink);color:#e9ecdf;border-radius:22px;padding:16px 22px}
+.linked strong{font-family:var(--f-num);font-size:24px;color:var(--lime)}
+.linked .grow{flex:1;min-width:200px}
+.linked small{display:block;color:#b9bfae;font-size:13px}
+.linked .btn{background:transparent;border-color:#55594d;color:#fff}
+
+.chart-card{margin-top:22px}
+.chart-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:10px;margin-bottom:10px}
+.chart-head p{color:var(--soft);font-size:14px;max-width:62ch}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13.5px;color:var(--soft)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{display:inline-block;width:24px;height:0;border-top:3px solid}
+.legend i.rev{border-color:var(--rev)}
+.legend i.cost{border-color:var(--cost);border-top-style:dashed}
+.legend i.pt{width:12px;height:12px;border:0;border-radius:50%;background:var(--orange);box-shadow:0 0 0 2px #fff,0 0 0 3px var(--orange)}
+.legend i.be{width:12px;height:12px;border:0;border-radius:50%;background:var(--ink)}
+.chart-wrap{position:relative;width:100%;min-width:0;touch-action:pan-y}
+.chart-wrap svg{display:block;width:100%;overflow:visible}
+.chart-wrap svg text{font-family:var(--f-th);fill:var(--soft);font-size:12.5px}
+.chart-wrap svg text.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.chart-wrap svg text.lbl-strong{fill:var(--ink);font-weight:700;font-size:13px}
+.chart-wrap svg text{paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+.ylab{font-size:13px;color:var(--muted);margin-bottom:4px}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;border-radius:12px;padding:8px 12px;font-size:13px;line-height:1.55;min-width:150px;box-shadow:0 8px 24px #0002;z-index:2}
+.tip b{font-family:var(--f-num);color:var(--lime)}
+.tip .r{display:flex;justify-content:space-between;gap:14px}
+.tip .r span:last-child{font-family:var(--f-num)}
+.chart-note{margin-top:10px;font-size:14px;color:var(--soft)}
+.chart-empty{display:grid;place-items:center;text-align:center;min-height:180px;border:1px dashed var(--line-strong);border-radius:18px;color:var(--soft);padding:18px;font-size:14.5px}
+details.table{margin-top:12px;font-size:14px}
+details.table summary{cursor:pointer;font-weight:600;color:var(--ink)}
+.table-scroll{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:13px;color:var(--muted);font-weight:600}
+td{font-family:var(--f-num)}
+tr.hl td{background:var(--lime-soft);font-weight:700}
+
+.next{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:4px}
+.next p{color:var(--soft);font-size:14px}
+.range-ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:14px;color:var(--soft);margin-top:10px}
+.range-ctrl label{display:inline-flex;align-items:center;gap:6px}
+.range-ctrl input[type="checkbox"]{accent-color:#6b8500;width:18px;height:18px}
+.range-ctrl input[type="text"]{width:88px;border:1px solid #e2e3dd;border-radius:10px;padding:6px 10px;font-family:var(--f-num)}
+.range-ctrl input:disabled{background:#f4f5f0;color:var(--muted)}
+
+/* dashboard lab (inputs left, results + live chart right) */
+.dash{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:24px;margin-top:18px;align-items:start}
+.dash-left,.dash-right{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;min-width:0}
+.dash-left .status{margin:-8px 0 0}
+.panel{border-radius:20px;padding:20px;border:1px solid;min-width:0}
+.panel.sage{background:#f6f7f1;border-color:#e6e8dc}
+.panel.peach{background:var(--peach-soft);border-color:#ffd9c3}
+.panel.plain{background:#fff;border-color:#e8e9e1}
+.panel-title{display:flex;gap:8px;align-items:center;font-size:17px;font-weight:700;color:var(--ink);margin-bottom:14px;line-height:1.4}
+.panel-title svg{flex-shrink:0;color:#6b8500}
+.panel .helper{margin:12px 0 0;background:#fff}
+.big-slider{margin:0;gap:8px}
+.bs-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.bs-label{font-weight:700;color:var(--ink)!important;font-size:15px!important;display:flex;gap:8px;align-items:center;line-height:1.4}
+.bs-label svg{flex-shrink:0;color:var(--orange)}
+.bs-value{font-family:var(--f-num);font-weight:700;color:#c23d08;font-size:15px;white-space:nowrap;display:flex;align-items:baseline;gap:6px}
+.bs-value strong{font-size:32px;line-height:1}
+.big-slider input[type=range]{width:100%;accent-color:#6b8500;height:30px;margin:4px 0 0}
+.bs-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted)}
+.unit-wrap.mini{width:132px;flex-shrink:0}
+.field .unit-wrap.mini input[type=text]{padding:7px 10px;font-size:15px}
+.unit-wrap.mini .unit{padding:0 10px}
+.bs-hint{text-align:center;font-size:13.5px;color:#a8390d;font-weight:500;margin-top:2px}
+.kpis{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.kpi{border-radius:20px;padding:18px 14px;text-align:center;border:1px solid;display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0;min-height:128px}
+.kpi span{font-size:13.5px;font-weight:700}
+.kpi strong{font-family:var(--f-num);font-weight:700;font-size:clamp(34px,4.2vw,46px);line-height:1.15;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kpi strong small{font-size:17px;margin-left:6px;font-weight:600}
+.kpi strong.msg{font-family:var(--f-th);font-size:21px;line-height:1.4}
+.kpi em{font-style:normal;font-size:13px;opacity:.85}
+.kpi.ok{background:var(--good-bg);border-color:#d7efb0;color:var(--good)}
+.kpi.hot{background:var(--bad-bg);border-color:#ffd6c2;color:#c23d08}
+.kpi.lime{background:var(--lime);border-color:#b8ec00;color:var(--ink)}
+.kpi.plain{background:#fff;border-color:#e8e9e1;color:var(--ink)}
+.kpi.plain span,.kpi.plain em{color:var(--muted)}
+.strip{background:#f6f7f1;border:1px solid #e6e8dc;border-radius:14px;padding:12px 16px;text-align:center;color:var(--soft);font-size:14.5px;line-height:1.75;font-variant-numeric:tabular-nums}
+.strip b{color:var(--ink);font-family:var(--f-num);font-weight:700}
+.strip b.hot{color:#c23d08}
+.strip .lbl{display:block;font-size:12.5px;color:var(--muted);font-weight:600}
+.dash .chart-card{margin-top:0}
+.chart-sub{font-size:13.5px;color:var(--soft);margin:-4px 0 8px}
+@media (max-width:980px){.dash{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.kpi{min-height:0;padding:14px 10px}.kpi strong{font-size:30px}.kpi strong small{font-size:14px}.kpi span{font-size:12.5px}}
+@media (max-width:330px){.kpis{grid-template-columns:minmax(0,1fr)}}
+
+.name-field{margin:0}
+.step-badge{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--lime);font-family:var(--f-num);font-size:15px;display:grid;place-items:center;flex-shrink:0}
+.panel-title small{font-weight:500;color:var(--muted);font-size:13.5px}
+.panel-sub{font-size:13.5px;color:var(--soft);margin:-8px 0 12px 36px;line-height:1.6}
+.panel.dim .rows,.panel.dim #addRow{opacity:.45}
+.manual-note{font-size:13.5px;background:#fff;border:1px dashed var(--line-strong);border-radius:12px;padding:8px 12px;margin-bottom:10px;color:var(--soft)}
+.seg{display:flex;gap:4px;padding:4px;background:#e9eae5;border-radius:13px}
+.seg button{flex:1;border:0;background:transparent;border-radius:10px;padding:8px 10px;font-size:13.5px;font-weight:600;color:#4b5046;min-height:38px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+#in-cost[readonly]{background:#f4f5f0;color:var(--ink);font-weight:700;cursor:default}
+.how{font-size:13px;color:var(--muted)}
+.ready-line{margin-top:6px;padding:10px 12px;background:#fff;border-radius:12px;text-align:center;font-size:14.5px;color:var(--soft)}
+.ready-line b{color:var(--good);font-family:var(--f-num)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.row{background:#fff}
+
+.pre-dash{display:grid;gap:14px;margin-top:18px}
+.pre-dash .name-field{max-width:420px}
+.pre-dash .panel-sub{margin-bottom:10px}
+.row-head{display:none}
+@media (min-width:761px){
+  .row-head{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr) 34px;gap:10px;padding:0 11px;margin-top:4px;font-size:12.5px;font-weight:600;color:var(--muted)}
+  .pre-dash .rows{margin-top:6px;gap:6px}
+  .pre-dash .row{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr) 34px;align-items:center;padding:8px 10px}
+  .pre-dash .row>.cell{grid-column:auto!important}
+  .pre-dash .row .cell>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .pre-dash .row .del{grid-column:6;grid-row:1}
+  .pre-dash .row .out{text-align:right;padding-right:4px}
+}
+
+.lead{font-size:16.5px;color:var(--ink)}
+.kicker{margin-top:6px}
+ol.points{list-style:none;counter-reset:pt;margin:0;padding:0;display:grid;gap:12px}
+ol.points li{counter-increment:pt;display:grid;grid-template-columns:32px minmax(0,1fr);gap:2px 12px}
+ol.points li::before{content:counter(pt);grid-row:1 / 3;width:30px;height:30px;border-radius:50%;background:var(--lime);color:var(--ink);font-family:var(--f-num);font-weight:700;display:grid;place-items:center;margin-top:2px}
+ol.points h4{margin:0;font-size:16px;color:var(--ink);line-height:1.5}
+ol.points p{color:#33362f}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.compare>div{border-radius:16px;padding:14px 16px;border:1px solid}
+.compare strong{display:block;color:var(--ink);font-size:15.5px}
+.compare p{font-size:14px;color:var(--soft)}
+.cmp-a{background:var(--peach-soft);border-color:#ffd9c3}
+.cmp-b{background:var(--lime-soft);border-color:#e3f7a2}
+ul.ladder{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px}
+ul.ladder li{display:flex;align-items:center;gap:8px}
+ul.ladder i{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+ul.ladder i.loss{background:var(--orange)}ul.ladder i.even{background:var(--ink)}ul.ladder i.gain{background:#6b8500}
+.card-ladder{margin:8px 0 0!important;padding:8px 0 0!important;border-top:1px solid #dfe1d8;font-size:14.5px}
+@media (max-width:520px){.compare{grid-template-columns:1fr}}
+
+/* ---- v5: calmer, higher-contrast palette & fewer visible fields ---- */
+:root{--muted:#585c53;--soft:#41453d}
+.step-label{color:#4d5a2c}
+.panel.plain{background:#fff;border-color:#dfe1d8}
+.panel-title{font-size:18px}
+.field>label,.field>.lbl{font-size:15px;color:var(--ink);display:flex;align-items:center;gap:8px}
+.fnum{width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--lime);font-family:var(--f-num);font-size:12.5px;display:grid;place-items:center;flex-shrink:0}
+.field .unit-wrap{border-color:#cfd2c7}
+.unit{background:#f1f2ec;color:#3f433b;font-size:14px}
+.how{font-size:13.5px;color:var(--muted)}
+.linkbtn{border:0;background:none;padding:0;color:#3b5a00;font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:13.5px}
+.big-slider{border-top:1px solid var(--line);padding-top:14px;margin-top:4px}
+.bs-label svg{color:var(--ink)}
+.bs-value{color:var(--ink)}
+.bs-foot{color:var(--muted);font-size:13.5px}
+.ready-line{background:#f3f4ef;color:var(--soft);font-size:15px;margin-top:12px}
+.ready-line b{color:var(--ink)}
+details.more{margin-top:12px;font-size:14px}
+details.more summary{cursor:pointer;color:var(--soft);font-weight:600}
+.helper-box{margin-top:16px}
+.helper-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.helper-box .rows{margin-top:6px;gap:6px}
+.helper-total{font-size:15px;color:var(--soft)}
+.helper-total strong{font-family:var(--f-num);font-size:20px;color:var(--ink)}
+@media (min-width:761px){
+  .helper-box .row{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr) 34px;align-items:center;padding:8px 10px}
+  .helper-box .row>.cell{grid-column:auto!important}
+  .helper-box .row .cell>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .helper-box .row .del{grid-column:6;grid-row:1}
+  .helper-box .row .out{text-align:right;padding-right:4px}
+}
+.kpi{min-height:136px}
+.kpi.ok{background:#fff;border-color:#dfe1d8;color:var(--ink)}
+.kpi.ok span,.kpi.ok em{color:var(--muted)}
+.kpi.hot{background:var(--ink);border-color:var(--ink);color:#fff}
+.kpi.hot span,.kpi.hot em{color:#d9dccf}
+.kpi.hot strong{color:var(--lime)}
+.kpi.plain{border-color:#dfe1d8}
+.strip{background:#fff;border-color:#dfe1d8;color:var(--soft);font-size:15px}
+.strip b.hot{color:var(--ink);background:var(--lime);padding:1px 6px;border-radius:6px}
+.explain{background:#f3f4ef;color:#2f332b;font-size:15px}
+.explain.info{background:#f3f4ef;color:#2f332b}
+.explain.warn{background:#fff3ec;color:#7a2d0c}
+.stat{border-color:#dfe1d8}
+.stat span,.stat em{color:var(--muted)}
+.chart-wrap svg text{fill:#4a4e45;font-size:13px}
+.chart-note,.chart-sub{color:var(--muted)}
+.example-bar{background:#fff;border:1px solid #f0b896;color:#5c2f15}
+.example-bar strong{color:#8a3810}
+.keypoint p{color:#4b3325}
+.keypoint.lime p{color:#34410f}
+
+/* ---- v7: picture-first lessons ---- */
+.vgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+.vcard{background:#fff;border:1px solid #dfe1d8;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.vcard.wide{grid-column:1 / -1}
+.vcard>p{font-size:15.5px;color:#2f332b;line-height:1.65}
+.vhead{display:flex;align-items:center;gap:10px}
+.vhead h4{margin:0;font-size:17px;color:var(--ink);line-height:1.4}
+.vnum{width:30px;height:30px;border-radius:50%;background:var(--lime);color:var(--ink);font-family:var(--f-num);font-weight:700;display:grid;place-items:center;flex-shrink:0}
+.fig{background:#f7f7f5;border-radius:14px;padding:14px;display:grid;justify-items:center;gap:8px}
+.fig svg{display:block;height:auto}
+.fig svg text,.vis svg text{font-family:var(--f-th)}
+.sum-tiles{display:flex;flex-wrap:wrap;align-items:center;gap:6px;background:#f7f7f5;border-radius:14px;padding:14px}
+.sum-tiles i{font-style:normal;font-weight:700;font-size:18px;color:var(--ink)}
+.tile{display:flex;flex-direction:column;align-items:center;background:#fff;border:1px solid #dfe1d8;border-radius:12px;padding:6px 10px;font-size:13.5px;color:var(--soft);line-height:1.3}
+.tile b{font-family:var(--f-num);font-size:16px;color:var(--ink)}
+.tile.ghost{border-style:dashed;justify-content:center;min-height:48px}
+.tile.total{background:var(--ink);border-color:var(--ink);color:var(--lime);font-weight:700;justify-content:center;min-height:48px}
+.tip-line{margin-top:14px;background:var(--lime-soft);border:1px solid #e3f7a2;border-radius:14px;padding:12px 16px;font-size:15px;color:#2f3a0c}
+.vis{background:#fff;border:1px solid #dfe1d8;border-radius:20px;padding:16px 18px;display:grid;gap:10px;justify-items:center}
+.vis h4{margin:0;justify-self:start;font-size:15px;color:var(--ink)}
+.vis-key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--soft);justify-self:center}
+.vis-key span{display:inline-flex;align-items:center;gap:6px}
+.vis-key i{width:14px;height:14px;border-radius:50%;display:inline-block}
+.k-good{background:#f2c48d;border:1.5px solid #c98f4f}
+.k-bad{background:#e6e7e0;border:1.5px solid #ff5a18}
+.vis-cap{font-size:15px;font-weight:600;color:var(--ink);text-align:center}
+@media (max-width:760px){.vgrid{grid-template-columns:minmax(0,1fr)}.fig{padding:10px}}
+
+/* ---- v8: lesson 3 ---- */
+.steps3{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap}
+.steps3>i{font-style:normal;align-self:center;font-weight:700;font-size:20px;color:var(--ink)}
+.s3{flex:1 1 180px;background:#f7f7f5;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px;color:var(--ink);min-width:0}
+.s3 svg{color:var(--ink);background:var(--lime);border-radius:10px;padding:5px;width:36px;height:36px;margin-bottom:4px}
+.s3 b{font-size:15.5px}.s3 span{font-size:14px;color:var(--soft);line-height:1.55}
+.week{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.day{border:1.5px solid #dfe1d8;background:#fff;border-radius:14px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--soft);line-height:1.3;min-height:86px}
+.day b{font-size:14px;color:var(--ink)}
+.day.on{background:var(--lime);border-color:var(--ink);color:var(--ink)}
+.type-chips{display:flex;flex-wrap:wrap;gap:6px}
+.type-chips button{display:inline-flex;align-items:center;gap:6px;border:1.5px solid #dfe1d8;background:#fff;border-radius:30px;padding:6px 12px 6px 9px;font-size:13.5px;font-weight:600;color:var(--ink)}
+.type-chips small{color:var(--muted);font-family:var(--f-num);font-weight:700}
+.type-chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.type-chips button[aria-pressed="true"] small{color:var(--lime)}
+.type-chips button[aria-pressed="true"] svg g path,.type-chips button[aria-pressed="true"] svg g rect,.type-chips button[aria-pressed="true"] svg g circle{stroke:#fff}
+.day-head{flex-wrap:wrap;margin-bottom:12px}
+.day-head b{margin-left:auto;font-family:var(--f-th);font-size:15px;background:var(--lime);border-radius:10px;padding:2px 10px}
+.switch{display:flex;align-items:flex-start;gap:8px;font-size:14.5px;font-weight:600;color:var(--ink);border-top:1px solid var(--line);padding-top:12px;margin-top:4px;cursor:pointer;flex-wrap:wrap}
+.switch input{width:18px;height:18px;accent-color:#6b8500;margin-top:3px}
+.switch small{font-weight:400;color:var(--muted);font-size:13px}
+.k-left{background:#f2c48d;opacity:.5;border:1.5px solid #c98f4f}
+.k-miss{background:#fff;border:2px dashed #ff5a18}
+.muted-s{font-size:13.5px;color:var(--muted)}
+@media (max-width:520px){.big .stat{padding:12px 10px}.big .stat strong{font-size:19px;overflow-wrap:normal;white-space:nowrap}.big .stat span,.big .stat em{font-size:12px}}
+@media (max-width:760px){.tabs{flex-direction:column}.tabs button{min-height:44px}.day{min-height:78px;font-size:11px}}
+
+/* ---- v9: scenarios, mistakes, lesson-3 controls ---- */
+.scene{margin-top:16px;border:1.5px solid var(--ink);border-radius:20px;padding:18px 20px;background:#fff}
+.scene-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.scene-head h4{margin:0;font-size:17px;color:var(--ink)}
+.scene-tag,.oops-tag{font-size:12.5px;font-weight:700;border-radius:20px;padding:3px 10px;background:var(--ink);color:var(--lime);white-space:nowrap}
+.scene-story{margin-top:8px;font-size:15.5px;color:#2f332b}
+.scene-steps{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+.scene-steps li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;background:#f7f7f5;border-radius:12px;padding:10px 12px;font-size:15px;color:#2f332b;line-height:1.6}
+.scene-steps .sn{width:24px;height:24px;border-radius:50%;background:var(--lime);color:var(--ink);font-family:var(--f-num);font-weight:700;font-size:13px;display:grid;place-items:center;margin-top:2px}
+.scene-steps b{color:var(--ink);font-family:var(--f-num)}
+.scene-steps b.hl{background:var(--lime);padding:0 6px;border-radius:6px}
+.scene-steps b.neg{color:#a8390d}
+.scene-end{margin-top:10px;font-size:14px;color:var(--muted)}
+.oops{margin-top:12px;border-radius:16px;padding:14px 18px;background:#fff3ec;border:1px solid #f6c8ad}
+.oops-tag{background:#a8390d;color:#fff}
+.oops ul{margin:8px 0 0;padding-left:20px;display:grid;gap:4px;font-size:15px;color:#4a2412}
+.oops b{color:#7a2d0c}
+ul.why{margin:-4px 0 0;padding-left:20px;display:grid;gap:2px;font-size:15px;color:#2f332b}
+.presets-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;font-size:14px;font-weight:600;color:var(--soft)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.presets button{border:1.5px solid #dfe1d8;background:#fff;border-radius:30px;padding:6px 12px;font-size:13.5px;font-weight:600;color:var(--ink)}
+.presets button[aria-pressed="true"]{background:var(--lime);border-color:var(--ink)}
+.mult-row{margin-top:12px;background:#f7f7f5;border-radius:14px;padding:12px 14px}
+.mult-row input[type=range]{width:100%;accent-color:#6b8500;height:28px}
+.flash-box{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:10px;background:#fff8f3;border:1px dashed #f0b896;border-radius:14px;padding:12px}
+.flash-box .field{margin:0;min-width:0}
+.flash-box .unit-wrap{min-width:0}
+.k-flash{background:#f2c48d;border:1.5px solid #ff5a18;box-shadow:inset 0 0 0 3px #fff}
+
+/* ---- v10 ---- */
+.eg{justify-self:start;font-size:12.5px;font-weight:700;background:var(--ink);color:var(--lime);border-radius:20px;padding:2px 10px;margin-bottom:-2px}
+.mult-explain{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:center}
+.mult-text{display:grid;gap:8px;font-size:15.5px;color:#2f332b}
+.big-eq{font-size:17px;color:var(--ink);background:var(--lime-soft);border:1px solid #e3f7a2;border-radius:12px;padding:10px 12px}
+.use-eq{background:#f7f7f5;border-radius:12px;padding:8px 12px}
+.day em{font-style:normal;font-family:var(--f-num);font-weight:700;font-size:14px;color:var(--ink);margin-top:2px}
+.week-total{margin-top:8px;font-size:14px;color:var(--soft)}
+.week-total b{font-family:var(--f-num);color:var(--ink)}
+.mult-more{margin-top:12px}
+@media (max-width:760px){.mult-explain{grid-template-columns:minmax(0,1fr)}}
+
+/* ---- v11: lesson 4 ---- */
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.two .field{min-width:0}
+.use-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:-4px 0 14px}
+.zb{position:relative;display:flex;height:12px;border-radius:6px;overflow:hidden;margin-top:2px}
+.zb span{height:100%}
+.z-under{background:#ffe08a}.z-safe{background:#c8ff0a}.z-over{background:#ffb08f}
+.zb i{position:absolute;top:-3px;bottom:-3px;width:3px;margin-left:-1.5px;background:var(--ink);border-radius:2px}
+.zb-lbl{display:flex;justify-content:space-between;gap:6px;font-size:12.5px;font-weight:600;color:var(--soft);margin-top:4px}
+.safety-btns{display:flex;flex-wrap:wrap;gap:6px}
+.chipbtn{border:1.5px solid #dfe1d8;background:#fff;border-radius:20px;padding:4px 10px;font-size:13px;font-weight:600;color:var(--ink)}
+.zone{display:grid;gap:2px;border-radius:18px;padding:14px 18px;border:2px solid}
+.zone b{font-size:18px}
+.zone span{font-size:15px}
+.zone.z-ok{background:var(--lime);border-color:var(--ink);color:var(--ink)}
+.zone.z-safe{background:var(--lime-soft);border-color:#b8ec00;color:#2f3a0c}
+.zone.z-miss{background:#fff6d6;border-color:#e5a50a;color:#5c4100}
+.zone.z-over{background:#fff3ec;border-color:#ff5a18;color:#7a2d0c}
+@media (max-width:520px){.two{grid-template-columns:minmax(0,1fr)}}
+
+/* ---- v12: 3 topics ---- */
+.topics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
+.topics button{display:flex;align-items:center;gap:12px;text-align:left;border:1.5px solid #dfe1d8;background:#fff;border-radius:18px;padding:12px 14px;min-height:68px;color:var(--ink)}
+.topics button b{font-family:var(--f-num);font-size:18px;width:34px;height:34px;border-radius:50%;background:#eeefea;display:grid;place-items:center;flex-shrink:0}
+.topics button span{display:flex;flex-direction:column;line-height:1.35;min-width:0}
+.topics button strong{font-size:16px}
+.topics button small{font-size:12.5px;color:var(--muted)}
+.topics button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.topics button[aria-selected="true"] b{background:var(--lime);color:var(--ink)}
+.topics button[aria-selected="true"] small{color:#cfd3c6}
+.subnav{display:flex;gap:6px;padding:5px;background:#e9eae5;border-radius:14px;max-width:620px;margin:0 0 22px}
+.subnav button{flex:1;border:0;background:transparent;border-radius:10px;padding:8px 12px;font-size:14px;font-weight:600;color:#4b5046;text-align:left;line-height:1.35}
+.subnav button b{font-family:var(--f-num);margin-right:4px}
+.subnav button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px #0001}
+.topics+.lesson{margin-top:10px}
+@media (max-width:760px){.topics{grid-template-columns:minmax(0,1fr);gap:6px}.topics button{min-height:56px;padding:8px 12px}.subnav{flex-direction:column}}
+
+/* ---- v13: wrapping formulas ---- */
+.eq{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;min-width:0;padding:2px 0}
+.eq math{font-size:19px;margin:0}
+.eq .op{font-family:var(--f-num);font-size:22px;font-weight:600;color:var(--ink);line-height:1}
+@media (max-width:520px){.eq math{font-size:16.5px}.eq .op{font-size:19px}}
+
+footer.foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-top:30px;padding-top:18px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+
+@media (max-width:900px){
+  .article{grid-template-columns:1fr}
+  .side{position:static;grid-template-columns:1fr 1fr}
+  .lab{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .shell{margin:0;width:100%;border-radius:0;box-shadow:none;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:28px;min-height:100vh}
+  .topbar{height:66px}
+  .brand{font-size:21px}.brand-mark{width:36px;height:36px;font-size:25px}
+  .banner{flex-wrap:wrap;padding:20px;gap:14px;margin-top:16px}
+  .banner-icon{width:58px;height:58px}
+  .banner .chip{margin-left:0}
+  .tabs button{font-size:13px;padding:8px}
+  .card{padding:18px;border-radius:20px}
+  .side{grid-template-columns:1fr}
+  math{font-size:16px}
+  .subst math{font-size:15px}
+  .stat strong{font-size:23px}
+}
+@media (max-width:420px){.big{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="./" id="brandLink" aria-label="EduMarket หน้าแรก"><span class="brand-mark" aria-hidden="true">e<span>m</span></span><span>edu<span class="brand-thin">market</span></span></a>
+    <a class="back" id="backLink" href="./">กลับไปหน้าแอป</a>
+  </header>
+
+  <section class="banner" aria-labelledby="pageTitle">
+    <div class="banner-icon" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22241f" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 17l3-3 2 2 3-3"/></svg></div>
+    <div>
+      <h1 id="pageTitle">ความต้องการของตลาด</h1>
+      <p>ขายวันไหน ช่วงไหน ได้ประมาณเท่าไร แล้วควรทำกี่ชิ้น</p>
+    </div>
+    <span class="chip">หัวข้อ 2 · คู่มือคิดเงินร้านค้า</span>
+  </section>
+  <!-- ================= LESSON 3 ================= -->
+  <section class="lesson" id="lesson-3">
+    <article class="card">
+      <span class="step-label">หัวข้อ 2 · ดูภาพก่อน</span>
+      <h2>ความต้องการของตลาด: ขายให้ถูกเวลา</h2>
+      <p class="lead" style="margin-top:6px">ของดีแค่ไหน ถ้าขายผิดวัน ก็ขายไม่ออก</p>
+      <div class="vgrid">
+        <div class="vcard"><div class="vhead"><span class="vnum">1</span><h4>มาถูกเวลา สำคัญกว่าของดี</h4></div><div class="fig" data-fig3="timing" data-eg></div><p>ทำเท่ากัน แต่ขายได้ไม่เท่ากัน เพราะ <b>วันต่างกัน</b><br>ของที่ขายไม่ออก เรียกว่า <b>ของค้าง (Dead Stock)</b></p></div>
+        <div class="vcard"><div class="vhead"><span class="vnum">2</span><h4>ขายช่วงไหนดี</h4></div><div class="fig" data-fig3="windows"></div><p>ขายดี 2 ช่วง: <b>พักกลางวัน</b> และ <b>หลังเลิกเรียน</b></p></div>
+        <div class="vcard wide"><div class="vhead"><span class="vnum">3</span><h4>ตัวคูณของวัน มาจากไหน?</h4></div>
+          <div class="mult-explain">
+            <div class="fig" data-fig3="mult" data-eg></div>
+            <div class="mult-text">
+              <p class="big-eq">ตัวคูณ = <b>ยอดที่เคยขายในวันแบบนั้น</b> ÷ <b>ยอดวันปกติ</b></p>
+              <p>เอามาจาก <b>ยอดขายที่ร้านคุณจดไว้เอง</b> เช่น กีฬาสีปีก่อนขายได้ 60 วันปกติขายได้ 30 → ขายได้ <b>2 เท่า</b></p>
+              <p class="use-eq">ปีนี้วันปกติขาย 30 → กีฬาสีควรเตรียม 30 × 2 = <b>60</b></p>
+              <p class="how">ยังไม่เคยจด? ให้เปิดจองล่วงหน้าเพื่อดูยอดจริงแทน</p>
+            </div>
+          </div>
+          <ul class="why"><li><b>วันสอบ</b> เครียด → ของหวาน เครื่องดื่ม ขายดีขึ้น</li><li><b>กีฬาสี</b> ร้อน → ของเย็น ขายดีขึ้น</li><li><b>ฝนตก / ก่อนหยุดยาว</b> คนน้อย → ทำน้อยลง</li></ul></div>
+        <div class="vcard wide"><div class="vhead"><span class="vnum">4</span><h4>3 ขั้น เตรียมร้านให้ทันจังหวะ</h4></div>
+          <div class="steps3">
+            <div class="s3"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4zM4 10h16M9 3v4M15 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="15" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/></svg><b>เช็กปฏิทินโรงเรียน</b><span>วงวันกีฬาสี วันสอบ วันกิจกรรม</span></div>
+            <i aria-hidden="true">→</i>
+            <div class="s3"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6v3H9zM6 6h12v15H6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><b>เปิดจองล่วงหน้า</b><span>โพสต์ Pre-order ใน Edu-Marketplace ดูยอดจริงก่อนทำ</span></div>
+            <i aria-hidden="true">→</i>
+            <div class="s3"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="7.5" cy="8.5" r="1.6" fill="currentColor"/></svg><b>ลดราคาช่วงท้าย</b><span>เลิกเรียนแล้วยังเหลือ ลดราคา ดีกว่าทิ้ง</span></div>
+          </div></div>
+      </div>
+          <div class="scene"><div class="scene-head"><span class="scene-tag">สถานการณ์</span><h4>มิ้นท์ขายน้ำแข็งใส สัปดาห์ที่มีกีฬาสี</h4></div><p class="scene-story">มิ้นท์จดยอดขายไว้ วันปกติขายได้ประมาณ 30 ถ้วย ปีก่อนวันกีฬาสีขายได้ 60 ถ้วย และวันฝนตกขายได้แค่ 15 ถ้วย</p><ol class="scene-steps"><li><span class="sn">1</span><div>หาตัวคูณจากยอดที่จดไว้: กีฬาสี 60 ÷ 30 = <b>×2</b> · ฝนตก 15 ÷ 30 = <b>×0.5</b></div></li><li><span class="sn">2</span><div>เช็กปฏิทิน: วันพุธมีกีฬาสี · ข่าวบอกว่าวันพฤหัสฝนตก</div></li><li><span class="sn">3</span><div>คาดยอด: พุธ 30 × 2 = <b>60 ถ้วย</b> · พฤหัส 30 × 0.5 = <b>15 ถ้วย</b></div></li><li><span class="sn">4</span><div>เปิดจองวันพุธ มีคนจองแล้ว 45 ถ้วย → มั่นใจได้ว่าขายได้อย่างน้อย 45 จึงเตรียม 60 ถ้วยตามที่คาด</div></li><li><span class="sn">5</span><div>เย็นวันพฤหัสยังเหลือ 5 ถ้วย → ลดราคาขายให้หมด ดีกว่าปล่อยละลายทิ้ง</div></li></ol><p class="scene-end">ตัวคูณของมิ้นท์มาจากยอดที่เธอจดเอง ร้านคุณควรใช้ตัวเลขของร้านคุณ</p></div>
+      <div class="oops"><span class="oops-tag">ระวังพลาด</span><ul><li><b>เดาจากความรู้สึก:</b> คิดว่ากีฬาสีต้องขายดีมาก เลยทำ 100 ถ้วย แต่ไม่เคยดูยอดจริง</li><li><b>ทำเท่าเดิมทุกวัน:</b> วันฝนตกทำ 30 ถ้วยเท่าวันปกติ เหลือทิ้งครึ่งหนึ่ง</li></ul></div>
+    </article>
+
+    <section class="card" aria-labelledby="f3h">
+      <span class="step-label">สูตรของบทนี้</span>
+      <h2 id="f3h">คาดยอดขาย และดูของเหลือ</h2>
+      <div class="formulas" id="formulas3"></div>
+    </section>
+
+    <section class="card" aria-labelledby="lab3h">
+      <span class="step-label">ลองวางแผนร้านของคุณ</span>
+      <h2 id="lab3h">สัปดาห์นี้ ทำกี่ชิ้นดี?</h2>
+      <div class="presets-row"><span>ลองสถานการณ์:</span><div class="presets" id="presets"></div></div>
+      <div class="dash">
+        <div class="dash-left">
+          <div class="panel plain">
+            <h3 class="panel-title">ตั้งค่าสัปดาห์</h3>
+            <div class="field big-slider" id="f-base" style="border-top:0;padding-top:0;margin-top:0">
+              <div class="bs-head"><label class="bs-label" for="r-base">ยอดขายวันปกติ</label><span class="bs-value"><span class="unit-wrap mini" style="width:110px"><input type="text" inputmode="numeric" id="in-base" autocomplete="off" aria-label="ยอดขายวันปกติ"><span class="unit">ชิ้น</span></span></span></div>
+              <input type="range" id="r-base" min="0" max="150" step="1">
+              <span class="err" role="alert"></span>
+            </div>
+            <div class="field" style="margin-bottom:6px"><span class="lbl">แตะเลือกวัน</span></div>
+            <div class="week" id="weekDays"></div>
+            <p class="week-total" id="weekFig"></p>
+            <div class="field" style="margin:14px 0 6px"><span class="lbl">วัน<span id="typeFor"></span> เป็นวันแบบไหน</span></div>
+            <div class="type-chips" id="typeChips"></div>
+            <details class="more mult-more"><summary>ปรับตัวคูณเอง (ถ้ามียอดจริงของร้านคุณ)</summary>
+            <div class="mult-row" id="multRow">
+              <div class="bs-head"><label class="bs-label" for="r-mult">วัน<span id="multName"></span>ขายได้กี่เท่าของวันปกติ</label><span class="bs-value"><strong id="multVal" style="font-size:24px">×1</strong></span></div>
+              <input type="range" id="r-mult" min="0" max="3" step="0.1">
+              <p class="how" id="multHow"></p>
+            </div>
+            </details>
+            <p class="how" style="margin-top:8px">ตัวคูณตัวอย่างจากร้านมิ้นท์ (ดูที่มาในการ์ดข้อ 3)</p>
+          </div>
+          <div class="panel plain">
+            <h3 class="panel-title">ดูผลเป็นเงิน <small>(ไม่บังคับ)</small></h3>
+            <div class="two">
+              <div class="field" id="f-v3"><label for="in-v3">ต้นทุนต่อชิ้น</label><div class="unit-wrap"><input type="text" inputmode="decimal" id="in-v3" autocomplete="off" placeholder="เช่น 8"><span class="unit">บาท</span></div><span class="err" role="alert"></span></div>
+              <div class="field" id="f-p3"><label for="in-p3">ราคาขายต่อชิ้น</label><div class="unit-wrap"><input type="text" inputmode="decimal" id="in-p3" autocomplete="off" placeholder="เช่น 15"><span class="unit">บาท</span></div><span class="err" role="alert"></span></div>
+            </div>
+            <p class="how">กรอกทั้งสองช่อง จะเห็นทุน เงินที่ได้ และกำไรของวันที่เลือก</p>
+          </div>
+        </div>
+        <div class="dash-right">
+          <div class="panel plain">
+            <h3 class="panel-title day-head" id="dayHead"></h3>
+            <p class="how" id="dayHow" style="margin:-8px 0 12px"></p>
+            <div class="field" id="f-pre">
+              <label for="in-pre">มีคนจองไว้แล้ว <span style="font-weight:400;color:var(--muted)">(ไม่บังคับ)</span></label>
+              <div class="unit-wrap"><input type="text" inputmode="numeric" id="in-pre" autocomplete="off"><span class="unit">ชิ้น</span></div>
+              <span class="err" role="alert"></span>
+            </div>
+            <div class="field big-slider" id="f-made3">
+              <div class="bs-head"><label class="bs-label" for="r-made3">จะทำกี่ชิ้น</label><span class="bs-value"><strong id="made3Big">0</strong>ชิ้น</span></div>
+              <input type="range" id="r-made3" min="0" max="100" step="1">
+              <div class="bs-foot"><button type="button" class="linkbtn" id="fitBtn">ทำให้พอดีกับที่คาด</button><div class="unit-wrap mini"><input type="text" inputmode="numeric" id="in-made3" autocomplete="off" aria-label="จำนวนที่จะทำ"><span class="unit">ชิ้น</span></div></div>
+              <span class="err" role="alert"></span>
+            </div>
+            <label class="switch"><input type="checkbox" id="flash"> ถ้าเหลือ เปิด Flash Sale ตอนเย็น</label>
+            <div class="flash-box" id="flashBox" hidden>
+              <div class="field" id="f-fprice"><label for="in-fprice">ลดเหลือชิ้นละ</label><div class="unit-wrap"><input type="text" inputmode="decimal" id="in-fprice" autocomplete="off"><span class="unit">บาท</span></div><span class="err" role="alert"></span></div>
+              <div class="field" id="f-fsold"><label for="in-fsold">คิดว่าขายตอนลดได้</label><div class="unit-wrap"><input type="text" inputmode="numeric" id="in-fsold" autocomplete="off"><span class="unit">ชิ้น</span></div><span class="err" role="alert"></span></div>
+            </div>
+          </div>
+          <div class="results" id="dayPlan" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <footer class="foot">
+    <span>ข้อมูลเก็บไว้ในเบราว์เซอร์นี้เท่านั้น · ตัวเลขแสดงปัด 2 ตำแหน่ง</span>
+    <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span id="clearMsg" aria-live="polite"></span><button class="btn small outline" type="button" id="clearAll">ล้างข้อมูลที่บันทึก</button></span>
+  </footer>
+</div>
+
+<script id="core">
+/* ===== pure logic (tested separately) ===== */
+const UNITS={g:{g:'mass',f:1,t:'กรัม'},kg:{g:'mass',f:1000,t:'กก.'},ml:{g:'vol',f:1,t:'มล.'},l:{g:'vol',f:1000,t:'ลิตร'},pc:{g:'count',f:1,t:'ชิ้น'}};
+const MAXV=1e9;
+function parseValue(raw,o){
+  const s=String(raw??'').trim().replace(/[,\s]/g,'');
+  if(s==='')return {empty:true,err:o.required===false?null:`${o.label}: ยังไม่ได้กรอก`};
+  if(!/^-?(\d+\.?\d*|\.\d+)$/.test(s))return {err:`${o.label}: ใส่เป็นตัวเลขเท่านั้น`};
+  const n=Number(s);
+  if(!Number.isFinite(n)||Math.abs(n)>MAXV)return {err:`${o.label}: ตัวเลขใหญ่เกินไป`};
+  if(n<0)return {err:`${o.label}: ต้องไม่ติดลบ`};
+  if(o.int&&!Number.isInteger(n))return {err:`${o.label}: ใส่เป็นจำนวนเต็ม`};
+  if(o.positive&&n<=0)return {err:`${o.label}: ต้องมากกว่า 0`};
+  return {v:n};
+}
+function usedCost(price,bought,bu,used,uu){
+  const A=UNITS[bu],B=UNITS[uu];
+  if(!A||!B||A.g!==B.g)return {err:'หน่วยที่ซื้อกับที่ใช้คนละแบบกัน'};
+  const b=bought*A.f,u=used*B.f;
+  if(b<=0)return {err:'ปริมาณที่ซื้อต้องมากกว่า 0'};
+  if(u>b+1e-9)return {err:'ใช้มากกว่าที่ซื้อ ถ้าซื้อหลายแพ็ก ใส่ปริมาณรวม'};
+  return {v:price/b*u};
+}
+function unitCost(cost,made,waste){
+  if(waste>made)return {err:'waste>made'};
+  const ready=made-waste;
+  if(ready===0)return {err:'none-ready',ready:0};
+  return {ready,perUnit:cost/ready};
+}
+const ceilSafe=x=>Math.ceil(x-1e-9*Math.max(1,Math.abs(x)));
+function breakEven(F,p,v){
+  let m=p-v; if(Math.abs(m)<1e-9*Math.max(1,Math.abs(p),Math.abs(v)))m=0;
+  if(F>0){ if(m<=0)return {kind:'none',m}; const x=F/m; return {kind:'ok',x,min:ceilSafe(x),m}; }
+  if(m>0)return {kind:'zero',x:0,min:0,m};
+  if(m===0)return {kind:'flat',x:0,min:0,m};
+  return {kind:'loss',x:0,min:0,m};
+}
+const pl=(F,p,v,q)=>{const rev=p*q,total=F+v*q;return {rev,total,profit:rev-total};};
+const money=n=>(Math.abs(n)<0.005?0:n).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const int=n=>Math.round(n).toLocaleString('th-TH');
+const dec=n=>{if(Number.isInteger(n))return int(n);const r=Math.round(n*1000)/1000;return Math.abs(n-r)<1e-9?r.toLocaleString('th-TH',{maximumFractionDigits:3}):'≈ '+n.toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});};
+</script>
+
+<script>
+/* ===== picture helpers (inline SVG, shared by the lesson articles and the live lab) ===== */
+const C={ink:'#22241f',lime:'#c8ff0a',olive:'#6b8500',orange:'#ff5a18',peach:'#ffe3d3',grey:'#e6e7e0',line:'#cfd2c7',soft:'#41453d',cookie:'#f2c48d',crust:'#c98f4f',chip:'#6b4a2b'};
+const fmt2=n=>(Math.abs(n)<0.005?0:n).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtN=n=>Math.round(n).toLocaleString('th-TH');
+function svgWrap(W,H,body,label,maxW){return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${maxW||W}px" role="img" aria-label="${label}">${body}</svg>`;}
+function txt(x,y,t,o={}){return `<text x="${x}" y="${y}" text-anchor="${o.a||'start'}" style="font-size:${o.s||14}px;font-weight:${o.w||500};fill:${o.f||C.soft}">${t}</text>`;}
+function cookie(cx,cy,r,bad){
+  if(bad)return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${C.grey}" stroke="${C.line}" stroke-width="1.5"/><path d="M${cx-r*.5} ${cy-r*.5}L${cx+r*.5} ${cy+r*.5}M${cx+r*.5} ${cy-r*.5}L${cx-r*.5} ${cy+r*.5}" stroke="${C.orange}" stroke-width="2.6" stroke-linecap="round"/>`;
+  const k=r/12;return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${C.cookie}" stroke="${C.crust}" stroke-width="1.5"/><circle cx="${cx-4*k}" cy="${cy-3*k}" r="${1.9*k}" fill="${C.chip}"/><circle cx="${cx+3.5*k}" cy="${cy-4*k}" r="${1.6*k}" fill="${C.chip}"/><circle cx="${cx+1*k}" cy="${cy+4*k}" r="${1.9*k}" fill="${C.chip}"/><circle cx="${cx-4.5*k}" cy="${cy+3.5*k}" r="${1.3*k}" fill="${C.chip}"/>`;
+}
+function cookieGrid(made,waste){
+  const per=made>60?Math.ceil(made/60):1,n=Math.ceil(made/per),nw=Math.min(n,Math.round(waste/per));
+  const cols=Math.min(10,n),s=28,g=7,rows=Math.ceil(n/cols),W=cols*(s+g)-g,H=rows*(s+g)-g;let b='';
+  for(let i=0;i<n;i++){b+=cookie((i%cols)*(s+g)+s/2,Math.floor(i/cols)*(s+g)+s/2,s/2-1,i>=n-nw);}
+  return {svg:svgWrap(W,H,b,`ทำ ${made} ชิ้น เสีย ${waste} ชิ้น`,W*1.15),per};
+}
+function flourFig(){
+  const W=420,H=150,seg=W/4;let b='';
+  b+=txt(0,16,'แป้ง 1 กก. = 1,000 กรัม',{w:700,f:C.ink});
+  for(let i=0;i<4;i++)b+=`<rect x="${i*seg+1}" y="26" width="${seg-2}" height="36" rx="8" fill="${i===0?C.orange:C.grey}"/>`;
+  b+=txt(seg/2,49,'ใช้ 250 ก.',{a:'middle',w:700,f:'#fff'})+txt(seg*2.5,49,'เหลือ 750 ก.',{a:'middle',w:600});
+  b+=txt(0,92,'เงิน 45 บาท',{w:700,f:C.ink});
+  b+=`<rect x="1" y="102" width="${seg-2}" height="36" rx="8" fill="${C.orange}"/><rect x="${seg+1}" y="102" width="${seg*3-2}" height="36" rx="8" fill="${C.grey}"/>`;
+  b+=txt(seg/2,125,'11.25 ฿',{a:'middle',w:700,f:'#fff'})+txt(seg*2.5,125,'33.75 ฿ เก็บไว้รอบหน้า',{a:'middle',w:600});
+  return svgWrap(W,H,b,'ใช้แป้ง 1 ใน 4 ถุง ต้นทุนจึงเป็น 1 ใน 4 ของ 45 บาท คือ 11.25 บาท');
+}
+function unitFig(){
+  const W=420,H=100;let b='';
+  b+=`<rect x="0" y="14" width="84" height="56" rx="10" fill="${C.ink}"/>`+txt(42,48,'1 กก.',{a:'middle',s:18,w:700,f:C.lime});
+  b+=txt(102,50,'=',{a:'middle',s:24,w:700,f:C.ink});
+  const sx=120,sw=28,g=2;for(let i=0;i<10;i++)b+=`<rect x="${sx+i*(sw+g)}" y="14" width="${sw}" height="56" rx="6" fill="${C.lime}" stroke="${C.olive}" stroke-width="1"/>`+txt(sx+i*(sw+g)+sw/2,47,'100',{a:'middle',s:11.5,w:700,f:C.ink});
+  b+=txt(sx,92,'10 ก้อน × 100 กรัม = 1,000 กรัม',{s:14,w:600});
+  return svgWrap(W,H,b,'1 กิโลกรัม เท่ากับ 10 ก้อน ก้อนละ 100 กรัม รวม 1,000 กรัม');
+}
+function compareFig(){
+  const W=420,H=206;let b='';const bx=[14,68,122],bw=40,base=140;
+  const panel=(ox,title,hs,col,cap,capCol)=>{let t=txt(ox,16,title,{w:700,f:C.ink});hs.forEach((h,i)=>{t+=`<rect x="${ox+bx[i]}" y="${base-h}" width="${bw}" height="${h}" rx="6" fill="${col}"/>`+txt(ox+bx[i]+bw/2,base+20,[10,20,30][i]+' ชิ้น',{a:'middle',s:12.5});});t+=txt(ox+88,base+52,cap,{a:'middle',s:14,w:700,f:capCol});return t;};
+  b+=panel(0,'ต้นทุนตามชิ้น',[30,65,100],C.orange,'ขายมาก จ่ายมาก',C.orange);
+  b+=panel(224,'ค่าใช้จ่ายตายตัว',[60,60,60],C.ink,'จ่ายเท่าเดิม',C.ink);
+  b+=`<line x1="0" y1="${base}" x2="190" y2="${base}" stroke="${C.line}"/><line x1="224" y1="${base}" x2="${W}" y2="${base}" stroke="${C.line}"/>`;
+  return svgWrap(W,H,b,'ต้นทุนตามชิ้นสูงขึ้นเมื่อขายมาก ค่าใช้จ่ายตายตัวเท่าเดิม');
+}
+function priceSplit(p,v){
+  const W=420,H=86;if(!(p>0))return '';const tot=Math.max(p,v),sc=W/tot;let b='';
+  b+=txt(0,15,`ขาย 1 ชิ้น ได้ ${fmt2(p)} บาท`,{w:700,f:C.ink});
+  const cw=Math.min(v,p)*sc;b+=`<rect x="0" y="24" width="${Math.max(cw,0)}" height="38" rx="8" fill="${C.orange}"/>`;
+  if(p>v){b+=`<rect x="${cw+2}" y="24" width="${(p-v)*sc-2}" height="38" rx="8" fill="${C.lime}"/>`;}
+  else if(v>p){b+=`<rect x="${p*sc}" y="24" width="${(v-p)*sc}" height="38" rx="8" fill="#fff" stroke="${C.orange}" stroke-dasharray="5 4" stroke-width="2"/>`;}
+  const inC=cw>110,inL=(p-v)*sc>110;
+  b+=cw>0?txt(inC?cw/2:0,inC?48:80,`ต้นทุน ${fmt2(v)}`,{a:inC?'middle':'start',w:700,f:inC?'#fff':C.orange}):'';
+  if(p>v)b+=txt(inL?cw+(p-v)*sc/2:W,inL?48:80,`เหลือ ${fmt2(p-v)}`,{a:inL?'middle':'end',w:700,f:C.ink});
+  else b+=txt(W,80,v>p?`ขาดทุนชิ้นละ ${fmt2(v-p)}`:'ไม่เหลือเงินเลย',{a:'end',w:700,f:C.orange});
+  return svgWrap(W,H,b,`ราคา ${fmt2(p)} บาท ต้นทุน ${fmt2(v)} บาท เหลือ ${fmt2(p-v)} บาท`);
+}
+function rentBar(F,m,q){
+  const W=560,H=118;if(!(m>0))return '';const got=q*m,tot=Math.max(F,got,1e-9),sc=W/tot;let b='';
+  b+=txt(0,15,F>0?`ค่าใช้จ่ายตายตัว ${fmt2(F)} บาท`:'ไม่มีค่าใช้จ่ายตายตัว',{w:700,f:C.ink});
+  if(F>0)b+=`<rect x="1" y="26" width="${F*sc-2}" height="40" rx="8" fill="#fff" stroke="${C.ink}" stroke-width="2" stroke-dasharray="6 4"/>`;
+  const cov=Math.min(got,F);if(cov>0)b+=`<rect x="1" y="26" width="${Math.max(cov*sc-2,1)}" height="40" rx="8" fill="${C.lime}"/>`;
+  if(got>F)b+=`<rect x="${F*sc+(F>0?2:0)}" y="26" width="${(got-F)*sc-(F>0?2:0)}" height="40" rx="8" fill="${C.olive}"/>`;
+  if(q>0&&q<=80){for(let i=1;i<q;i++){const x=i*m*sc;b+=`<line x1="${x}" y1="28" x2="${x}" y2="64" stroke="#fff" stroke-width="1.5" opacity=".85"/>`;}}
+  if(F>0&&got<F){const gx=got*sc;b+=txt(gx+(F-got)*sc/2,51,`ยังขาด ${fmt2(F-got)}`,{a:'middle',w:700,f:C.orange});}
+  if(F>0&&got>F&&(got-F)*sc>44)b+=txt(F*sc+(got-F)*sc/2,51,'กำไร',{a:'middle',w:700,f:'#fff',s:13});
+  if(F>0){const bk=Math.ceil(F/m-1e-9),fx=F*sc;b+=fx>260?txt(fx,15,`เต็มที่ ${fmtN(bk)} ชิ้น`,{a:'end',w:700,f:C.olive}):txt(Math.min(fx+6,W-4),15,`เต็มที่ ${fmtN(bk)} ชิ้น`,{a:fx+6>W-120?'end':'start',w:700,f:C.olive});}
+  if(F>0)b+=`<line x1="${F*sc}" y1="20" x2="${F*sc}" y2="72" stroke="${C.ink}" stroke-width="2"/>`;
+  b+=txt(0,92,`ขาย ${fmtN(q)} ชิ้น × เหลือชิ้นละ ${fmt2(m)} = ${fmt2(got)} บาท`,{s:13.5});
+  b+=txt(0,112,got>F+0.004?`จ่ายค่าใช้จ่ายตายตัวครบ แล้วเหลือเป็นกำไร ${fmt2(got-F)} บาท`:Math.abs(got-F)<0.005?'เติมเต็มพอดี = จุดคุ้มทุน':`ยังไม่เต็ม ต้องขายเพิ่ม`,{s:13.5,w:700,f:got>F+0.004?C.olive:Math.abs(got-F)<0.005?C.ink:C.orange});
+  return svgWrap(W,H,b,`เติมเงินเหลือจากการขาย ${q} ชิ้นลงในค่าใช้จ่ายตายตัว ${fmt2(F)} บาท`);
+}
+function visL1(made,waste,cost){
+  const g=cookieGrid(made,waste),ready=made-waste;
+  return `<div class="vis"><h4>ภาพรอบนี้ของคุณ</h4>${g.svg}<p class="vis-key"><span><i class="k-good"></i>ดี ${fmtN(ready)} ชิ้น</span><span><i class="k-bad"></i>เสีย ${fmtN(waste)} ชิ้น</span>${g.per>1?`<span>1 ภาพ ≈ ${g.per} ชิ้น</span>`:''}</p><p class="vis-cap">${ready>0?`เงิน ${fmt2(cost)} บาท แบ่งให้แค่ ${fmtN(ready)} ชิ้นที่ดี`:'ไม่มีชิ้นดีเลย จึงแบ่งเงินไม่ได้'}</p></div>`;
+}
+function visL2(F,p,v,q,be){
+  if(be.kind==='none'||be.kind==='loss'||be.kind==='flat')return `<div class="vis"><h4>ดูเป็นภาพ</h4>${priceSplit(p,v)}</div>`;
+  return `<div class="vis"><h4>ดูเป็นภาพ</h4>${priceSplit(p,v)}<div style="height:8px"></div>${rentBar(F,be.m,q)}</div>`;
+}
+function renderStaticFigs(){
+  const map={flour:flourFig,unit:unitFig,compare:compareFig,
+    cookies:()=>cookieGrid(40,8).svg+'<p class="vis-key"><span><i class="k-good"></i>ดี 32 ชิ้น</span><span><i class="k-bad"></i>เสีย 8 ชิ้น</span></p>',
+    price:()=>priceSplit(20,6.25),rent:()=>rentBar(550,13.75,44)};
+  document.querySelectorAll('[data-fig]').forEach(el=>{try{el.innerHTML=(el.dataset.eg!=null?'<span class="eg">เช่น</span>':'')+map[el.dataset.fig]();}catch(e){}});
+}
+</script>
+<script>
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const M={
+  t:s=>`<mtext>${esc(s)}</mtext>`, n:s=>`<mn>${esc(s)}</mn>`, o:s=>`<mo>${esc(s)}</mo>`,
+  row:(...a)=>`<mrow>${a.join('')}</mrow>`, frac:(a,b)=>`<mfrac>${a}${b}</mfrac>`,
+  math:(body,label)=>`<math display="block" aria-label="${esc(label)}">${body}</math>`
+};
+function mathPieces(m){
+  let body=m.startsWith('<mrow>')&&m.endsWith('</mrow>')?m.slice(6,-7):m;
+  const out=[];let depth=0,cur='';const re=/<\/?[a-z]+[^>]*>|[^<]+/g;let t;
+  while((t=re.exec(body))){const tok=t[0];cur+=tok;if(tok[0]==='<'){if(tok[1]==='/')depth--;else depth++;}if(depth===0&&tok[0]==='<'){out.push(cur);cur='';}}
+  if(cur)out.push(cur);
+  // keep an opening "(" with the next piece and ")" with the previous one, and operators with the term after them
+  const merged=[];for(let i=0;i<out.length;i++){const p=out[i];
+    if(/^<mo>\)<\/mo>$/.test(p)&&merged.length){merged[merged.length-1]+=p;continue;}
+    if(/^<mo>\(<\/mo>$/.test(p)&&i+1<out.length){out[i+1]=p+out[i+1];continue;}
+    if(/^<mo>=<\/mo>$/.test(p)&&merged.length){merged[merged.length-1]+=p;continue;}
+    merged.push(p);}
+  return merged;
+}
+function renderFormulas(el,list){el.innerHTML=list.map((f,i)=>`<div class="formula"><span class="num">${i+1}</span><div class="eq" role="math" aria-label="${esc(f.a)}">${mathPieces(f.m).map(p=>{const op=p.match(/^<mo>([^<]*)<\/mo>$/);return op?`<span class="op" aria-hidden="true">${op[1]}</span>`:`<math displaystyle="true" aria-hidden="true">${p}</math>`;}).join('')}</div><small>${f.note}</small></div>`).join('');}
+const $=id=>document.getElementById(id);
+if(/claude|claudeusercontent/.test(location.hostname)||location.protocol==='file:'){$('backLink').hidden=true;$('brandLink').removeAttribute('href');}
+function blockedHTML(title,items){return `<div class="blocked"><strong>${title}</strong>${items.length?`<ul>${items.map(i=>`<li>${i}</li>`).join('')}</ul>`:''}</div>`;}
+
+const KEY='edumarket-market-v1';
+const EXAMPLE={l3:{base:'30',days:['normal','normal','sport','rain','normal'],sel:2,preD:['','','45','',''],madeD:['30','30','60','15','30'],flash:false,fprice:'8',fsold:'5',mult:{exam:1.3,sport:2,rain:0.5,holiday:0.6},v:'',p:''}};
+let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+if(!S||!S.l3||!Array.isArray(S.l3.madeD)||!S.l3.mult)S=structuredClone(EXAMPLE);
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+/* ===== lesson 3: demand & timing ===== */
+const DAYTYPES={
+  normal:{t:'วันปกติ',m:1},
+  exam:{t:'วันสอบ',m:1.3},
+  sport:{t:'กีฬาสี',m:2},
+  rain:{t:'ฝนตกหนัก',m:0.5},
+  holiday:{t:'ก่อนหยุดยาว',m:0.6}
+};
+const DAYNAMES=['จ.','อ.','พ.','พฤ.','ศ.'];
+function typeIcon(k,x,y,s,col){ // s = box size; returns svg group drawn in a 24-unit box
+  const t=`translate(${x},${y}) scale(${s/24})`,st=`fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
+  const p={
+    normal:`<rect x="3" y="5" width="18" height="16" rx="3" ${st}/><path d="M3 10h18M8 3v4M16 3v4" ${st}/>`,
+    exam:`<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z" ${st}/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" ${st}/><path d="M9 8h7M9 12h5" ${st}/>`,
+    sport:`<circle cx="12" cy="12" r="4.5" ${st}/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" ${st}/>`,
+    rain:`<path d="M7 15a4.5 4.5 0 1 1 1.2-8.8A5.5 5.5 0 0 1 18.8 8 3.5 3.5 0 1 1 18 15z" ${st}/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3" ${st}/>`,
+    holiday:`<path d="M3 11l9-7 9 7" ${st}/><path d="M5 10v10h14V10" ${st}/><path d="M10 20v-5h4v5" ${st}/>`
+  }[k];
+  return `<g transform="${t}">${p}</g>`;
+}
+function iconSvg(k,size,col){return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true">${typeIcon(k,0,0,24,col||C.ink)}</svg>`;}
+const multOf=k=>{const m=S&&S.l3&&S.l3.mult&&Number(S.l3.mult[k]);return k==='normal'?1:(Number.isFinite(m)&&m>=0?m:DAYTYPES[k].m);};
+const forecast=(base,k,ex)=>Math.round(base*(ex?DAYTYPES[k].m:multOf(k)));
+function weekBars(base,days,sel,ex){
+  const W=420,H=210,top=34,bot=150,bw=50,area=356,gap=(area-5*bw)/4;let b='';
+  const vals=days.map(k=>forecast(base,k,ex)),mx=Math.max(...vals,base,1);
+  const y=v=>bot-(v/mx)*(bot-top);
+  b+=`<line x1="0" y1="${y(base)}" x2="${W}" y2="${y(base)}" stroke="${C.ink}" stroke-dasharray="4 4" opacity=".5"/>`;
+  b+=txt(W,y(base)-4,'ปกติ',{a:'end',s:12,w:700})+txt(W,y(base)+14,fmtN(base),{a:'end',s:12,w:700});
+  days.forEach((k,i)=>{const x=i*(bw+gap),v=vals[i],on=i===sel,mm=ex?DAYTYPES[k].m:multOf(k),hi=mm>1,lo=mm<1;
+    b+=`<rect x="${x}" y="${y(v)}" width="${bw}" height="${Math.max(bot-y(v),2)}" rx="7" fill="${on?C.lime:hi?'#e2f7a6':lo?'#ffe3d3':C.grey}" stroke="${on?C.ink:'none'}" stroke-width="2"/>`;
+    b+=txt(x+bw/2,y(v)-7,fmtN(v),{a:'middle',s:15,w:700,f:C.ink});
+    b+=typeIcon(k,x+bw/2-11,bot+8,22,C.ink);
+    b+=txt(x+bw/2,bot+48,DAYNAMES[i],{a:'middle',s:13,w:700,f:C.ink});});
+  b+=`<line x1="0" y1="${bot}" x2="${W}" y2="${bot}" stroke="${C.line}"/>`;
+  return svgWrap(W,H,b,'ยอดที่คาดว่าจะขายแต่ละวัน '+days.map((k,i)=>DAYNAMES[i]+' '+DAYTYPES[k].t+' '+vals[i]+' ชิ้น').join(', '));
+}
+function outcomeGrid(M,D,fsold){
+  const n=Math.max(M,D,1),per=n>60?Math.ceil(n/60):1,cnt=Math.ceil(n/per);
+  const sold=Math.round(Math.min(M,D)/per),left=Math.round(Math.max(0,M-D)/per),miss=Math.round(Math.max(0,D-M)/per),fs=Math.round((fsold||0)/per);
+  const cols=Math.min(10,Math.max(cnt,1)),s=28,g=7,tot=sold+left+miss,rows=Math.max(1,Math.ceil(tot/cols)),W=cols*(s+g)-g,H=rows*(s+g)-g;let b='';
+  for(let i=0;i<tot;i++){const cx=(i%cols)*(s+g)+s/2,cy=Math.floor(i/cols)*(s+g)+s/2,r=s/2-1;
+    if(i<sold)b+=cookie(cx,cy,r,false);
+    else if(i<sold+left){const fl=i<sold+fs;b+=`<g opacity="${fl?1:.35}">${cookie(cx,cy,r,false)}</g>`;if(fl)b+=`<circle cx="${cx+r*.62}" cy="${cy-r*.62}" r="7" fill="${C.orange}"/><text x="${cx+r*.62}" y="${cy-r*.62+3.5}" text-anchor="middle" style="font-size:9px;font-weight:800;fill:#fff">%</text>`;}
+    else b+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fff" stroke="${C.orange}" stroke-width="2" stroke-dasharray="4 3"/>`;}
+  return {svg:svgWrap(W,H||28,b,`ทำ ${M} ชิ้น คาดว่ามีคนซื้อ ${D} ชิ้น`,W*1.15),per};
+}
+function timingFig(){
+  const W=420,H=190;let b='';const made=40,bx=[30,250],bw=120,top=40,bot=150,sc=(bot-top)/40;
+  [[60,'sport','กีฬาสี'],[15,'rain','ฝนตก']].forEach(([d,k,t],i)=>{const x=bx[i];
+    b+=typeIcon(k,x-28,top-30,24,k==='sport'?C.orange:C.soft)+txt(x,top-12,`${t} · ทำ ${made} ถ้วย`,{w:700,f:C.ink,s:13.5});
+    b+=`<rect x="${x}" y="${top}" width="${bw}" height="${bot-top}" rx="8" fill="#fff" stroke="${C.ink}" stroke-dasharray="5 4" stroke-width="1.5"/>`;
+    const sold=Math.min(d,made);b+=`<rect x="${x}" y="${bot-sold*sc}" width="${bw}" height="${sold*sc}" rx="8" fill="${C.lime}"/>`;
+    if(d<made){b+=`<rect x="${x}" y="${top}" width="${bw}" height="${(made-d)*sc}" rx="8" fill="${C.grey}"/>`+txt(x+bw/2,top+(made-d)*sc/2+5,`เหลือ ${made-d}`,{a:'middle',w:700,f:C.orange});}
+    b+=txt(x+bw/2,bot-sold*sc/2+5,`ขาย ${sold}`,{a:'middle',w:700,f:C.ink});
+    b+=txt(x+bw/2,bot+22,d>made?`หมดเร็ว · ยังมีคนอยากซื้อ ${d-made}`:'เหลือ = ของค้าง',{a:'middle',s:12.5,w:700,f:d>made?C.olive:C.orange});});
+  return svgWrap(W,H,b,'น้ำแข็งใส 40 ถ้วย วันกีฬาสีขายหมดและยังไม่พอ วันฝนตกขายได้ 15 เหลือ 25');
+}
+function windowsFig(){
+  const W=420,H=118;let b='';const segs=[['เช้า',.8,0],['คาบเรียน',2.2,0],['พักกลางวัน',1.2,1],['คาบเรียน',2.2,0],['เลิกเรียน',1.2,1]];
+  const tot=segs.reduce((a,s)=>a+s[1],0);let x=0;
+  segs.forEach(([t,w,hot])=>{const ww=w/tot*W;b+=`<rect x="${x+1}" y="${hot?26:32}" width="${ww-2}" height="${hot?44:32}" rx="8" fill="${hot?C.lime:C.grey}" stroke="${hot?C.ink:'none'}" stroke-width="1.5"/>`;
+    b+=txt(x+ww/2,hot?18:56,hot?t:t,{a:'middle',s:hot?13.5:12.5,w:hot?700:500,f:hot?C.ink:C.soft});
+    if(hot)b+=txt(x+ww/2,53,'ขายดี',{a:'middle',s:12.5,w:700,f:C.ink});x+=ww;});
+  b+=txt(0,92,'เช้า',{s:12})+txt(W,92,'เย็น',{a:'end',s:12});
+  b+=txt(W/2,112,'วางของให้พร้อมก่อน 2 ช่วงนี้',{a:'middle',s:13.5,w:700,f:C.olive});
+  return svgWrap(W,H,b,'ช่วงขายดีคือพักกลางวันและหลังเลิกเรียน');
+}
+
+function multFig(){
+  const W=420,H=212,bot=150,sc=1.6,bw=58;let b='';
+  const grp=(ox,title,vals,labels,cols,res)=>{let t=txt(ox,16,title,{w:700,f:C.ink,s:13.5});
+    vals.forEach((v,i)=>{const x=ox+i*(bw+14),h=v*sc;t+=`<rect x="${x}" y="${bot-h}" width="${bw}" height="${h}" rx="7" fill="${cols[i]}"/>`+txt(x+bw/2,bot-h-6,v,{a:'middle',w:700,f:C.ink,s:15})+txt(x+bw/2,bot+18,labels[i],{a:'middle',s:12.5});});
+    t+=`<rect x="${ox}" y="${bot+30}" width="${bw*2+14}" height="24" rx="12" fill="${C.ink}"/>`+txt(ox+bw+7,bot+47,res,{a:'middle',w:700,f:C.lime,s:13.5});return t;};
+  b+=grp(0,'กีฬาสีปีก่อน',[30,60],['วันปกติ','กีฬาสี'],[C.grey,C.lime],'60 ÷ 30 = ×2');
+  b+=grp(240,'วันฝนตก',[30,15],['วันปกติ','ฝนตก'],[C.grey,'#ffd3bd'],'15 ÷ 30 = ×0.5');
+  b+=`<line x1="0" y1="${bot}" x2="130" y2="${bot}" stroke="${C.line}"/><line x1="240" y1="${bot}" x2="370" y2="${bot}" stroke="${C.line}"/>`;
+  return svgWrap(W,H,b,'ตัวคูณ คือยอดที่เคยขายในวันนั้นหารด้วยยอดวันปกติ เช่น 60 หาร 30 เท่ากับ 2 เท่า');
+}
+function renderL3Static(){
+  const m={timing:timingFig,windows:windowsFig,mult:multFig};
+  document.querySelectorAll('[data-fig3]').forEach(el=>{try{el.innerHTML=(el.dataset.eg!=null?'<span class="eg">เช่น</span>':'')+m[el.dataset.fig3]();}catch(e){}});
+}
+const PRESETS={
+  normal:{t:'สัปดาห์ปกติ',d:['normal','normal','normal','normal','normal'],sel:0},
+  exam:{t:'สัปดาห์สอบปลายภาค',d:['exam','exam','exam','exam','exam'],sel:0},
+  sport:{t:'กีฬาสีวันพุธ',d:['normal','normal','sport','normal','normal'],sel:2},
+  rain:{t:'ฝนตกทั้งสัปดาห์',d:['rain','rain','rain','rain','rain'],sel:0},
+  holiday:{t:'ศุกร์ก่อนหยุดยาว',d:['normal','normal','normal','normal','holiday'],sel:4}
+};
+const multStr=m=>(Math.round(m*10)/10).toLocaleString('th-TH',{maximumFractionDigits:1});
+function setErr(id,r){const bx=$(id);bx.classList.toggle('invalid',!!(r&&r.err));const e=bx.querySelector('.err');if(e)e.textContent=(r&&r.err)||'';}
+function update3(v,p){
+  const L=S.l3;
+  const bf=parseValue(L.base,{label:'ยอดขายวันปกติ',int:true});setErr('f-base',bf);
+  if(!bf.err)$('r-base').value=Math.min(150,bf.v);
+  $('presets').innerHTML=Object.entries(PRESETS).map(([k,pr])=>`<button type="button" data-preset="${k}" aria-pressed="${JSON.stringify(pr.d)===JSON.stringify(L.days)}">${pr.t}</button>`).join('');
+  $('weekDays').innerHTML=L.days.map((k,i)=>`<button type="button" class="day${i===L.sel?' on':''}" data-day="${i}" aria-pressed="${i===L.sel}"><b>${DAYNAMES[i]}</b>${iconSvg(k,22)}<span>${DAYTYPES[k].t}</span>${bf.err?'':`<em>~${fmtN(forecast(bf.v,k))}</em>`}</button>`).join('');
+  const k=L.days[L.sel];
+  $('typeChips').innerHTML=Object.entries(DAYTYPES).map(([kk,d])=>`<button type="button" data-type="${kk}" aria-pressed="${kk===k}">${iconSvg(kk,18)}<span>${d.t}</span><small>×${multStr(multOf(kk))}</small></button>`).join('');
+  $('typeFor').textContent=DAYNAMES[L.sel];
+  const mrow=$('multRow');mrow.hidden=k==='normal';
+  if(k!=='normal'){$('multName').textContent=DAYTYPES[k].t;const m=multOf(k);$('r-mult').value=m;$('multVal').textContent='×'+multStr(m);
+    $('multHow').textContent=bf.err?'':`ถ้าวันปกติขายได้ ${fmtN(bf.v)} ชิ้น วัน${DAYTYPES[k].t}จะขายได้ประมาณ ${fmtN(forecast(bf.v,k))} ชิ้น`;}
+  if(bf.err){$('weekFig').innerHTML='';$('dayPlan').innerHTML='';$('dayHead').innerHTML='';$('dayHow').textContent='';return;}
+  const base=bf.v,vals=L.days.map(kk=>forecast(base,kk));
+  $('weekFig').innerHTML=`ตัวเลขใต้วัน = ยอดที่คาด · ทั้งสัปดาห์ ~<b>${fmtN(vals.reduce((a,b)=>a+b,0))}</b> ชิ้น`;
+  const fc=vals[L.sel];
+  const pf=parseValue(L.preD[L.sel],{label:'ยอดจอง',int:true,required:false});setErr('f-pre',pf);
+  const mf=parseValue(L.madeD[L.sel],{label:'จำนวนที่จะทำ',int:true});setErr('f-made3',mf);
+  const pre=pf.err||pf.empty?0:pf.v,D=Math.max(fc,pre);
+  const rmax=Math.max(20,Math.ceil(D*2/10)*10);$('r-made3').max=rmax;if(!mf.err)$('r-made3').value=Math.min(rmax,mf.v);
+  $('made3Big').textContent=mf.err?'–':fmtN(mf.v);
+  $('dayHead').innerHTML=`${iconSvg(k,22)}<span>วัน${DAYNAMES[L.sel]} · ${DAYTYPES[k].t}</span><b>คาดว่ามีคนซื้อ ~${fmtN(D)} ชิ้น</b>`;
+  $('dayHow').textContent=`${fmtN(base)} × ${multStr(multOf(k))} = ${fmtN(fc)} ชิ้น`+(pre>fc?` · มีคนจองแล้ว ${fmtN(pre)} ชิ้น มากกว่าที่คาด จึงใช้ยอดจอง`:pre>0?` · จองแล้ว ${fmtN(pre)} ชิ้น (รวมอยู่ในยอดที่คาด)`:'');
+  $('flashBox').hidden=!L.flash;
+  if(mf.err){$('dayPlan').innerHTML=`<div class="chart-empty">${mf.err}</div>`;return;}
+  const M=mf.v,sold=Math.min(M,D),left=Math.max(0,M-D),miss=Math.max(0,D-M);
+  let fp=null,fs=0,ferr=null;
+  if(L.flash){const a=parseValue(L.fprice,{label:'ราคาตอนลด'}),b=parseValue(L.fsold,{label:'จำนวนที่ขายตอนลด',int:true});setErr('f-fprice',a);setErr('f-fsold',b);
+    if(!a.err)fp=a.v;if(!b.err)fs=Math.min(b.v,left);ferr=a.err||b.err;}
+  const g=outcomeGrid(M,D,L.flash&&!ferr?fs:0);
+  let h=`<div class="vis">${g.svg}<p class="vis-key"><span><i class="k-good"></i>ขายได้ ${fmtN(sold)}</span>${L.flash&&fs?`<span><i class="k-flash"></i>ขายตอนลดราคา ${fmtN(fs)}</span>`:''}${left-(L.flash?fs:0)>0?`<span><i class="k-left"></i>เหลือทิ้ง ${fmtN(left-(L.flash?fs:0))}</span>`:''}${miss?`<span><i class="k-miss"></i>มีคนอยากซื้อแต่ของหมด ${fmtN(miss)}</span>`:''}${g.per>1?`<span>1 ภาพ ≈ ${g.per} ชิ้น</span>`:''}</p></div>`;
+  let msg,cls='';
+  if(M===D)msg='ทำพอดี ไม่ขาด ไม่เหลือ';
+  else if(M>D){msg=`ทำเกินไป ${fmtN(left)} ชิ้น`;cls='warn';}
+  else{msg=`ทำน้อยไป ${fmtN(miss)} ชิ้น → มีคนอยากซื้อแต่ของหมด`;cls='warn';}
+  const waste=left-(L.flash&&!ferr?fs:0);
+  if(v!=null&&p!=null){
+    const flashRev=L.flash&&!ferr?fs*fp:0,profit=p*sold+flashRev-v*M,best=(p-v)*D;
+    h+=`<div class="big" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="stat"><span>ทุนที่ใช้ทำ</span><strong>${fmt2(v*M)}</strong><em>${fmtN(M)} × ${fmt2(v)}</em></div><div class="stat"><span>เงินที่ได้</span><strong>${fmt2(p*sold+flashRev)}</strong><em>${flashRev?'รวมตอนลดราคา':'ขาย '+fmtN(sold)+' × '+fmt2(p)}</em></div><div class="stat ${profit>0.004?'good':profit<-0.004?'bad':''}"><span>${profit<-0.004?'ขาดทุน':'กำไร'}วันนี้</span><strong>${profit<-0.004?'−':''}${fmt2(Math.abs(profit))}</strong><em>ยังไม่หักค่าเช่า</em></div></div>`;
+    let ex=`<p><b>${msg}</b></p>`;
+    if(left){if(L.flash&&!ferr&&fs)ex+=`<p>ลดราคาเหลือ ${fmt2(fp)} บาท ขายได้ ${fmtN(fs)} ชิ้น ได้เงินคืน ${fmt2(flashRev)} บาท${fp<v?` (ต่ำกว่าทุน ${fmt2(v)} บาท แต่ดีกว่าทิ้ง)`:''}</p>`;
+      if(waste>0)ex+=`<p>ยังเหลือทิ้ง ${fmtN(waste)} ชิ้น ทุนจมไป ${fmt2(waste*v)} บาท</p>`;}
+    if(miss)ex+=`<p>พลาดกำไรไป ${fmt2(miss*(p-v))} บาท (${fmtN(miss)} ชิ้น × เงินเหลือชิ้นละ ${fmt2(p-v)})</p>`;
+    if(M!==D)ex+=profit>best+0.004?`<p>ครั้งนี้ได้มากกว่าทำพอดี (${fmt2(best)} บาท) เพราะราคาตอนลดยังสูงกว่าทุน แต่ต้องมีคนซื้อตอนลดจริง ถ้าขายไม่ออก ของที่เหลือจะกลายเป็นขาดทุน</p>`:`<p>ถ้าทำพอดี ${fmtN(D)} ชิ้น จะได้กำไร ${fmt2(best)} บาท</p>`;
+    h+=`<div class="explain ${cls}">${ex}</div>`;
+  }else h+=`<div class="explain ${cls}"><p><b>${msg}</b></p><p class="muted-s">กรอกต้นทุนต่อชิ้นและราคาขาย (กล่องด้านซ้าย) จะเห็นผลเป็นเงิน</p></div>`;
+  $('dayPlan').innerHTML=h;
+}
+function bindL3(){
+  const L=()=>S.l3;
+  $('in-base').addEventListener('input',e=>{L().base=e.target.value;update();});
+  $('r-base').addEventListener('input',e=>{L().base=e.target.value;$('in-base').value=e.target.value;update();});
+  $('presets').addEventListener('click',e=>{const b=e.target.closest('[data-preset]');if(!b)return;const pr=PRESETS[b.dataset.preset];L().days=pr.d.slice();L().sel=pr.sel;$('in-pre').value=L().preD[L().sel]||'';$('in-made3').value=L().madeD[L().sel]||'';update();});
+  $('weekDays').addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(!b)return;L().sel=+b.dataset.day;$('in-pre').value=L().preD[L().sel]||'';$('in-made3').value=L().madeD[L().sel]||'';update();});
+  $('typeChips').addEventListener('click',e=>{const b=e.target.closest('[data-type]');if(!b)return;L().days[L().sel]=b.dataset.type;update();});
+  $('r-mult').addEventListener('input',e=>{const k=L().days[L().sel];if(k==='normal')return;L().mult=L().mult||{};L().mult[k]=Number(e.target.value);update();});
+  $('in-pre').addEventListener('input',e=>{L().preD[L().sel]=e.target.value;update();});
+  $('in-made3').addEventListener('input',e=>{L().madeD[L().sel]=e.target.value;update();});
+  $('r-made3').addEventListener('input',e=>{L().madeD[L().sel]=e.target.value;$('in-made3').value=e.target.value;update();});
+  $('flash').addEventListener('change',e=>{L().flash=e.target.checked;update();});
+  $('in-fprice').addEventListener('input',e=>{L().fprice=e.target.value;update();});
+  $('in-fsold').addEventListener('input',e=>{L().fsold=e.target.value;update();});
+  $('fitBtn').addEventListener('click',()=>{const bf=parseValue(L().base,{label:'',int:true});if(bf.err)return;const pf=parseValue(L().preD[L().sel],{label:'',int:true,required:false});const D=Math.max(forecast(bf.v,L().days[L().sel]),pf.err||pf.empty?0:pf.v);L().madeD[L().sel]=String(D);$('in-made3').value=String(D);update();});
+}
+function fill3(){const L=S.l3;$('in-base').value=L.base;$('in-pre').value=L.preD[L.sel]||'';$('in-made3').value=L.madeD[L.sel]||'';$('flash').checked=!!L.flash;$('in-fprice').value=L.fprice??'';$('in-fsold').value=L.fsold??'';}
+
+const F3=[
+  {m:M.row(M.t('ตัวคูณของวัน'),M.o('='),M.frac(M.t('ยอดที่เคยขายได้ในวันแบบนั้น'),M.t('ยอดขายวันปกติ'))),a:'ตัวคูณของวัน เท่ากับ ยอดที่เคยขายได้ในวันแบบนั้น หารด้วย ยอดขายวันปกติ',note:'เช่น 60 ÷ 30 = ×2 (ขายได้ 2 เท่า)'},
+  {m:M.row(M.t('ยอดที่คาดว่าจะขาย'),M.o('='),M.t('ยอดขายวันปกติ'),M.o('×'),M.t('ตัวคูณของวันนั้น')),a:'ยอดที่คาดว่าจะขาย เท่ากับ ยอดขายวันปกติ คูณ ตัวคูณของวันนั้น',note:'ชิ้น · ถ้ามียอดจองมากกว่านี้ ให้ใช้ยอดจอง'},
+  {m:M.row(M.t('ของเหลือ'),M.o('='),M.t('จำนวนที่ทำ'),M.o('−'),M.t('จำนวนที่ขายได้')),a:'ของเหลือ เท่ากับ จำนวนที่ทำ ลบ จำนวนที่ขายได้',note:'ชิ้น · ถ้าคนอยากซื้อมากกว่าที่ทำ = ของขาด'},
+  {m:M.row(M.t('ทุนที่จมไปกับของเหลือ'),M.o('='),M.t('ของเหลือ'),M.o('×'),M.t('ต้นทุนต่อชิ้น')),a:'ทุนที่จมไปกับของเหลือ เท่ากับ ของเหลือ คูณ ต้นทุนต่อชิ้น',note:'บาท · ใช้ต้นทุนต่อชิ้นของสินค้าคุณ'}
+];
+renderFormulas(document.getElementById('formulas3'),F3);
+renderL3Static();bindL3();
+$('in-v3').addEventListener('input',e=>{S.l3.v=e.target.value;update();});
+$('in-p3').addEventListener('input',e=>{S.l3.p=e.target.value;update();});
+function fillAll(){fill3();$('in-v3').value=S.l3.v||'';$('in-p3').value=S.l3.p||'';}
+function update(){
+  const fv=parseValue(S.l3.v,{label:'ต้นทุนต่อชิ้น',required:false}),fp=parseValue(S.l3.p,{label:'ราคาขายต่อชิ้น',required:false});
+  setErr('f-v3',fv);setErr('f-p3',fp);
+  const ok=!fv.err&&!fv.empty&&!fp.err&&!fp.empty;
+  update3(ok?fv.v:null,ok?fp.v:null);
+  save();
+}
+let clearArmed=false;
+$('clearAll').addEventListener('click',()=>{
+  if(!clearArmed){clearArmed=true;$('clearAll').textContent='กดอีกครั้งเพื่อยืนยัน';$('clearMsg').textContent='';setTimeout(()=>{if(clearArmed){clearArmed=false;$('clearAll').textContent='ล้างข้อมูลที่บันทึก';}},4000);return;}
+  clearArmed=false;try{localStorage.removeItem(KEY)}catch(e){}
+  S=structuredClone(EXAMPLE);fillAll();update();$('clearAll').textContent='ล้างข้อมูลที่บันทึก';$('clearMsg').textContent='ล้างแล้ว กลับเป็นข้อมูลตัวอย่าง';
+});
+
+fillAll();update();
+</script>
+</body>
+</html>
